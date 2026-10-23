@@ -5,7 +5,9 @@ Supabase project `namkxlsdjnopixhzrvyl`. The existing WordPress site is separate
 
 ## Release configuration
 
-- Framework: Next.js; install with `npm ci`, build with `npm run build`.
+- Framework: Next.js; install with the pinned npm 11.6.2 clean install in
+  `vercel.json`, build with `npm run build`. The package manager matches the
+  verified lockfile generator across Windows and Linux.
 - Set `APP_URL` to the exact HTTPS hostname assigned to this staging project.
 - Keep `UPD_ENVIRONMENT=staging` and `UPD_DATA_MODE=supabase`.
 - Configure the Supabase URL and publishable key for both build and runtime.
