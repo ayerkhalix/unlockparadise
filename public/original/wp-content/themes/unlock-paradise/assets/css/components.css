@@ -1,0 +1,87 @@
+/* Shared components that are not tied to one page: the pieces the child
+ * theme's style.css carried site-wide. Each block keeps the declarations it
+ * rendered with under Astra.
+ */
+
+/* VIP "Members only" banner. Replaces a VIP-locked place name on feed cards and
+   the single-place gate. Reuses the --upd-vip-gold token. */
+.upd-vip-banner {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	background: linear-gradient(135deg, var(--upd-c-orange-35), var(--upd-vip-gold));
+	color: var(--upd-c-orange-85);
+	font-size: var(--upd-fs-13px);
+	font-weight: 800;
+	letter-spacing: .03em;
+	line-height: 1;
+	padding: 6px 12px;
+	border-radius: var(--upd-r-8px);
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 1px 3px rgba(0, 0, 0, .18);
+}
+.upd-vip-banner svg { width: 15px; height: 15px; flex: 0 0 auto; }
+.upd-vip-banner--lg { font-size: var(--upd-fs-15px); padding: 9px 16px; border-radius: var(--upd-r-10px); }
+.upd-vip-banner--lg svg { width: 19px; height: 19px; }
+/* Compact variant: drawer identity row. */
+.upd-vip-banner--sm { font-size: var(--upd-fs-11px); padding: 4px 9px; border-radius: var(--upd-r-6px); }
+
+/* Preset member avatar emitted by upd_member_avatar(). Shared by /account/ and
+   the drawer identity row; pixel size comes from the img width/height attrs. */
+.upd-avatar {
+	border-radius: var(--upd-r-50);
+	object-fit: cover;
+	flex: 0 0 auto;
+	background: rgba(255, 255, 255, .08);
+	/* The base layer's img { height: auto } would override the height
+	   attribute and render these SVGs as ellipses. Pin the ratio so the
+	   circle stays a circle at whatever size the attribute asks for. */
+	aspect-ratio: 1;
+	height: auto;
+}
+
+/* Mapbox: hide the "use two fingers" cooperative-gestures hint overlay.
+   Mapbox sets display:flex inline on these overlays; !important to hide. */
+.mapboxgl-touch-pan-blocker,
+.mapboxgl-scroll-zoom-blocker {
+	display: none !important;
+}
+
+/* The contact form's style settings were saved against the previous theme's
+   colour palette, and SureForms prints them as references to these custom
+   properties. Defined here with the values that palette held so the form
+   keeps its colours; re-pointing the form's settings retires this block. */
+:root {
+	--ast-global-color-0: #ffbc47;
+	--ast-global-color-1: #ffd67d;
+	--ast-global-color-2: #11202a;
+	--ast-global-color-3: #1d394b;
+	--ast-global-color-4: #e7ecec;
+	--ast-global-color-5: #ffffff;
+	--ast-global-color-6: #f4f4f4;
+	--ast-global-color-7: #11202a;
+	--ast-global-color-8: #11202a;
+}
+
+/* SureForms submit button (the contact form is the only SureForms form).
+   Stock SureForms paints it with --srfm-color-scheme-primary; redefining the
+   scheme var repaints every part of the button SureForms derives from it. The
+   attribute selector is a specificity bump: SureForms prints a per-form inline
+   style that re-sets this var later in the cascade at (0,1,0), and its own
+   button rules load after this file at (0,2,0). */
+.srfm-form-container[class*="srfm-form-container-"] {
+	--srfm-color-scheme-primary: var(--upd-fill);
+}
+.srfm-form-container[class*="srfm-form-container-"] .srfm-button {
+	color: var(--upd-c-blue-85b);
+	text-transform: none;
+	letter-spacing: normal;
+	font-weight: 600;
+	border-radius: var(--upd-r-10px);
+}
+.srfm-form-container[class*="srfm-form-container-"] .srfm-button:hover,
+.srfm-form-container[class*="srfm-form-container-"] .srfm-button:focus,
+.srfm-form-container[class*="srfm-form-container-"] .srfm-button:focus-visible,
+.srfm-form-container[class*="srfm-form-container-"] .srfm-button:active {
+	background: var(--upd-fill-hover);
+	color: var(--upd-c-blue-85b);
+}

@@ -1,0 +1,26 @@
+# Staging deployment
+
+Status: code/build preparation is local. Actual Hostinger plan, resource limits, staging domain and deployment access are **BLOCKED**. No site, domain or DNS was changed.
+
+This application requires a persistent Node.js runtime, App Router SSR, Route Handlers, Proxy, environment variables and network access to Supabase/PayMongo. A static export or PHP-only WordPress hosting process cannot run its backend. Use Node 22 or 24; development validation used Node 24.11.1 and the installed Next 16.4.1.
+
+The current [Hostinger Node.js app guide](https://www.hostinger.com/support/how-to-deploy-a-nodejs-website-in-hostinger/) lists Business and Cloud plans, Next.js backend support, environment configuration and restart support. That general documentation does not establish this account's compatibility. Confirm the exact plan's persistent runtime, build memory, runtime memory, request/upload limit, outbound access, logs and restart behavior in hPanel. Older generic Hostinger Node documentation conflicts with this newer guide; the account's current capabilities remain the final check.
+
+Prepare a separately named staging application with its own hostname and Supabase project. Keep WordPress live. Never remove the existing WordPress website to reuse its domain during staging.
+
+1. Configure `.env.local` from `.env.example`; pin the isolated project reference. Configure public URL/key both at build and runtime. Set `APP_URL` to the exact HTTPS staging origin. Keep secret keys server-only. Generate the recovery secret locally.
+2. Apply versioned migrations in order using the Supabase SQL/migration workflow against the pinned project. Review targets before any reset; do not run a reset on production. Docker local services were unavailable; the connected development project now has nine applied/verified migrations. CLI 2.121.0 created the additional migration files. PGlite tests alone do not replace hosted verification.
+3. Configure Auth signup confirmation, TOTP enrollment/verification, redirect allowlist and the explicit token-hash email templates in ACCOUNT_MIGRATION.md. Email stays disabled at the application layer except approved test inboxes. Use an approved SMTP provider.
+4. Development content metadata is already imported. Full legacy media upload is deferred: configure the public legacy origin and set private mode to unavailable on deployed staging. Do not use local filesystem paths there. Verify a tiny synthetic upload after configuring Auth; keep full media/account migration separate and approval-gated.
+5. Run `npm ci`, `npm run typecheck`, `npm run lint`, `npm run test:backend`, `npm run build`. Test real Auth/Storage/payment sandbox on synthetic accounts. The backend test importing actual content requires the private local migration manifest; it is not a production build dependency.
+6. Hostinger build command: `npm run build`. Start a persistent Node server using `next start` with the host-provided `PORT` and required bind address. The local `npm start` binds loopback intentionally; use the hosting platform's launch configuration rather than exposing an unreviewed public listener.
+7. Deploy only application source, public approved assets, lockfile and built runtime. Never include `reference/`, `artifacts/`, `.env*`, SQL exports, private snapshots or recorder directories. Next file tracing excludes these directories. The production destination repository must be configured for Supabase; the legacy JSON is a local offline preview dependency only.
+8. Confirm `/api/health/`, home/archive/detail routing, signed gallery URLs, cookie refresh and secure admin MFA. Health configuration status alone is not a remote readiness check.
+
+Requests use bounded validation and decoder limits. Host-level proxy/body limits must also be configured to cap streamed uploads before parsing; application `Content-Length` checks alone do not constrain dishonest chunked requests. Place gallery imagery is lazy-loaded; account-dependent content uses no shared cache. Database queries use indexed filters and pagination. Uploaded imagery is resized and stripped of source metadata.
+
+Logs emit event/error categories and counts, never request bodies, credentials, customer email lists or webhook payloads. Use host/Supabase logs initially; a third-party monitoring exporter requires an approved account and privacy configuration. Schedule idempotent outbox creation only; actual delivery needs an approved transport. Monitor failed requests, pending checkouts, unmatched events, media failures and database resource usage.
+
+Backups: encrypted SQL/storage backups with restricted operator access, a recorded retention policy and a tested restore into an isolated project. Do not assume the plan includes point-in-time recovery; verify the chosen Supabase plan. Keep migrations, app release identifier, content/source hashes and object verification reports together. Restore exercises must cover both database metadata and Storage objects.
+
+Rollback staging by reverting the application release and restoring the staging project from the verified backup. Production cutover and rollback are separate approved operations described in CUTOVER_PLAN.md.

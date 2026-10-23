@@ -1,0 +1,502 @@
+/* Site chrome: header, mobile drawer, footer.
+ *
+ * A port of the rules the Astra child theme carried for the same parts, on the
+ * standalone theme's own markup. Declarations and breakpoints are the ones
+ * that rendered live under Astra; the selectors are new. Astra's breakpoint
+ * (921px) is kept so the desktop bar and the drawer trade places where they
+ * always did. Colours through tokens; raw values only where no identical
+ * token exists.
+ */
+
+/* ---------------------------------------------------------------- header
+ * Two states, the same on every page. Top of the page: no bar. The logo and
+ * menu sit on the page (or on the photo, where a page opens with one) over a
+ * soft shade that has no bottom edge. Scrolled (body.upd-scrolled, toggled by
+ * chrome.js): the bar arrives as glass, and on phones tightens from 86px to
+ * 56px.
+ *
+ * The shade and the glass are separate layers that cross-fade. Animating one
+ * blur radius into another stutters in Safari; opacity does not. They sit on
+ * ::before and ::after rather than on the header itself, so the backdrop
+ * filter never becomes the containing block for anything inside the bar. */
+.upd-header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	z-index: 99;
+	background-color: transparent;
+	transition: box-shadow .25s ease;
+}
+.upd-header::before,
+.upd-header::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity .25s ease;
+}
+.upd-header::before {
+	bottom: -56px;
+	background-image: linear-gradient(to bottom, var(--upd-shade-top), transparent);
+}
+.upd-header::after {
+	background-color: var(--upd-glass);
+	-webkit-backdrop-filter: var(--upd-glass-filter);
+	backdrop-filter: var(--upd-glass-filter);
+}
+body:not(.upd-scrolled) .upd-header::before,
+body.upd-scrolled .upd-header::after {
+	opacity: 1;
+}
+body.upd-scrolled .upd-header {
+	box-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+}
+.admin-bar .upd-header { top: 32px; }
+@media (max-width: 782px) {
+	.admin-bar .upd-header { top: 46px; }
+}
+
+/* Branding: the logo link and the wordmark link side by side, the way the
+   Astra header laid them out (an inline logo link, a block wrapper around an
+   inline wordmark). */
+.upd-header__branding {
+	display: flex;
+	align-items: center;
+	margin: 0;
+}
+.upd-header__logowrap {
+	display: block;
+	line-height: 1;
+}
+.upd-header__brand {
+	display: inline;
+	min-height: 0;
+	line-height: 1;
+	text-decoration: none;
+}
+.upd-header__logo {
+	display: inline;
+	vertical-align: middle;
+	height: auto;
+	line-height: 1;
+	/* The mark ships as a white PNG; the invert keeps it white whatever a
+	   Customizer colour filter would do to it. */
+	filter: brightness(0) invert(1);
+}
+.upd-header__titlewrap {
+	display: block;
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+	white-space: nowrap;
+}
+.upd-header__title {
+	display: inline-block;
+	min-height: 0;
+	font-family: 'Quicksand', sans-serif;
+	font-weight: 500;
+	line-height: 1.5;
+	color: var(--upd-c-ink-00);
+	text-decoration: none;
+}
+
+/* Home only: over the hero the header shows no branding, neither the wordmark
+   nor the logo, because the hero carries its own large logo and title. Once
+   the page is scrolled and the glass bar arrives, the branding fades in so the
+   bar is not just a menu icon. Hidden with opacity rather than display so it
+   can fade; its space is reserved either way, and the nav and the bar height
+   do not move. Inner pages always show it. */
+body:has(.upd-home) .upd-header__brand,
+body:has(.upd-home) .upd-header__titlewrap {
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity .25s ease, visibility .25s ease;
+}
+body:has(.upd-home).upd-scrolled .upd-header__brand,
+body:has(.upd-home).upd-scrolled .upd-header__titlewrap {
+	opacity: 1;
+	visibility: visible;
+}
+
+/* Skip link: off screen until focused. */
+.upd-skip {
+	position: absolute;
+	left: -9999px;
+}
+.upd-skip:focus {
+	left: 8px;
+	top: 8px;
+	z-index: 100000;
+}
+
+/* ------------------------------------------------- header: phones and tablets
+ * Up to 921px: logo + wordmark left, hamburger right. The bar's 86px is 21px
+ * of padding around a 44px row; scrolled, the padding tightens to 6px and the
+ * logo and the menu button keep their size and move up. */
+@media (max-width: 921px) {
+	/* The bar: 15px of padding and an 80px floor around a 56px row, 86px in
+	   all. Scrolled, both go and the row is what remains. */
+	.upd-header__inner {
+		display: grid;
+		position: relative;
+		z-index: 4;
+		min-height: 80px;
+		padding: 15px 20px;
+		line-height: 45px;
+		transition: padding .25s ease, min-height .25s ease;
+	}
+	body.upd-scrolled .upd-header__inner {
+		min-height: 0;
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+	.upd-header__row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		min-height: 56px;
+		padding: 6px 16px;
+	}
+	.upd-header__branding {
+		gap: 8px;
+	}
+	.upd-header__logowrap {
+		display: inline;
+	}
+	.upd-header__logo {
+		width: 30px;
+		max-width: 30px;
+	}
+	.upd-header__title {
+		font-size: var(--upd-fs-16px);
+		/* Stays "visible" inside the faded home brand link, as it did under
+		   Astra; the link's opacity is what hides it. */
+		visibility: visible;
+	}
+	.upd-header__nav {
+		display: none;
+	}
+	/* No fill. The bar behind this 43x43 button is never a flat colour (a
+	   shade at the top of the page, glass once scrolled), so any fill shows
+	   up as a square in the corner. It is just the icon. */
+	.upd-header__toggle {
+		display: flex;
+		align-items: center;
+		min-height: 0;
+		padding: 11.25px;
+		border: 0;
+		border-radius: 2px;
+		background-color: transparent;
+		color: var(--upd-c-ink-00);
+		font-family: 'Open Sans', sans-serif;
+		font-size: 22.5px;
+		font-weight: 400;
+		line-height: 1.85714286;
+		letter-spacing: 1px;
+		text-transform: uppercase;
+		cursor: pointer;
+	}
+	.upd-header__toggle svg {
+		width: 20px;
+		height: 20px;
+		fill: var(--upd-c-blue-05bbb);
+	}
+}
+
+/* ---------------------------------------------------------- header: desktop
+ * 922px and up: one flex bar, branding left, nav right, 64px tall, so it does
+ * not tighten when scrolled. */
+@media (min-width: 922px) {
+	/* The header element itself is the flex bar; the two wrappers inside it
+	   step aside so branding, nav and toggle are its direct items. */
+	.upd-header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		flex-wrap: nowrap;
+		gap: 24px;
+		min-height: 64px;
+		padding: 6px 32px;
+	}
+	.upd-header__inner,
+	.upd-header__row {
+		display: contents;
+	}
+	.upd-header__branding {
+		flex: 0 0 auto;
+		gap: 12px;
+		text-align: left;
+	}
+	.upd-header__logowrap {
+		text-align: center;
+	}
+	.upd-header__logo {
+		width: 40px;
+		max-width: 40px;
+	}
+	.upd-header__title {
+		display: inline;
+		font-size: var(--upd-fs-18px);
+	}
+	.upd-header__nav {
+		flex: 1 1 auto;
+		display: flex;
+		justify-content: flex-end;
+	}
+	.upd-nav {
+		display: flex;
+		align-items: center;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.upd-nav > li {
+		position: relative;
+		margin: 0;
+		height: auto;
+		min-height: 0;
+		line-height: normal;
+	}
+	.upd-nav > li > a {
+		display: inline-block;
+		padding: 8px 14px;
+		height: auto;
+		min-height: 0;
+		line-height: 1.2;
+		color: var(--upd-c-ink-10b);
+		text-decoration: none;
+	}
+	.upd-nav > li > a:hover,
+	.upd-nav > li.current-menu-item > a {
+		color: var(--up-teal);
+	}
+	/* The logged-out "Sign in" item as a teal button. */
+	.upd-nav > li.upd-cta > a {
+		background: var(--up-teal);
+		color: var(--upd-c-blue-85b);
+		font-weight: 600;
+		border-radius: var(--upd-r-6px);
+		padding: 8px 18px;
+		transition: background .15s ease;
+	}
+	.upd-nav > li.upd-cta > a:hover {
+		background: var(--up-sand);
+		color: var(--upd-c-blue-85b);
+	}
+	.upd-header__toggle {
+		display: none;
+	}
+}
+
+/* ---------------------------------------------------------------- drawer
+ * Right slide-in panel on a dimmed page. Sizes, colours and timings are the
+ * ones the Astra off-canvas panel rendered with; the easing is the smoother
+ * one the child theme gave it. Reduced-motion users get an instant snap. */
+.upd-drawer[hidden] {
+	display: none;
+}
+.upd-drawer {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+}
+.upd-drawer__scrim {
+	position: absolute;
+	inset: 0;
+	background-color: rgba(0, 0, 0, .4);
+	opacity: 0;
+	transition: opacity .2s ease-in-out;
+}
+.upd-drawer__panel {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 90%;
+	max-width: 90%;
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	background-color: var(--upd-c-blue-90bbbb);
+	box-shadow: 0 0 32px rgba(0, 0, 0, .1);
+	transform: translateX(100%);
+	opacity: 0;
+	transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1), opacity .3s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+	.upd-drawer__scrim,
+	.upd-drawer__panel {
+		transition: none;
+	}
+}
+.upd-drawer-open .upd-drawer__scrim {
+	opacity: 1;
+}
+.upd-drawer-open .upd-drawer__panel {
+	transform: translateX(0);
+	opacity: 1;
+}
+body.upd-drawer-open {
+	overflow: hidden;
+}
+.upd-drawer__close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-end;
+	padding: 14.4px;
+	border: 0;
+	background: transparent;
+	color: var(--upd-c-blue-05bbb);
+	cursor: pointer;
+}
+.upd-drawer__close svg {
+	width: 17px;
+	height: 17px;
+}
+.upd-drawer__menu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.upd-drawer__menu > li {
+	margin: 0;
+	line-height: 45px;
+}
+.upd-drawer__menu > li > a {
+	display: block;
+	padding: 0 20px;
+	line-height: 45px;
+	color: var(--upd-c-blue-05bbb);
+	text-decoration: none;
+	transition: all .2s linear;
+}
+.upd-drawer__menu > li > a:hover,
+.upd-drawer__menu > li > a:focus-visible {
+	color: var(--up-teal);
+}
+@media (min-width: 922px) {
+	.upd-drawer {
+		display: none;
+	}
+}
+
+/* ---------------------------------------------------------------- footer
+ * Brand block over the copyright bar; both on the chrome colour so the pair
+ * reads as one footer. Mobile-first: stacked and centred, link columns side by
+ * side; from 768px a three-column grid, brand block left, ragged-left columns. */
+.upd-footer-brand {
+	background: var(--upd-chrome);
+	padding: 44px 24px 12px;
+}
+.upd-footer-brand__inner {
+	max-width: 1200px;
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 28px 16px;
+	text-align: center;
+}
+.upd-footer-brand__id { grid-column: 1 / -1; }
+.upd-footer-brand__mark {
+	display: block;
+	width: 40px;
+	height: auto;
+	margin: 0 auto 10px;
+}
+.upd-footer-brand__name {
+	display: block;
+	color: var(--upd-c-ink-00);
+	font-weight: 600;
+	font-size: var(--upd-fs-1rem);
+}
+.upd-footer-brand__tag {
+	margin: 6px 0 0;
+	color: rgba(255, 255, 255, .6);
+	font-size: var(--upd-fs-875rem);
+}
+/* Facebook link under the tagline. The mark is inline SVG in the brand's own
+   colour step, not Facebook blue, so it reads as ours. */
+.upd-footer-brand__social {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-875rem);
+	text-decoration: none;
+}
+.upd-footer-brand__social:hover,
+.upd-footer-brand__social:focus-visible {
+	color: var(--upd-accent-soft);
+}
+.upd-footer-brand__social-mark {
+	flex: none;
+	width: 16px;
+	height: 16px;
+}
+.upd-footer-brand__head {
+	display: block;
+	color: rgba(255, 255, 255, .5);
+	font-size: var(--upd-fs-72rem);
+	letter-spacing: .14em;
+	text-transform: uppercase;
+	margin-bottom: 10px;
+}
+.upd-footer-brand__col ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.upd-footer-brand__col li { margin: 0 0 8px; }
+/* Accent step on the chrome: 11:1, comfortably past WCAG AA at this size. */
+.upd-footer-brand__col a {
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-875rem);
+	text-decoration: none;
+}
+.upd-footer-brand__col a:hover,
+.upd-footer-brand__col a:focus-visible {
+	color: var(--upd-accent-soft);
+}
+@media (min-width: 768px) {
+	.upd-footer-brand__inner {
+		grid-template-columns: 1.6fr 1fr 1fr;
+		gap: 32px;
+		text-align: left;
+	}
+	.upd-footer-brand__id { grid-column: auto; }
+	.upd-footer-brand__mark { margin-left: 0; }
+}
+
+/* Copyright bar: a hairline over the chrome colour, the line sitting at the
+   top of an 80px row, as Astra's below-footer row laid it out. */
+.upd-footer__bar {
+	display: grid;
+	align-content: start;
+	box-sizing: content-box;
+	min-height: 80px;
+	padding: 14px 0;
+	border-top: 1px solid rgba(0, 11, 33, .83);
+	background-color: var(--upd-chrome);
+}
+.upd-footer__bar-inner {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+.upd-footer__copy {
+	display: flex;
+	align-items: center;
+	min-height: 0;
+	color: #f6f6f9;
+	text-align: center;
+}
+.upd-footer__copy p {
+	width: 100%;
+	margin: 0;
+}

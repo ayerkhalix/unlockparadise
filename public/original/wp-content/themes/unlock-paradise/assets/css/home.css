@@ -1,0 +1,644 @@
+/* ------------------------------------------------------------
+ * Home page: cinematic hero + featured-destinations strip
+ * Enqueued front-page-only via upd_enqueue_css('upd-home', …).
+ * ------------------------------------------------------------ */
+
+/* Hero: full-bleed photo intro that leads into the map. The Elementor shortcode
+ * widget boxes content to ~812px; break out to the full viewport width (same
+ * effect as the map below it). */
+.upd-hero {
+    position: relative;
+    overflow: hidden; /* clip the oversized parallax bg layer */
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    /* taller hero gives the photo more room and pushes the map (anchored to the
+     * hero bottom) further below the centered content, which opens up the gap
+     * above the map. Photo is background-size:cover, so it zooms to fill, no
+     * gap. */
+    min-height: 78vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    /* extra bottom padding shifts the centered content upward and opens a band
+     * of empty photo below the "Explore the map" cue, so the map (which only
+     * barely overlaps, see palawan-map.css) starts in clear space below it.
+     *
+     * Top padding is 96px so more of the mountain reads above the mark. It has
+     * to be padding rather than a margin on .upd-hero-logo: the hero is a
+     * centred flex column, so a margin would be absorbed by justify-content
+     * instead of pushing the whole lockup down the photo. */
+    padding: 96px 24px 160px;
+    background-color: #0c2230; /* fallback before image paints */
+}
+/* Parallax background layer, taller than the hero (top/bottom buffer) so the
+ * 0.3x scroll translate never reveals an edge. Moved by the scroll timeline
+ * below, or by the script in [upd_hero] on desktop browsers without one. */
+.upd-hero .upd-hero-bg {
+    position: absolute;
+    top: -30%;
+    left: 0;
+    right: 0;
+    height: 130%;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    will-change: transform;
+}
+/* The parallax runs on a scroll timeline: the browser moves the layer in step
+ * with the scroll itself. A scroll listener can only follow a frame behind on
+ * phones, which reads as a shudder, so phones without timeline support keep a
+ * still photo. 23.077% of the layer's own height equals 0.3x the hero's
+ * height, the distance covered while the hero leaves the screen. The timeline
+ * is named on the hero because its overflow:hidden makes it the layer's
+ * nearest scroller, so an anonymous view() on the layer would track the hero. */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .upd-hero { view-timeline: --upd-hero block; }
+        .upd-hero .upd-hero-bg {
+            animation: updHeroDrift 1ms linear both;
+            animation-timeline: --upd-hero;
+            animation-range: exit 0% exit 100%;
+        }
+    }
+}
+@keyframes updHeroDrift { to { transform: translate3d(0, 23.077%, 0); } }
+.upd-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    /* Subtle darkening up top for text legibility, then ramp the very bottom to
+     * solid #11202a, the exact navy behind the map. This dissolves the photo's
+     * hard bottom edge so photo-ocean, page navy and map-ocean read as one
+     * continuous sea (no visible seam where the map's transparent top sits). */
+    background: linear-gradient(180deg,
+        rgba(8,16,20,.28) 0%,
+        rgba(8,16,20,.5) 55%,
+        rgba(17,32,42,.85) 88%,
+        var(--upd-c-blue-90bbbb) 100%);
+}
+.upd-hero > * { position: relative; z-index: 2; }
+/* Design reference: the padlock mark reads at about 15% of the wordmark's
+   width. A fixed px width never grows when the title below it scales with the
+   viewport (see the h1 comment) and leaves the composition top-light on wide
+   screens.
+
+   Sized with the same mechanism as the title: since the title's rendered width
+   is (by construction, see h1 comment) ~84% of viewport width at any width
+   between its own clamp floor/ceiling, 15% of that is a flat 12.6vw (0.15 *
+   84). No per-glyph coefficient is needed here because `width` sets rendered
+   width directly, unlike font-size on text.
+
+   Floor: 4rem/64px, not the raw 12.6vw value (~45px at 360px), as a legibility
+   floor. Both hero CTAs stay side by side and on-screen at 360/390px with this
+   floor.
+
+   Ceiling: 10.75rem/172px = 15% of the title's own ceiling (6.25rem font-size
+   gives ~1147px rendered width per the h1 comment's 11.47px/1px ratio), so the
+   mark stops growing at exactly the viewport width (~1366px) where the title
+   also stops growing. The two stay locked together past that point instead of
+   the mark outgrowing a title that has already capped out. */
+/* The mark is deliberately larger on phones, accepting the extra vertical
+   space, and the whole mark is scaled 1.5x from the values derived above. All
+   three terms are scaled together (6 to 9rem, 12.6 to 18.9vw, 10.75 to
+   16.125rem) rather than just the floor, so the lockup keeps its proportions
+   and the mark still stops growing at the same viewport (~1366px) where the
+   title caps out. Scaling only some terms would break that lock.
+
+   At 1.5x the mark reads at ~22.5% of the wordmark's width, so it is
+   intentionally the dominant element of the lockup. */
+.upd-hero-logo {
+    display: block;
+    width: clamp(9rem, 18.9vw, 16.125rem);
+    margin: 0 auto 18px;
+    color: var(--upd-c-ink-00);
+    filter: drop-shadow(0 2px 12px rgba(0, 0, 0, .45));
+}
+.upd-hero-logo svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+/* Design reference: dominant wide-tracked-capitals wordmark spanning ~84% of
+   the frame, with a smaller tracked-caps sub-lockup at ~70% of frame width /
+   ~1/3 the wordmark's cap height, both centred. text-transform is used on both
+   rather than hand-typing capitals, so the accessible name/SEO text stays
+   exactly as authored.
+
+   Sizing is vw-based rather than fixed per-breakpoint values because the target
+   is a proportion of frame width, and (with letter-spacing also in em, so it
+   scales with font-size) rendered text width is exactly proportional to
+   font-size for a fixed string. One vw coefficient holds the ~84%/~70% target
+   at every viewport simultaneously. Coefficients were solved from real
+   measurements of these exact strings in their real fonts (Outfit 600 / Open
+   Sans 600) with these exact letter-spacing values: title needs ~11.47px width
+   per 1px font-size at 0.16em tracking, so 84/11.47 is about 7.32vw; subtitle
+   needs ~27.55px width per 1px font-size at 0.12em tracking, so 70/27.55 is
+   about 2.54vw. Checked at 390px and 1280px.
+
+   Do not reduce the tracking to force a fit; the title's clamp floor is what
+   holds it to one line at 360px+.
+
+   The subtitle must stay on one line at every width; its floor is px-based and
+   measured (see the subtitle rule's own comment below). Do not reintroduce a
+   rem-based floor there.
+
+   Trailing letter-spacing adds phantom width after the last glyph that visually
+   shifts tracked-caps text left of true centre; margin-right of -1 x
+   letter-spacing shifts the box back to compensate (derivation: with
+   marginLeft:0, centering an element whose box includes a trailing gap T puts
+   the visible glyphs at centre-T/2; margin-right:-T recovers true centre). */
+.upd-hero h1 {
+    color: var(--upd-c-ink-00);
+    font-size: clamp(1.6rem, 7.32vw, 6.25rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    margin: 0 0 .3em;
+    margin-right: -0.16em;
+    text-shadow: 0 2px 16px rgba(0,0,0,.5);
+}
+/* Keyhole O, markup from upd_keyhole_wordmark() in functions.php. An EMPTY
+   inline-block with no in-flow line boxes takes its baseline from its bottom
+   margin edge (CSS 2.1 section 10.8.1), so this box's bottom sits exactly on
+   the text baseline and the glyph can be placed from there in font units.
+   Anchoring to the inline box instead does NOT work: that box is the line box,
+   whose height follows line-height, not the baseline.
+
+   width .8em is the real O's advance (800/1000 upem). That alone is NOT enough:
+   browsers do not add the full letter-spacing after an atomic inline the way
+   they do after a character, so swapping the glyph for a .8em box loses width.
+   Measured in Firefox against the real string, at four sizes spanning the whole
+   clamp() range, the shortfall is a constant 0.123em:
+          25.6px  293.73 -> 290.58   (0.1230em)
+          36.6px  419.70 -> 415.20   (0.1230em)
+          60px    688.18 -> 680.82   (0.1228em)
+          100px  1147.00 -> 1134.70  (0.1230em)
+   margin-right restores it, so the rendered h1 measures the same with and
+   without the swap and the 7.32vw coefficient plus the -0.16em centring
+   compensation above both still hold exactly.
+
+   Re-verify with a width diff, never by eye: clone the h1, set innerHTML to
+   plain "Unlock Paradise", and compare getBoundingClientRect().width against
+   the live one. If an engine ever applies the full 0.16em here instead, the
+   wordmark lands ~0.3% wide, visually nothing, and too small to force a wrap
+   (the one-line floor at 360px has ~7% to spare, see the subtitle note below). */
+.upd-hero h1 .upd-kh {
+    display: inline-block;
+    position: relative;
+    width: .8em;
+    margin-right: .123em;
+    height: .714em;
+    vertical-align: baseline;
+}
+/* Offsets are Outfit's own O bounds on a 1000 upem grid: x 36..764, y -11..714.
+   They must stay in sync with UPD_KEYHOLE_O_PATH's viewBox in functions.php. */
+.upd-hero h1 .upd-kh > svg {
+    position: absolute;
+    left: .036em;
+    bottom: -.011em;
+    width: .728em;
+    height: .725em;
+    overflow: visible;
+    /* text-shadow does not apply to an SVG fill, so the h1's shadow above is
+       mirrored here as a drop-shadow. Without it the O reads visibly flatter
+       than the letters beside it over the hero photo. */
+    filter: drop-shadow(0 2px 16px rgba(0,0,0,.5));
+}
+/* The real letter: kept in the DOM for textContent/copy-paste/SEO, taken out
+   of flow so it cannot affect the metrics the inline-block above reserves. */
+.upd-hero h1 .upd-kh-letter {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+/* Floor is px, measured against the real string. At .875rem (14px) this wraps
+   to 2 lines at 430px CSS width: the true rendered width of this string in Open
+   Sans 600 at 0.12em tracking is ~27.4px per 1px of font-size (the vw term
+   above already uses the correct ~27.55 figure), so 14px is ~388px against a
+   ~382px budget at 430px, and further over at narrower widths.
+   -webkit-text-size-adjust/text-size-adjust are "auto" site-wide, so 100% is
+   set here too as insurance against iOS's separate font-boosting, even though
+   the wrap reproduces identically in a non-boosting renderer and is fully
+   explained by the coefficient above.
+   px, not rem, for the floor: rem ties it to the root font-size, which cannot
+   be verified on every real device; px is measured and fixed.
+   11px keeps one line with real safety margin at all three required widths (the
+   floor is what renders throughout 360-430px; 2.54vw stays below 11px until
+   ~433px wide, so it does not vary across this range):
+        360px: 328px budget, ~305.6px rendered  -> ~22px / ~7% to spare
+        390px: 358px budget, ~305.6px rendered  -> ~52px / ~15% to spare
+        430px: 382px budget, ~305.6px rendered  -> ~76px / ~20% to spare
+   text-wrap: balance stays as the safety net for any width not covered here.
+   Desktop is untouched: at 1280px 2.54vw (32.5px) already wins over either
+   floor, so the ~0.347 subtitle/title size ratio there is unchanged. */
+.upd-hero p.upd-hero-sub {
+    color: var(--upd-c-ink-00);
+    font-size: clamp(11px, 2.54vw, 2.1rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin: 0 0 1.4em;
+    margin-right: -0.12em;
+    text-wrap: balance;
+    text-shadow: 0 1px 10px rgba(0,0,0,.45);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+/* Primary CTA: same fill as the header pill and the membership page's Join
+   free, because it is the same action. --upd-fill is also the better read here
+   (7.8:1 vs 5.5:1) and separates further from the gradient-darkened photo,
+   which matters because the hero image is a theme mod that can be swapped. */
+/* Two destinations, equal billing: Bucketlist (where you're going) and
+   Portfolio (where you've been). They sit side by side and are intentionally
+   not stacked, so this row never wraps; the padding and label size step down at
+   narrow widths instead, which keeps both on one line at 320px. */
+/* The two buttons are held to equal width even though "My Bucketlist" is nearly
+   twice the label of "Visited"; the pair is meant to be symmetrical. flex 1 1 0
+   makes them split the row evenly rather than sizing to their own text, and the
+   row is capped so they don't stretch across a wide desktop. */
+/* The row cap is what actually sets button width: flex 1 1 0 splits it evenly,
+   so the buttons never size to their own text or padding. On a 430px phone a
+   380px cap leaves only 17.5px of margin either side, which reads as crowded.
+   The cap steps up with the viewport instead. */
+.upd-hero-ctas {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    /* 312 (not 340) for slightly smaller buttons. Width is the lever, because
+       the row cap is what sets button size; flex 1 1 0 means they never size to
+       their own text. Height stays on the 44px touch target. */
+    max-width: 312px;
+    margin-inline: auto;
+}
+.upd-hero .upd-hero-cta { flex: 1 1 0; }
+/* Text-only labels; the bucket_check/mountain_flag icon versions were dropped
+   in favour of plain text. inline-flex stays so the two buttons centre their
+   labels when the row stretches them to equal height. */
+.upd-hero .upd-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--upd-fill);
+    color: var(--upd-c-blue-85b);
+    font-weight: 600;
+    font-size: var(--upd-fs-875rem);
+    /* line-height is declared rather than inherited. Astra's body value (1.857)
+       wraps a 14px label in a ~26px line box, which makes these read as two
+       heavy slabs; the padding is not the culprit. 1.2 is the
+       button-appropriate value; min-height then holds the 44px touch target
+       that the tighter box would otherwise drop below. */
+    line-height: 1.2;
+    min-height: 44px;
+    padding: 10px 12px;
+    border-radius: var(--upd-r-8px);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .2s ease, transform .2s ease;
+}
+.upd-hero .upd-hero-cta:hover { background: var(--upd-fill-hover); transform: translateY(-1px); }
+
+/* Equal width + nowrap + a 13-character label is a tight combination, so the
+   base (smallest) case keeps the label and padding down and the hero's own side
+   padding narrows with it; both buttons stay on one line, same width, to 320px.
+   Sizing then steps up twice rather than jumping straight to desktop, so a
+   430px phone does not get the full 16px/28px treatment. */
+@media (max-width: 419px) {
+    .upd-hero { padding-left: 16px; padding-right: 16px; }
+}
+
+/* Phone, wide (430px Pro Max class): a middle step, not desktop sizing. */
+@media (min-width: 420px) {
+    .upd-hero-ctas { gap: 12px; max-width: 320px; }
+    .upd-hero .upd-hero-cta { font-size: var(--upd-fs-875rem); padding: 10px 16px; }
+}
+
+/* Full sizing returns once the row has real room either side. These are the
+   desktop values restored explicitly, so the phone tightening above cannot leak
+   upward. */
+@media (min-width: 520px) {
+    .upd-hero-ctas { max-width: 380px; }
+    .upd-hero .upd-hero-cta {
+        font-size: var(--upd-fs-1rem);
+        padding: 12px 28px;
+        line-height: 1.857;
+        min-height: 0;
+    }
+}
+.upd-hero .upd-hero-scroll {
+    position: absolute;
+    /* sits below the CTA, riding crisp on top of the map's fade-in zone */
+    bottom: 90px; left: 0; right: 0;
+    z-index: 4;
+    color: var(--upd-c-blue-10bb); opacity: .85; font-size: var(--upd-fs-85rem);
+    text-decoration: none;
+    animation: updHeroBob 2s ease-in-out infinite;
+}
+@media (max-width: 767px) {
+    /* 88vh: the map is anchored directly below the hero, so the hero's height
+     * is what decides how much map is showing when the page first paints. At
+     * 72vh roughly 28vh of map sat on the first screen; 88vh cuts it to ~12vh,
+     * so the photo owns the opening view and the map is something you scroll
+     * to. svh, not dvh: both give the same first screen, but a dvh hero grows
+     * as the toolbar hides, and the cover photo is re-fitted to the taller box
+     * mid-scroll, which reads as a zoom. svh stays put. */
+    .upd-hero {
+        min-height: 88vh;
+        min-height: 88svh;
+    }
+    /* the bottom padding already opens the band below the cue, so the cue keeps
+     * its desktop bottom:90px here too (no collision, content is shifted up). */
+}
+
+/* Desktop lockup at 0.75x. The phone composition above is the reference
+ * and is deliberately left alone; this only reins in the desktop hero, where
+ * the full-size lockup pushes the CTAs under the fold.
+ *
+ * Treat the scale as one number: EVERY term of all three clamps is exactly
+ * 0.75x its mobile value.
+ *
+ * Keeping the scale uniform is the whole point. It preserves both invariants
+ * the mobile lockup is built on: the mark stays 22.5% of the rendered wordmark
+ * width, so desktop and mobile are the same lockup at different sizes; and
+ * because the middle and ceiling terms scale together, the mark and title still
+ * stop growing at the same viewport (~1366px). Scaling only some elements, or
+ * only the ceilings, breaks one or both (moving just the title and subtitle
+ * drops the mark to 15%).
+ *
+ * The em-based compensations elsewhere (the h1's -0.16em and the subtitle's
+ * -0.12em centring offsets, and the keyhole's .8em box and .123em
+ * letter-spacing correction) are all relative to font-size, so they follow
+ * automatically and must NOT be overridden here. */
+@media (min-width: 768px) {
+    .upd-hero-logo      { width:     clamp(6.75rem, 14.175vw, 12.09375rem); }
+    .upd-hero h1        { font-size: clamp(1.2rem, 5.49vw, 4.6875rem); }
+    .upd-hero p.upd-hero-sub { font-size: clamp(8.25px, 1.905vw, 1.575rem); }
+}
+@media (prefers-reduced-motion: reduce) { .upd-hero .upd-hero-scroll { animation: none; } }
+@keyframes updHeroBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* Featured destinations strip: full-bleed light band (breaks out of the boxed
+ * Elementor widget, same technique as the hero), cards centred at 1200px. The
+ * light band also separates the dark map above from the footer below. */
+.upd-featured {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    /* Warm sand band rather than a cool gray (#dde2ea): echoes the beaches
+     * instead of reading as UI gray. Kept well below card #fff so the cards
+     * stay distinct; a near-white band (#f6f6f9) loses that contrast. */
+    background: var(--upd-surface);
+    padding: 56px 24px;
+}
+.upd-featured-title {
+    max-width: 1200px;
+    margin: 0 auto 32px;
+    text-align: center;
+    color: var(--upd-ink);
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+.upd-featured-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+.upd-fcard {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--upd-r-12px);
+    overflow: hidden;
+    background: var(--upd-c-ink-00);
+    box-shadow: 0 4px 18px rgba(17,32,42,.10);
+    text-decoration: none;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.upd-fcard:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(17,32,42,.18); }
+.upd-fcard-img {
+    display: block;
+    height: 160px;
+    background: #16384a center/cover no-repeat;
+    /* slow ease so the zoom+tilt feels cinematic on hover, not snappy */
+    transition: transform .6s cubic-bezier(.2,.7,.2,1);
+    will-change: transform;
+}
+.upd-fcard:hover .upd-fcard-img { transform: scale(1.06) rotate(-.6deg); }
+@media (prefers-reduced-motion: reduce) {
+    .upd-fcard-img { transition: none; }
+    .upd-fcard:hover .upd-fcard-img { transform: none; }
+}
+.upd-fcard-body { padding: 14px 16px 18px; }
+/* Area rides ABOVE the name as a tracked-caps eyebrow, the same device as the
+ * place page's AREA › CATEGORY line, so cards read as previews of that page. */
+.upd-fcard-area {
+    display: block;
+    color: #5a7180;
+    font-size: var(--upd-fs-72rem);
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+}
+.upd-fcard-name { display: block; color: var(--upd-c-blue-90bbbb); font-weight: 600; font-size: 1.05rem; }
+/* Meta row: category + travel time, teal icons on white per the token ramp. */
+.upd-fcard-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+    color: #45606f;
+    font-size: var(--upd-fs-82rem);
+}
+.upd-fcard-chip { display: inline-flex; align-items: center; gap: 5px; }
+.upd-fcard-chip .upd-icon { color: var(--upd-teal); flex: none; }
+
+/* ------------------------------------------------------- hero category panel
+ * One row of six, no "All" chip; "Explore the map" below covers the whole
+ * catalogue anyway.
+ *
+ * Six equal 1fr columns in a ~280px-wide card give each column ~45px on the
+ * real page (body font is Open Sans). "Mountain Hikes" alone needs ~59-73px
+ * unwrapped even at an 8-10px size, so a forced equal column is ~30% too
+ * narrow no matter the font size, short of shrinking to illegible type. Six
+ * full, untruncated labels do not fit inside a 320px viewport at any legible
+ * size; this is a hard content/space conflict, not a tuning problem.
+ *
+ * The row scrolls horizontally as a safety net. Above ~400px the row's
+ * natural content width fits inside the panel with no scroll at all; the
+ * scrollbar only ever engages on the narrowest phones (~320-375px), where it
+ * is the only way to keep every label on one line at a legible size.
+ */
+/* Bottom padding is 3px SHORTER than the top on purpose. Even with the count's
+   line-height fixed above, a 1.2 box still leaves ~2.9px of half-leading under
+   the digits, while the top edge meets a crisp ring outline with none. Equal
+   padding therefore reads bottom-heavy; 12/9 is what makes it look even.
+   Margin-bottom of 4px leaves the CTAs crowding the panel. */
+.upd-hero-cats {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto 16px;
+    background: rgba(8, 32, 32, .5);
+    border: 1px solid rgba(255, 255, 255, .14);
+    border-radius: 13px;
+    padding: 12px 6px 9px;
+    backdrop-filter: blur(9px);
+}
+.upd-cat-row {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    /* 4px below 400px is what closes the gap to fit a real single row at 360px
+       with the current labels (Mountain Hikes was renamed Mountains, which
+       shortened the widest one). */
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+}
+/* Six EQUAL-WIDTH slots so the icons sit on an even rhythm regardless of label
+   length. Labels are short enough to fit a phone slot ("Falls", "Local"
+   overrides); the widest, MOUNTAINS, may spill a few px past its slot on a
+   360px phone. It is centred, so it stays symmetric. */
+.upd-cat-row li {
+    margin: 0;
+    flex: 1 1 0;
+    min-width: 0;
+    scroll-snap-align: start;
+}
+.upd-hero-cats .upd-cat-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 2px;
+    text-decoration: none;
+    color: var(--upd-c-ink-00);
+    /* button reset: the chip is a <button>, not a link */
+    background: none;
+    border: 0;
+    font: inherit;
+    cursor: pointer;
+    position: relative;
+    width: 100%;
+}
+/* Count tooltip, a real span (not ::after) so the number can be styled on its
+   own: "67 Beaches", full term name, teal bold number, sentence case, no
+   tracking. Hover only on hover-capable devices; `.upd-tip-on` is set by
+   upd-tooltips.js on tap (it keys off data-tip, which carries the plain text). */
+.upd-hero-cats .upd-cat-tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translate(-50%, 4px);
+    padding: 4px 8px;
+    border-radius: var(--upd-r-6px);
+    background: rgba(8, 32, 32, .95);
+    border: 1px solid rgba(134, 216, 200, .35);
+    color: var(--upd-c-ink-00);
+    font-size: var(--upd-fs-11px);
+    line-height: 1.2;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .15s ease, transform .15s ease;
+}
+.upd-hero-cats .upd-cat-tip b { font-weight: 700; color: var(--upd-accent); }
+.upd-hero-cats .upd-cat-chip:focus-visible .upd-cat-tip,
+.upd-hero-cats .upd-cat-chip.upd-tip-on .upd-cat-tip { opacity: 1; transform: translate(-50%, 0); }
+@media (hover: hover) {
+    .upd-hero-cats .upd-cat-chip:hover .upd-cat-tip { opacity: 1; transform: translate(-50%, 0); }
+}
+.upd-cat-ring {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    border-radius: var(--upd-r-50);
+    border: 1px solid rgba(134, 216, 200, .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--upd-accent);
+    transition: border-color .18s ease, background-color .18s ease;
+}
+.upd-cat-ring svg { width: 17px; height: 17px; display: block; }
+.upd-cat-label {
+    font-size: var(--upd-fs-10px);
+    line-height: 1.2;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, .88);
+}
+.upd-hero-cats .upd-cat-chip:hover .upd-cat-ring,
+.upd-hero-cats .upd-cat-chip:focus-visible .upd-cat-ring {
+    border-color: var(--upd-accent);
+    background: rgba(134, 216, 200, .12);
+}
+.upd-hero-cats .upd-cat-chip:focus-visible {
+    outline: 2px solid var(--upd-fill);
+    outline-offset: 3px;
+    border-radius: var(--upd-r-8px);
+}
+
+/* Above ~400px the six chips' natural content width fits the panel with room to
+   spare, so the row centers, the wider gap returns, and the scrollbar never
+   engages. Below 400px (down to 360px) the tighter 4px gap above is what makes
+   a real single row fit; under 360px the row still falls back to horizontal
+   scroll. That is accepted behaviour, not a bug. */
+/* From 390px the six chips fit one row without scrolling, so let the count
+   tooltip escape the row box (overflow-x:auto would clip it). Under 390px
+   scrolling wins and the tooltip is clipped; accepted. */
+/* Phones: six chips at 10px/1px tracking total ~391px against a ~333px panel at
+   393px (iPhone 15), so the row scrolled and could never centre. 9px with no
+   tracking brings the row to ~311px. */
+@media (max-width: 479px) {
+    .upd-cat-label { font-size: 9px; letter-spacing: 0; }
+}
+@media (min-width: 390px) {
+    .upd-cat-row { overflow: visible; }
+}
+@media (min-width: 400px) {
+    .upd-cat-row { gap: 8px; }
+}
+@media (min-width: 520px) {
+    .upd-hero-cats { padding: 16px 14px 13px; }  /* same 3px optical trim as the base rule */
+    .upd-cat-row { gap: 16px; }
+    .upd-cat-ring { width: 42px; height: 42px; }
+    .upd-cat-ring svg { width: 22px; height: 22px; }
+    .upd-cat-label { font-size: var(--upd-fs-12px); }
+}
+
+/* Home wrapper: the layout the page builder container used to give the three
+   sections (a column at least 80vh tall, no gaps, flush to the top). */
+.upd-home {
+	display: flex;
+	flex-direction: column;
+	min-height: 80vh;
+	margin: 0;
+	padding: 0;
+	gap: 0;
+}
+
+/* The page builder's stylesheet stripped the shadow from every link inside
+   its container, so the featured cards never showed theirs. Kept flat here so
+   the page looks as it did; the redesign can decide whether the cards get
+   their shadow back. */
+.upd-home .upd-fcard {
+	box-shadow: none;
+}

@@ -1,0 +1,14 @@
+.env*
+.git/
+.next*/
+node_modules/
+reference/
+artifacts/
+.impeccable/
+test-results/
+playwright-report/
+tests/
+src/data/destinations.private.json
+supabase/.temp/
+supabase/.branches/
+*.tsbuildinfo

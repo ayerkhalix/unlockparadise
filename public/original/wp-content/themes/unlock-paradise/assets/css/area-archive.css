@@ -1,0 +1,936 @@
+/* ============================================================
+ * area-archive.css: Area taxonomy archive (place listing grid)
+ * Enqueued by functions.php only on is_tax('area').
+ * Extracted from the inline <style> block in taxonomy-area.php.
+ * ============================================================ */
+
+.upd-feed { width: 100%; max-width: 1200px; margin: 0 auto; padding: 48px 20px 80px; box-sizing: border-box; }
+/* keep full width even when the grid is empty (0 results) so the toolbar doesn't collapse */
+.upd-grid { width: 100%; }
+.upd-feed__header { text-align: center; margin-bottom: 40px; }
+.upd-feed__title { font-size: clamp(38px, 6vw, 64px); margin: 0 0 12px; line-height: 1.1; color: var(--upd-c-blue-05bbb); }
+.upd-feed__desc { font-size: var(--upd-fs-15px); color: var(--upd-c-blue-20b); max-width: 640px; margin: 0 auto; }
+.upd-feed__title-pre { display: block; margin-bottom: 2px; font-size: clamp(22px, 3.2vw, 34px); font-weight: 500; letter-spacing: 0; color: var(--upd-c-blue-10b); }
+.upd-feed__title-main { display: block; text-transform: uppercase; letter-spacing: .04em; }
+
+/* Category hero band. The category's picker thumbnail as a full-bleed photo
+   behind the title, dissolving into the page colour at the bottom (same move as
+   the home hero). Breaks out of .upd-feed's 20px gutter and cancels its 48px
+   top padding so the photo meets the header. Mobile-first. */
+.upd-feed__header--hero {
+	position: relative;
+	overflow: hidden;
+	width: 100vw;
+	max-width: 100vw;
+	margin: -48px calc(50% - 50vw) 32px;
+	/* svh, not dvh: a dvh band grows as the phone's toolbar hides and the cover
+	   photo is re-fitted to it mid-scroll, which reads as a zoom. */
+	min-height: 40svh;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: center;
+	box-sizing: border-box;
+	padding: 96px 20px 28px;
+	/* The page navy: what the body actually paints, NOT --up-dark-forest, which
+	   is rgb(44,62,62). Doubles as the pre-image fallback and guarantees a
+	   seamless bottom edge. */
+	background-color: var(--upd-c-blue-90bbbb);
+}
+.upd-feed__header--hero::before {
+	content: "";
+	position: absolute;
+	/* 30% taller than the band (top buffer) so the 0.3x parallax translate
+	   never reveals an edge, same as the home hero. Bottom stops 1px short: the
+	   band's svh height is fractional and the anti-aliased last row reads as a
+	   seam. */
+	inset: -30% 0 1px;
+	background: var(--upd-feed-hero) center / cover no-repeat;
+	transform: translate3d(0, var(--upd-feed-parallax, 0px), 0);
+	will-change: transform;
+}
+/* The parallax runs on a scroll timeline named on the band, same as the home
+   hero: the browser moves the layer in step with the scroll, where a scroll
+   listener can only follow a frame behind on phones. 23.077% of the layer
+   equals 0.3x the band's height. The band starts at the very top of the page
+   (see the :has() offset rule in style.css), so the drift begins with the
+   first pixel of scroll. */
+@supports (animation-timeline: view()) {
+	@media (prefers-reduced-motion: no-preference) {
+		.upd-feed__header--hero { view-timeline: --upd-feed-hero block; }
+		.upd-feed__header--hero::before {
+			animation: updFeedDrift 1ms linear both;
+			animation-timeline: --upd-feed-hero;
+			animation-range: exit 0% exit 100%;
+		}
+	}
+}
+@keyframes updFeedDrift { to { transform: translate3d(0, 23.077%, 0); } }
+.upd-feed__header--hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	/* Eased stops, same idea as the About plates: a light wash up top for the
+	   title, nothing much until ~55%, then the real dissolve in the last third so
+	   the photo melts into the page instead of stopping at a line. */
+	background: linear-gradient(180deg,
+		rgba(8, 16, 20, .22) 0%,
+		rgba(8, 16, 20, .22) 40%,
+		rgba(17, 32, 42, .30) 55%,
+		rgba(17, 32, 42, .45) 68%,
+		rgba(17, 32, 42, .62) 78%,
+		rgba(17, 32, 42, .80) 86%,
+		rgba(17, 32, 42, .93) 93%,
+		rgba(17, 32, 42, .985) 97%,
+		var(--upd-c-blue-90bbbb) 98.5%);
+}
+.upd-feed__header--hero > * { position: relative; z-index: 1; }
+.upd-feed__header--hero .upd-feed__title { text-shadow: 0 2px 18px rgba(0, 0, 0, .45); }
+.upd-feed__header--hero .upd-feed__desc { color: var(--upd-c-blue-10b); }
+@media (min-width: 768px) {
+	.upd-feed__header--hero { min-height: 340px; padding-bottom: 36px; }
+}
+
+/* Bucketlist <-> Portfolio switch under the member-feed title: a glass pill
+   pair in the same language as the toolbar's segmented bar, the current view
+   filled teal like an on-state action. Lives inside the header so it sits on
+   the photo band; the glass keeps it legible on any cover. States are written
+   out explicitly because Astra's bare a:hover out-specs a single class. */
+.upd-feed__tabs {
+	display: inline-flex;
+	margin: 18px auto 0;
+	padding: 3px;
+	border: 1px solid rgba(255, 255, 255, .22);
+	border-radius: var(--upd-r-999px);
+	background: rgba(17, 32, 42, .48);
+	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(10px);
+}
+.upd-feed__tab,
+.upd-feed__tab:visited {
+	display: inline-flex; align-items: center; gap: 7px;
+	min-height: 38px; padding: 0 18px;
+	border-radius: var(--upd-r-999px);
+	font-size: var(--upd-fs-14px); font-weight: 600; line-height: 1;
+	color: var(--upd-c-blue-10b); text-decoration: none;
+	transition: background .15s ease, color .15s ease;
+}
+.upd-feed__tab:hover,
+.upd-feed__tab:focus-visible { color: var(--upd-c-ink-00); background: rgba(255, 255, 255, .10); }
+.upd-feed__tab:focus-visible { outline: 2px solid var(--upd-accent); outline-offset: 2px; }
+.upd-feed__tab.is-current,
+.upd-feed__tab.is-current:hover,
+.upd-feed__tab.is-current:focus-visible { color: var(--upd-c-teal-90b); background: var(--upd-teal); }
+.upd-feed__tab-icon { display: inline-flex; line-height: 0; }
+.upd-feed__tab-icon svg { width: 16px; height: 16px; }
+
+/* /bucketlist/ and /portfolio/ render without Astra's page container (see
+   page-bucketlist.php). The feed brings its own gutter; the signed-out card
+   and the Explorer+ upsell, which cannot rely on Astra's, get one here. */
+.upd-member-page > .upd-auth-card,
+.upd-member-page > .upd-upgrade { width: calc(100% - 40px); }
+
+.upd-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 28px;
+}
+@media (max-width: 900px) { .upd-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+@media (max-width: 600px) { .upd-grid { grid-template-columns: 1fr; gap: 18px; } }
+
+.upd-card {
+	position: relative;
+	scroll-margin-top: 96px; /* sticky header clearance for scroll restore */
+	background: var(--upd-c-ink-00);
+	border-radius: var(--upd-r-14px);
+	overflow: hidden;
+	box-shadow: 0 2px 12px rgba(0,0,0,.06);
+	/* Permanent layer promotion. Cards rastered in the page layer show a
+	   subpixel white hairline at the photo's right edge on some phone widths; a
+	   promoted raster is clean. There is no hover lift (intentional), so
+	   nothing else promotes the card, which is why this is always on. */
+	transform: translateZ(0);
+}
+/* Link-specific: the <a> fills the card and stacks photo+body vertically */
+.upd-card__link {
+	display: flex;
+	flex-direction: column;
+	text-decoration: none;
+	color: inherit;
+}
+/* Save button sits in its own layer, outside the <a> (top-left; VIP lock badge is top-right) */
+.upd-card__save {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	z-index: 4;
+}
+
+.upd-card__photo {
+	position: relative;
+	aspect-ratio: 4 / 3;
+	/* Dark placeholder, deliberately: at fractional card widths
+	   (device-dependent) the strip images can round a subpixel short of the
+	   box, and a light background bleeds through as a white hairline at the
+	   photo's right edge. Dark reads as photo shadow; it also looks right while
+	   images lazy-load on the dark feed pages. */
+	background: var(--upd-c-blue-85bbb);
+	overflow: hidden;
+}
+.upd-card__photo img {
+	width: 100%; height: 100%;
+	object-fit: cover; display: block;
+}
+/* Swipeable photo strip. Pure CSS scroll-snap (works without JS: /account/
+   renders cards with no feed script); JS only keeps the dots in sync and stops
+   a sideways swipe from counting as a tap on the card link. */
+.upd-card__track {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scroll-snap-type: x mandatory;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: none;
+}
+.upd-card__track::-webkit-scrollbar { display: none; }
+.upd-card__track img {
+	flex: 0 0 100%;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+	-webkit-user-drag: none;
+	user-select: none;
+}
+.upd-card__dots {
+	position: absolute;
+	left: 0; right: 0; bottom: 10px;
+	display: flex;
+	justify-content: center;
+	gap: 5px;
+	pointer-events: none;
+	z-index: 2;
+}
+.upd-card__dot {
+	width: 6px; height: 6px;
+	border-radius: var(--upd-r-50);
+	background: rgba(255, 255, 255, .55);
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, .15);
+	transition: background-color .15s ease, transform .15s ease;
+}
+.upd-card__dot.is-active { background: var(--upd-c-ink-00); transform: scale(1.25); }
+/* The VIP gradient and the lock badge sit above the track; neither may eat the swipe. */
+.upd-card--vip .upd-card__photo::after { pointer-events: none; }
+.upd-card__lock { pointer-events: none; z-index: 2; }
+
+.upd-card__coming-soon {
+	position: absolute; inset: 0;
+	display: flex; align-items: center; justify-content: center;
+	background: linear-gradient(135deg, var(--upd-c-blue-85bbb), #2a3f4d);
+	color: #8ea0ab; font-size: var(--upd-fs-13px); font-weight: 600;
+	letter-spacing: .08em; text-transform: uppercase;
+}
+
+.upd-card__lock {
+	position: absolute; top: 12px; right: 12px;
+	display: inline-flex; align-items: center; justify-content: center;
+	width: 32px; height: 32px;
+	background: rgba(0,0,0,.65); color: var(--upd-c-ink-00);
+	border-radius: var(--upd-r-50);
+	backdrop-filter: blur(2px);
+}
+
+.upd-card--vip .upd-card__photo::after {
+	content: '';
+	position: absolute; inset: 0;
+	background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.55));
+}
+
+.upd-card__body { padding: 16px 18px 20px; }
+.upd-card__title { font-size: var(--upd-fs-18px); line-height: 1.25; margin: 0 0 10px; color: #111; }
+
+/* Rating badge on a feed card. .upd-rating lives in reviews.css, which is only
+   enqueued on is_singular('place'), so on a feed the badge arrives with NO
+   rules at all, not even its inline-flex layout, and inherits the dark theme's
+   #e8e8e8 body colour onto the white card (1.23:1, effectively invisible). Its
+   reviews.css colours are no use here either: __num #e5e7eb and __count #94a3b8
+   are both drawn for the dark place page. So the card restates the layout and
+   supplies card-surface colours. Stars stay --upd-vip-gold to match the place
+   page; that is the rating convention site-wide, not the Explorer+ tier signal.
+   The score itself is a bare text node, not an element (the badge is [stars]
+   5.0 <span class="upd-rating__count">(2)</span>), so the colour has to land on
+   the container, not on a __num child (which this context never emits). */
+.upd-card__rating { margin: 0 0 10px; }
+.upd-card__rating .upd-rating {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: var(--upd-fs-14px);
+	font-weight: 700;
+	color: #1f2c34;
+}
+/* --upd-vip-gold reads 2.30:1 on a white card (it is drawn for the navy place
+   page) and fails the 3:1 floor for meaningful graphics. --upd-vip-gold-dark is
+   the same hue, already in the token set, and clears it at 3.24:1. */
+.upd-card__rating .upd-rating__stars {
+	display: inline-flex; align-items: center;
+	color: var(--upd-vip-gold-dark);
+	line-height: 0;
+}
+.upd-card__rating .upd-rating__count { font-weight: 400; color: var(--upd-c-ink-60); }
+/* Card detail row, the minimalist pattern used on /contact/: two columns, small
+   tracked label above a 15px value, no rules, no boxes. Access modes are the
+   place page's icon circles (.upd-asset-pill, 32px) scaled to 28px so the same
+   mode looks identical on feed and place page; names live in title/aria. White
+   card surface, so icons use --upd-teal (the light-surface accent). */
+.upd-card__stats {
+	margin: 0; padding: 0;
+	display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px 28px;
+}
+.upd-card__stat { margin: 0; min-width: 0; }
+.upd-card__access { flex: 1 1 auto; }
+.upd-card__label {
+	margin: 0 0 6px;
+	font-size: var(--upd-fs-11px); font-weight: 500; letter-spacing: .16em; text-transform: uppercase;
+	color: var(--upd-c-ink-60); white-space: nowrap;
+}
+.upd-card__value { margin: 0; font-size: var(--upd-fs-15px); line-height: 28px; color: #2b3640; }
+.upd-card__modes { display: flex; flex-wrap: wrap; gap: 6px; line-height: 1; }
+.upd-card__mode {
+	display: inline-flex; align-items: center; justify-content: center;
+	width: 28px; height: 28px; border-radius: var(--upd-r-50);
+	background-color: rgba(31, 158, 138, .18);
+	border: 1px solid rgba(31, 158, 138, .35);
+	color: var(--upd-teal);
+}
+.upd-card__mode svg { width: 16px; height: 16px; }
+.upd-card__mode--text { width: auto; padding: 0 10px; font-size: var(--upd-fs-12px); }
+
+/* Transient "Leave a review ›" link injected after .upd-card__link (a sibling;
+   the body lives inside that <a>) once a card is marked Visited. Same 15px
+   value type as the stats above it, aligned to the body padding; teal, no box. */
+.upd-card__nudge {
+	display: block;
+	margin: -8px 0 0;
+	padding: 0 18px 20px;
+	font-size: var(--upd-fs-15px);
+	font-weight: 600;
+	color: var(--upd-teal);
+	text-decoration: none;
+	animation: upd-nudge-in .25s ease-out;
+}
+.upd-card__nudge:hover, .upd-card__nudge:focus-visible { text-decoration: underline; text-underline-offset: 2px; }
+@keyframes upd-nudge-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .upd-card__nudge { animation: none; } }
+
+.upd-feed__pagination { margin-top: 48px; text-align: center; }
+.upd-feed__pagination .nav-links {
+	display: inline-flex; flex-wrap: wrap; align-items: center;
+	justify-content: center; gap: 8px;
+}
+.upd-feed__pagination .page-numbers {
+	display: inline-flex; align-items: center; justify-content: center;
+	min-width: 44px; height: 44px; padding: 0 14px;
+	border-radius: var(--upd-r-10px);
+	color: var(--upd-c-ink-10); text-decoration: none; font-size: var(--upd-fs-16px);
+	background: rgba(255,255,255,.06);
+	border: 1px solid rgba(255,255,255,.14);
+	transition: background .15s ease, border-color .15s ease;
+}
+.upd-feed__pagination .page-numbers:hover,
+.upd-feed__pagination .page-numbers:focus-visible {
+	background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.3);
+}
+.upd-feed__pagination .page-numbers.current {
+	background: var(--upd-c-blue-05bbb); color: var(--upd-c-blue-90bbbb); border-color: var(--upd-c-blue-05bbb); font-weight: 600;
+}
+.upd-feed__pagination .page-numbers.dots {
+	background: none; border: none; min-width: 0; padding: 0 4px;
+}
+.upd-feed__empty { text-align: center; color: #777; padding: 48px 0; font-size: var(--upd-fs-16px); }
+
+/* Empty feed (no places at all, toolbar suppressed): mirrors the /account/
+ * previews' dashed panel (.upd-bucketlist-empty in profile.css) so an empty
+ * bucketlist/portfolio/area reads as an invitation, not a dead end. Literals
+ * match profile.css's --upd-line/--upd-panel/--upd-ink-mute, which are scoped
+ * to .upd-profile and not visible here. */
+.upd-feed__none {
+	max-width: 460px;
+	margin: 40px auto;
+	padding: 2rem 1.25rem;
+	border: 1px dashed rgba(255, 255, 255, .12);
+	border-radius: var(--upd-r-12px);
+	background: rgba(255, 255, 255, .04);
+	text-align: center;
+}
+.upd-feed__none p {
+	margin: 0 0 1rem;
+	color: var(--upd-c-blue-40b);
+	font-size: var(--upd-fs-95rem);
+}
+
+/* ============================================================
+ * Filter / sort toolbar: glassy, on-brand (--upd-teal accent,
+ * --upd-vip-gold vip). Native controls fully restyled.
+ * ============================================================ */
+.upd-toolbar {
+	--upd-gold: var(--upd-vip-gold); /* canonical VIP gold (style.css :root) */
+	--upd-line: rgba(255,255,255,.12);
+	display: flex; flex-direction: column; gap: 15px;
+	margin: 0 0 6px; padding: 16px 22px;
+	background: linear-gradient(180deg, rgba(255,255,255,.055), rgba(255,255,255,.025));
+	border: 1px solid var(--upd-line);
+	border-radius: var(--upd-r-16px);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 14px 36px rgba(0,0,0,.22);
+	-webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.upd-toolbar__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 24px; }
+.upd-toolbar__row--controls { justify-content: space-between; }
+.upd-toolbar__group { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.upd-toolbar__group--slider { flex: 0 1 230px; max-width: 250px; min-width: 170px; }
+.upd-toolbar__group--access { flex: 0 1 auto; min-width: 0; }
+.upd-toolbar__group--assets { flex: 0 1 auto; min-width: 0; }
+/* VIP + Reset grouped (vertically centered together); gap tuned so VIP reads
+   balanced between the accessibility bar and Reset rather than glued to Reset. */
+.upd-toolbar__group--vip { flex: 0 0 auto; flex-direction: row; align-items: center; gap: 34px; }
+
+/* Advanced (collapsible) section, DESKTOP: transparent to layout (children flow
+   into the controls row exactly as before); the toggle + mobile-only
+   reset/divider are hidden. Both the wrapper AND its inner div are
+   display:contents on desktop so the 3 groups still flow directly into the
+   controls row (the inner div only matters on mobile, where it's the
+   overflow-clipped target of the grid-rows expand animation). */
+.upd-toolbar__advanced,
+.upd-toolbar__advanced-inner { display: contents; }
+.upd-advanced-toggle { display: none; }
+.upd-reset--mobile, .upd-sortgroup__sep { display: none !important; }  /* desktop: only the by-VIP reset */
+/* Advanced toggle (mobile): full-width pill button, no theme gold leak */
+.upd-advanced-toggle {
+	align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 9px 14px; cursor: pointer;
+	font-size: var(--upd-fs-12px); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--upd-c-blue-20b) !important;
+	background: rgba(255,255,255,.05) !important; border: 1px solid var(--upd-line) !important;
+	box-shadow: none !important; border-radius: var(--upd-r-10px);
+}
+.upd-advanced-toggle:hover { background: rgba(255,255,255,.09) !important; }
+.upd-advanced-toggle__chev { transition: transform .2s ease; }
+.upd-advanced-toggle[aria-expanded="true"] .upd-advanced-toggle__chev { transform: rotate(180deg); }
+
+/* Reset: small icon at the far right, vertically centered on the VIP pill. No
+   button chrome on any state. */
+.upd-toolbar .upd-reset,
+.upd-toolbar .upd-reset:hover,
+.upd-toolbar .upd-reset:focus,
+.upd-toolbar .upd-reset:active {
+	display: inline-flex; align-items: center; justify-content: center;
+	padding: 4px; cursor: pointer; color: var(--upd-c-blue-40b) !important;
+	background: none !important; border: none !important; box-shadow: none !important; border-radius: var(--upd-r-6px);
+	transition: color .25s ease;  /* eases back to grey after the press flash */
+}
+/* Hover = teal, gated to real-hover devices so a tap doesn't latch the colour
+   on touchscreens (mobile :hover sticks until you tap elsewhere). */
+@media (hover: hover) {
+	.upd-toolbar .upd-reset:hover { color: var(--upd-teal) !important; }
+}
+.upd-reset__icon { width: 16px; height: 16px; }
+/* Press feedback, one-shot: added by area-filter.js on click/tap and removed on
+   animationend (so it replays every press and works for taps too, unlike
+   :active which only holds while pressed): flash teal + a quick spin, then
+   settle back to the base colour and 0deg. */
+.upd-toolbar .upd-reset.upd-reset--anim { color: var(--upd-teal) !important; }
+.upd-toolbar .upd-reset.upd-reset--anim .upd-reset__icon { animation: upd-reset-spin .5s ease; }
+@keyframes upd-reset-spin {
+	0%   { transform: rotate(0); }
+	45%  { transform: rotate(-90deg); }
+	100% { transform: rotate(0); }
+}
+
+/* Eyebrow labels: small caps, matches the site's "COMING SOON" treatment */
+.upd-toolbar__eyebrow {
+	margin: 0; padding: 0;
+	font-size: var(--upd-fs-11px); font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+	color: var(--upd-c-blue-40b);
+}
+.upd-toolbar__value { color: var(--upd-c-blue-05bbb); letter-spacing: .04em; }
+
+/* Custom select */
+.upd-select { position: relative; display: inline-block; }
+.upd-select::after {
+	content: ""; position: absolute; right: 14px; top: 50%; width: 9px; height: 9px;
+	transform: translateY(-65%) rotate(45deg);
+	border-right: 2px solid var(--upd-c-blue-20b); border-bottom: 2px solid var(--upd-c-blue-20b);
+	pointer-events: none;
+}
+.upd-toolbar select {
+	-webkit-appearance: none; -moz-appearance: none; appearance: none;
+	min-width: 150px; height: 34px; padding: 0 34px 0 13px;
+	font-size: 13.5px; color: var(--upd-c-blue-05bbb); cursor: pointer;
+	background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18);
+	border-radius: var(--upd-r-9px); transition: border-color .15s ease, background .15s ease;
+}
+.upd-toolbar select:hover { background: rgba(255,255,255,.1); }
+.upd-toolbar select option { color: var(--upd-c-blue-90bbbb); }
+
+/* Search: full-width row spanning the top of the toolbar (order:-1 lifts it
+   above the sort/filters that flow into the controls row via display:contents
+   on desktop; on mobile it's simply the first item in the expanded Filters
+   panel). */
+.upd-toolbar__group--search { flex: 1 1 100%; order: -1; }
+.upd-search { position: relative; display: flex; align-items: center; }
+.upd-search__icon {
+	position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+	display: inline-flex; color: var(--upd-c-blue-40b); pointer-events: none;
+}
+.upd-search__glyph { width: 18px; height: 18px; }
+/* Scoped under .upd-toolbar to outrank Astra's global input[type=search] styles
+   (which otherwise force a 10px pad / 2px radius and collide with the icon). */
+.upd-toolbar .upd-search__input {
+	width: 100%; height: 38px; margin: 0; padding: 0 14px 0 40px;
+	font-size: var(--upd-fs-14px); line-height: normal; color: var(--upd-c-blue-05bbb);
+	background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18);
+	border-radius: var(--upd-r-9px); box-shadow: none;
+	transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+	-webkit-appearance: none; appearance: none;
+}
+.upd-toolbar .upd-search__input::placeholder { color: var(--upd-c-blue-40b); opacity: 1; }
+.upd-toolbar .upd-search__input:hover { background: rgba(255,255,255,.1); }
+.upd-toolbar .upd-search__input:focus {
+	outline: none; background: rgba(255,255,255,.1);
+	border-color: var(--upd-teal); box-shadow: 0 0 0 2px rgba(31,158,138,.3);
+	/* Astra's `input[type=search]:focus { color:#111 }` (0,2,1) outranks the base
+	   color rule (0,2,0), turning typed text black until blur. This focus rule
+	   (0,3,0) wins it back; -webkit-text-fill-color covers iOS rendering. */
+	color: var(--upd-c-blue-05bbb); -webkit-text-fill-color: var(--upd-c-blue-05bbb);
+}
+.upd-toolbar .upd-search__input::-webkit-search-cancel-button { cursor: pointer; }
+
+/* Sort key + direction: bare teal sort icon, no button chrome on ANY state
+   (!important defeats the theme's global button hover/active gold fill) */
+.upd-sortgroup { display: flex; align-items: center; gap: 8px; }
+.upd-toolbar .upd-dir,
+.upd-toolbar .upd-dir:hover,
+.upd-toolbar .upd-dir:focus,
+.upd-toolbar .upd-dir:active {
+	display: inline-flex; align-items: center; justify-content: center;
+	padding: 4px; cursor: pointer; color: var(--upd-teal) !important;
+	background: none !important; border: none !important; box-shadow: none !important;
+	border-radius: var(--upd-r-6px);
+}
+.upd-toolbar .upd-dir:hover { color: #27c2a6 !important; }
+.upd-dir__icon { width: 20px; height: 20px; flex: 0 0 auto; transition: transform .2s ease; }
+/* Material `sort` glyph is wide-at-top (reads descending) by default, so flip on ASC to get the wide-base ascending pyramid. */
+.upd-dir[data-dir="asc"] .upd-dir__icon { transform: scaleY(-1); }
+
+/* Dual-handle range slider: custom div handles, flat + thin + teal */
+.upd-range { padding-top: 2px; }
+.upd-range__bar { position: relative; height: 12px; }
+.upd-range__track { position: absolute; top: 50%; left: 0; right: 0; height: 3px; margin-top: -1.5px; border-radius: var(--upd-r-999px); background: rgba(255,255,255,.16); }
+.upd-range__fill { position: absolute; top: 50%; height: 3px; margin-top: -1.5px; border-radius: var(--upd-r-999px); background: var(--upd-teal); left: 0; right: 0; }
+/* The visible dot is small (the ::before); the <button> itself is a larger
+   TRANSPARENT hit area (30x36) so it's easy to grab without tapping exactly on
+   the 13px circle. */
+.upd-range__handle {
+	position: absolute; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px;
+	padding: 0; border: none; border-radius: var(--upd-r-999px); background: transparent;
+	cursor: grab; touch-action: none; z-index: 2;
+}
+.upd-range__handle[data-ctl="handle-max"] { z-index: 3; }
+.upd-range__handle::before {
+	content: ""; position: absolute; top: 50%; left: 50%;
+	width: 13px; height: 13px; border-radius: var(--upd-r-50); background: var(--upd-teal);
+	transform: translate(-50%, -50%); transition: transform .1s ease;
+}
+.upd-range__handle:hover::before, .upd-range__handle:active::before { transform: translate(-50%, -50%) scale(1.25); }
+.upd-range__handle:active { cursor: grabbing; }
+/* keep the BUTTON invisible on every state (the teal dot is the ::before, which
+   the theme can't restyle); defeats the theme's gold button focus/active glow */
+.upd-toolbar .upd-range__handle,
+.upd-toolbar .upd-range__handle:hover,
+.upd-toolbar .upd-range__handle:focus,
+.upd-toolbar .upd-range__handle:active {
+	background: transparent !important; box-shadow: none !important; border: none !important;
+}
+.upd-range__handle:focus, .upd-range__handle:focus-visible { outline: none; }   /* no focus ring on the big hit area (it reads as an ugly oval) */
+.upd-range__ticks { position: relative; height: 18px; margin-top: 7px; }
+.upd-range__tick { position: absolute; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.upd-range__tick i { width: 1px; height: 4px; background: rgba(255,255,255,.28); }
+.upd-range__tick b { font-size: var(--upd-fs-10px); font-weight: 600; color: #7d8e96; }
+
+/* Result count: sits just under the filter box, right-aligned */
+.upd-feed__meta { display: flex; justify-content: flex-end; margin: 6px 2px 22px; }
+.upd-feed__count { font-size: var(--upd-fs-13px); color: #9fb0b8; white-space: nowrap; }
+
+/* Accessibility: pill-rounded connected segmented bar (icon + label) */
+.upd-segbar {
+	display: inline-flex; align-items: stretch; max-width: 100%;
+	border: 1px solid rgba(39,194,166,.38); border-radius: var(--upd-r-999px);
+	overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+}
+.upd-segbar::-webkit-scrollbar { height: 0; }
+.upd-seg {
+	display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; cursor: pointer; user-select: none;
+	font-size: var(--upd-fs-13px); font-weight: 600; white-space: nowrap;
+	color: var(--upd-accent); background: rgba(31,158,138,.10);
+	transition: background .15s ease, color .15s ease;
+}
+.upd-seg:first-child { padding-left: 16px; }
+.upd-seg:last-child { padding-right: 16px; }
+.upd-seg + .upd-seg { border-left: 1px solid rgba(39,194,166,.38); }
+.upd-seg__icon { display: inline-flex; }
+.upd-seg__icon svg { width: 15px; height: 15px; }
+.upd-seg input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.upd-seg:has(input:checked) { background: var(--upd-teal); color: var(--upd-c-teal-90b); }
+
+/* VIP pill: native checkbox hidden, label IS the pill */
+.upd-chip {
+	position: relative; display: inline-flex; align-items: center; gap: 6px;
+	padding: 6px 13px; border-radius: var(--upd-r-999px); cursor: pointer; user-select: none;
+	font-size: var(--upd-fs-13px); font-weight: 600; color: #d3dde2;
+	background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.18);
+	transition: background .15s ease, border-color .15s ease, color .15s ease, transform .08s ease;
+}
+.upd-chip input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+.upd-chip:hover { border-color: rgba(255,255,255,.4); background: rgba(255,255,255,.09); }
+.upd-chip:active { transform: scale(.97); }
+.upd-chip__icon { opacity: .8; }
+.upd-chip:has(input:checked) {
+	background: var(--upd-teal); border-color: var(--upd-teal); color: #04231e;
+}
+/* VIP = pill (lock + label), gold when active */
+.upd-chip--vip .upd-chip__icon { opacity: 1; }
+.upd-chip--vip:has(input:checked) {
+	background: var(--upd-gold); border-color: var(--upd-gold); color: #2a1c06;
+}
+/* VIP icon: lock to lock_open crossfade when the toggle is active */
+.upd-chip--vip .upd-chip__icon { position: relative; display: inline-flex; width: 14px; height: 14px; }
+.upd-chip--vip .upd-chip__glyph { position: absolute; inset: 0; transition: opacity .22s ease, transform .22s ease; }
+.upd-chip--vip .upd-chip__glyph--open { opacity: 0; transform: scale(.55) rotate(-15deg); }
+.upd-chip--vip:has(input:checked) .upd-chip__glyph--lock { opacity: 0; transform: scale(.55) rotate(15deg); }
+.upd-chip--vip:has(input:checked) .upd-chip__glyph--open { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+	.upd-chip--vip .upd-chip__glyph { transition: none; }
+}
+/* keyboard focus */
+.upd-chip:has(input:focus-visible),
+.upd-seg:has(input:focus-visible),
+.upd-toolbar select:focus-visible,
+.upd-dir:focus-visible {
+	outline: 2px solid var(--upd-teal); outline-offset: 2px;
+}
+
+/* Tooltips on the icon/toggle controls (data-tip) */
+.upd-toolbar [data-tip] { position: relative; }
+.upd-toolbar [data-tip]::after {
+	content: attr(data-tip);
+	position: absolute; left: 50%; bottom: calc(100% + 9px); transform: translate(-50%, 4px);
+	padding: 6px 10px; border-radius: var(--upd-r-8px); white-space: nowrap;
+	background: var(--upd-c-blue-90b); color: var(--upd-c-ink-10); border: 1px solid rgba(255,255,255,.14);
+	box-shadow: 0 8px 20px rgba(0,0,0,.4);
+	font-size: var(--upd-fs-12px); font-weight: 600; letter-spacing: 0; text-transform: none;
+	opacity: 0; pointer-events: none; transition: opacity .14s ease, transform .14s ease; z-index: 30;
+}
+.upd-toolbar [data-tip]::before {  /* little pointer */
+	content: ""; position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%);
+	border: 5px solid transparent; border-top-color: var(--upd-c-blue-90b);
+	opacity: 0; pointer-events: none; transition: opacity .14s ease; z-index: 30;
+}
+/* Reveal on keyboard focus + touch tap (.upd-tip-on via upd-tooltips.js). */
+.upd-toolbar [data-tip]:focus-visible::after,
+.upd-toolbar [data-tip].upd-tip-on::after { opacity: 1; transform: translate(-50%, 0); }
+.upd-toolbar [data-tip]:focus-visible::before,
+.upd-toolbar [data-tip].upd-tip-on::before { opacity: 1; }
+/* Hover reveal only on real-hover devices. On touch, :hover latches after a tap
+   and the tip would never dismiss (handled by the tap/auto-hide path above). */
+@media (hover: hover) {
+	.upd-toolbar [data-tip]:hover::after { opacity: 1; transform: translate(-50%, 0); }
+	.upd-toolbar [data-tip]:hover::before { opacity: 1; }
+}
+
+.upd-card.is-hidden { display: none !important; }
+
+@media (max-width: 600px) {
+	.upd-toolbar { padding: 18px; gap: 14px; }
+	.upd-toolbar__row--controls { flex-direction: column; align-items: stretch; gap: 14px; }
+	.upd-toolbar__group { width: 100%; }
+	/* column layout: flex-basis would otherwise become a fixed HEIGHT (the big empty gap bug) */
+	.upd-toolbar__group--slider { flex: 0 0 auto; max-width: none; min-width: 0; }
+
+	/* Sort row: dropdown grows, dir + divider + reset sit beside it */
+	.upd-sortgroup { display: flex; align-items: center; gap: 8px; width: 100%; }
+	.upd-sortgroup .upd-select { flex: 1 1 auto; }
+	.upd-select, .upd-toolbar select { width: 100%; }
+	.upd-sortgroup__sep { display: block !important; flex: 0 0 auto; width: 1px; height: 24px; background: var(--upd-line); margin: 0 4px; }
+	.upd-reset--mobile { display: inline-flex !important; }
+	.upd-reset--desktop { display: none !important; }
+
+	/* Advanced section: collapsed until tapped. Toggle is a lightweight text+arrow link,
+	   right-aligned, with NO background highlight on any state. */
+	.upd-advanced-toggle,
+	.upd-advanced-toggle:hover,
+	.upd-advanced-toggle:focus,
+	.upd-advanced-toggle:active {
+		display: inline-flex; align-self: flex-end; width: auto; justify-content: flex-end; gap: 6px;
+		padding: 2px 2px !important; background: none !important; border: none !important; box-shadow: none !important;
+		color: var(--upd-accent) !important;
+	}
+	/* Collapsible eases open to its NATURAL height via grid-template-rows 0fr
+	   to 1fr (no max-height magic number). The inner div is the
+	   overflow-clipped row; it also fades + slides down a touch for polish. */
+	.upd-toolbar__advanced {
+		display: grid;
+		grid-template-rows: 0fr;
+		width: 100%;
+		transition: grid-template-rows .3s cubic-bezier(.16, 1, .3, 1);  /* ease-out */
+	}
+	.upd-toolbar__advanced.is-open { grid-template-rows: 1fr; }
+	.upd-toolbar__advanced-inner {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		min-height: 0;       /* let the grid row collapse below content size */
+		overflow: hidden;    /* clip while the height animates (and while collapsing) */
+		opacity: 0;
+		transform: translateY(-4px);
+		transition: opacity .25s ease-out, transform .25s ease-out;
+	}
+	/* The panel HEIGHT expands first while the content is still invisible +
+	   clipped, so a clipped frame (slider end ticks / tooltips) is never shown.
+	   Only once the expand finishes (.upd-adv-open, added by area-filter.js
+	   just after the height transition) do we drop the clip AND fade the
+	   content in. On close .upd-adv-open is removed first, so content fades out
+	   and the collapse re-clips cleanly. */
+	.upd-toolbar__advanced.upd-adv-open .upd-toolbar__advanced-inner {
+		overflow: visible;
+		opacity: 1;
+		transform: translateY(0);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.upd-toolbar__advanced,
+		.upd-toolbar__advanced-inner { transition: none; }
+	}
+	/* VIP moved to the right */
+	.upd-toolbar__group--vip { flex-direction: row; align-items: center; justify-content: flex-end; gap: 14px; }
+
+	/* Accessibility: connected pill fills full width, but segments size to their content
+	   (basis auto + equal growth) so "Motorcycle" gets more room than Hike/Boat/4x4. */
+	.upd-segbar { align-self: stretch; width: 100%; flex-wrap: nowrap; border: 1px solid rgba(39,194,166,.38); border-radius: var(--upd-r-999px); overflow: hidden; }
+	.upd-segbar .upd-seg { flex: 1 1 auto; min-width: 0; justify-content: center; border: 0; border-radius: 0; padding: 7px 6px; font-size: var(--upd-fs-11px); gap: 5px; }
+	.upd-segbar .upd-seg + .upd-seg { border-left: 1px solid rgba(39,194,166,.38); }
+	.upd-segbar .upd-seg__icon svg { width: 12px; height: 12px; }
+
+	/* Assets only: 7 options can't share one 375px row. .upd-seg is
+	   white-space:nowrap, so flex:1 1 auto can't compress them and the row
+	   pushes the whole panel wider than the viewport (horizontal page scroll).
+	   Let this one bar wrap instead; the rounded rect reads correctly across
+	   multiple rows where the 999px stadium would not. Scoped to --assets so
+	   the 5-option "Accessible by" bar keeps its single-row pill. */
+	.upd-toolbar__group--assets .upd-segbar { flex-wrap: wrap; overflow: visible; border-radius: var(--upd-r-14px); }
+	.upd-toolbar__group--assets .upd-seg { border-radius: 0; }
+}
+
+/* ============================================================
+ * DESKTOP (>=601px): explicit 3-row toolbar layout:
+ *   row 1: search                                    (full width, unchanged)
+ *   row 2: accessible by  ·  travel time  ·  sort by
+ *   row 3: assets  ..............................  vip + reset (right)
+ * The groups flow into .upd-toolbar__row--controls via display:contents,
+ * so we just reorder them. Search already claims row 1 (flex:1 1 100%);
+ * a full-width zero-height ::after forces the break before row 3.
+ * Splitting the two wide segbars (accessible-by on row 2, assets on row 3)
+ * means neither row gets cramped; fits comfortably down to ~1024px.
+ * Mobile (<=600px) keeps the stacked accordion layout above, untouched.
+ * ============================================================ */
+@media (min-width: 601px) {
+	/* space-between justifies EACH wrapped line: row 2 = accessible-by left,
+	   travel-time centered, sort-by right; row 3 = assets left, vip right. */
+	.upd-toolbar__row--controls { justify-content: space-between; column-gap: 16px; }
+	.upd-toolbar__group--access  { order: 2; }   /* row 2 left:   accessible by */
+	.upd-toolbar__group--slider  { order: 3; }   /* row 2 center: travel time   */
+	.upd-toolbar__group--sort    { order: 4; }   /* row 2 right:  sort by        */
+	.upd-toolbar__row--controls::after {          /* line break before row 3 */
+		content: ""; order: 5; flex: 1 1 100%; height: 0; margin: 0;
+	}
+	.upd-toolbar__group--assets  { order: 6; }   /* row 3 left:  assets          */
+	.upd-toolbar__group--vip     { order: 7; }   /* row 3 right: vip + reset */
+}
+
+/* ---------------- Stat tiles (shared) --------------------------------------
+   Lives here rather than profile.css: the Bucketlist/Portfolio feed heads
+   render the same component as the /account/ header, and this sheet loads
+   on every page that shows it (/account/ included). Scoped two classes deep
+   on purpose; Astra's .entry-content rules out-spec a single class. */
+.upd-feedhead {
+	/* Ink/panel tokens are component-scoped in this codebase (.upd-profile,
+	   .upd-toolbar, etc.), not :root; without these the tiles render bare. */
+	--upd-line: rgba(255, 255, 255, .12);
+	--upd-panel: rgba(255, 255, 255, .04);
+	--upd-ink: #f5f7fa;
+	--upd-ink-mute: #8ea3ad;
+}
+
+.upd-profile .upd-stats,
+.upd-feedhead .upd-stats {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: .6rem;
+	margin: 0 0 2rem;
+	padding: 0;
+	list-style: none;
+}
+
+.upd-profile .upd-stats li,
+.upd-feedhead .upd-stats li {
+	display: block;
+	padding: .85rem .5rem;
+	border: 1px solid var(--upd-line);
+	border-radius: var(--upd-r-12px);
+	background: var(--upd-panel);
+	text-align: center;
+	font-size: .78rem;
+	line-height: 1.3;
+	color: var(--upd-ink-mute);
+}
+
+.upd-profile .upd-stats strong,
+.upd-feedhead .upd-stats strong {
+	display: block;
+	margin-bottom: .15rem;
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-1-5rem);
+	font-weight: 700;
+	line-height: 1;
+}
+
+/* Feed heads carry two tiles, not three. They render inside .upd-feed under the
+   centred hero band, so they centre too. */
+.upd-feedhead .upd-stats {
+	grid-template-columns: repeat(2, 1fr);
+	max-width: 26rem;
+	margin: 0 auto 1.6rem;
+}
+/* Phones: the tiles span the same gutter as the toolbar beneath them. */
+@media (max-width: 600px) {
+	.upd-feedhead .upd-stats { max-width: none; }
+}
+
+@media (min-width: 601px) {
+	.upd-profile .upd-stats,
+	.upd-feedhead .upd-stats {
+		gap: 1rem;
+	}
+
+	.upd-profile .upd-stats li,
+	.upd-feedhead .upd-stats li {
+		padding: 1.1rem .75rem;
+		font-size: var(--upd-fs-85rem);
+	}
+
+	.upd-profile .upd-stats strong,
+	.upd-feedhead .upd-stats strong {
+		font-size: var(--upd-fs-1-9rem);
+	}
+}
+
+/* ---- Featured-place picker on Bucketlist / Portfolio cards ----------------
+   A glass circle over the photo's bottom-right (the save/visited pair owns the
+   top-left, the Explorer+ lock the top-right, the strip dots the bottom
+   centre). Filled teal when the member's current cover is one of this card's
+   photos. States are explicit; Astra's bare button:hover/:focus gold pill
+   out-specs a single class. Sibling of .upd-card__save, outside the <a>. */
+/* The button (and its prompt) live in a wrapper shaped exactly like the photo
+   box (absolute, top of the card, 4/3) so "bottom-right of the photo" holds
+   without touching the <a>. The wrapper ignores pointer events; only the button
+   and the prompt take them. */
+.upd-card__featurewrap {
+	position: absolute;
+	top: 0; left: 0; right: 0;
+	aspect-ratio: 4 / 3;
+	z-index: 4;
+	pointer-events: none;
+}
+.upd-card__featurewrap > * { pointer-events: auto; }
+.upd-card__feature {
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	margin: 0;
+	border: 1px solid rgba(255, 255, 255, .28);
+	border-radius: var(--upd-r-50);
+	appearance: none;
+	-webkit-appearance: none;
+	background: rgba(17, 32, 42, .55);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+	color: var(--upd-c-ink-00);
+	cursor: pointer;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, .25);
+	transition: background .15s ease, color .15s ease, transform .08s ease;
+}
+.upd-card__feature svg { display: block; width: 20px; height: 20px; fill: currentColor; }
+.upd-card__feature:hover,
+.upd-card__feature:focus { background: rgba(17, 32, 42, .75); color: var(--upd-c-ink-00); border-color: rgba(255, 255, 255, .45); }
+.upd-card__feature:focus-visible { outline: 2px solid var(--upd-fill); outline-offset: 2px; }
+.upd-card__feature:active { transform: scale(.94); }
+.upd-card__feature.is-on,
+.upd-card__feature.is-on:hover,
+.upd-card__feature.is-on:focus { background: var(--upd-teal); border-color: transparent; color: var(--upd-c-teal-90b); }
+.upd-card__feature:disabled { opacity: .6; cursor: default; }
+
+/* The Yes / Not now prompt reuses .upd-ask (membership.css) but lives inside
+   the card, which clips overflow, so it floats over the photo above the button
+   instead of hanging below it, caret pointing down. */
+.upd-card .upd-ask {
+	top: auto;
+	bottom: 56px;
+	left: 10px;
+	right: 10px;
+	min-width: 0;
+	max-width: none;
+	z-index: 5;
+	animation-name: upd-ask-in-card;
+}
+.upd-card .upd-ask::before {
+	top: auto;
+	bottom: -7px;
+	left: auto;
+	right: 16px;
+	border: 0;
+	border-right: 1px solid var(--upd-c-teal-75);
+	border-bottom: 1px solid var(--upd-c-teal-75);
+}
+.upd-card .upd-ask__btn,
+.upd-card .upd-ask__btn:hover,
+.upd-card .upd-ask__btn:focus,
+.upd-card .upd-ask__btn:active {
+	margin: 0;
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: var(--upd-r-999px);
+	background: none;
+	box-shadow: none;
+	color: var(--upd-c-blue-15);
+	font-size: var(--upd-fs-13px);
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: -0.02em;
+	text-transform: none;
+	cursor: pointer;
+}
+.upd-card .upd-ask__btn--no:hover,
+.upd-card .upd-ask__btn--no:focus-visible { color: var(--upd-c-ink-00); }
+.upd-card .upd-ask__btn--yes,
+.upd-card .upd-ask__btn--yes:active { background: var(--upd-fill); color: var(--upd-c-blue-90bbb); }
+.upd-card .upd-ask__btn--yes:hover,
+.upd-card .upd-ask__btn--yes:focus-visible { background: var(--upd-fill-hover); color: var(--upd-c-blue-90bbb); }
+.upd-card .upd-ask__btn:focus-visible { outline: 2px solid var(--upd-fill); outline-offset: 2px; }
+@keyframes upd-ask-in-card { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .upd-card__feature { transition: none; } .upd-card .upd-ask { animation: none; } }

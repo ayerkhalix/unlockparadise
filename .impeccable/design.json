@@ -1,0 +1,679 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-20T14:25:33.678Z",
+  "title": "Design System: Unlock Paradise",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Travel teal",
+        "canonical": "#83d9c6",
+        "tonalRamp": [
+          "oklch(0.1500 0.0883 178.26)",
+          "oklch(0.2643 0.0883 178.26)",
+          "oklch(0.3786 0.0883 178.26)",
+          "oklch(0.4929 0.0883 178.26)",
+          "oklch(0.6071 0.0883 178.26)",
+          "oklch(0.7214 0.0883 178.26)",
+          "oklch(0.8357 0.0883 178.26)",
+          "oklch(0.9500 0.0883 178.26)"
+        ]
+      },
+      "primary-hover": {
+        "role": "primary",
+        "displayName": "Travel teal hover",
+        "canonical": "#a4eadc",
+        "tonalRamp": [
+          "oklch(0.1500 0.0726 180.71)",
+          "oklch(0.2643 0.0726 180.71)",
+          "oklch(0.3786 0.0726 180.71)",
+          "oklch(0.4929 0.0726 180.71)",
+          "oklch(0.6071 0.0726 180.71)",
+          "oklch(0.7214 0.0726 180.71)",
+          "oklch(0.8357 0.0726 180.71)",
+          "oklch(0.9500 0.0726 180.71)"
+        ]
+      },
+      "on-primary": {
+        "role": "neutral",
+        "displayName": "Action ink",
+        "canonical": "#08252b",
+        "tonalRamp": [
+          "oklch(0.1500 0.0357 213.87)",
+          "oklch(0.2643 0.0357 213.87)",
+          "oklch(0.3786 0.0357 213.87)",
+          "oklch(0.4929 0.0357 213.87)",
+          "oklch(0.6071 0.0357 213.87)",
+          "oklch(0.7214 0.0357 213.87)",
+          "oklch(0.8357 0.0357 213.87)",
+          "oklch(0.9500 0.0357 213.87)"
+        ]
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Deep navy",
+        "canonical": "#081823",
+        "tonalRamp": [
+          "oklch(0.1500 0.0311 240.52)",
+          "oklch(0.2643 0.0311 240.52)",
+          "oklch(0.3786 0.0311 240.52)",
+          "oklch(0.4929 0.0311 240.52)",
+          "oklch(0.6071 0.0311 240.52)",
+          "oklch(0.7214 0.0311 240.52)",
+          "oklch(0.8357 0.0311 240.52)",
+          "oklch(0.9500 0.0311 240.52)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Navy panel",
+        "canonical": "#102732",
+        "tonalRamp": [
+          "oklch(0.1500 0.0356 231.04)",
+          "oklch(0.2643 0.0356 231.04)",
+          "oklch(0.3786 0.0356 231.04)",
+          "oklch(0.4929 0.0356 231.04)",
+          "oklch(0.6071 0.0356 231.04)",
+          "oklch(0.7214 0.0356 231.04)",
+          "oklch(0.8357 0.0356 231.04)",
+          "oklch(0.9500 0.0356 231.04)"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Raised navy",
+        "canonical": "#18333e",
+        "tonalRamp": [
+          "oklch(0.1500 0.0384 226.66)",
+          "oklch(0.2643 0.0384 226.66)",
+          "oklch(0.3786 0.0384 226.66)",
+          "oklch(0.4929 0.0384 226.66)",
+          "oklch(0.6071 0.0384 226.66)",
+          "oklch(0.7214 0.0384 226.66)",
+          "oklch(0.8357 0.0384 226.66)",
+          "oklch(0.9500 0.0384 226.66)"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Off-white",
+        "canonical": "#f4f4eb",
+        "tonalRamp": [
+          "oklch(0.1500 0.0119 106.62)",
+          "oklch(0.2643 0.0119 106.62)",
+          "oklch(0.3786 0.0119 106.62)",
+          "oklch(0.4929 0.0119 106.62)",
+          "oklch(0.6071 0.0119 106.62)",
+          "oklch(0.7214 0.0119 106.62)",
+          "oklch(0.8357 0.0119 106.62)",
+          "oklch(0.9500 0.0119 106.62)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted blue-gray",
+        "canonical": "#b4c6cb",
+        "tonalRamp": [
+          "oklch(0.1500 0.0209 216.23)",
+          "oklch(0.2643 0.0209 216.23)",
+          "oklch(0.3786 0.0209 216.23)",
+          "oklch(0.4929 0.0209 216.23)",
+          "oklch(0.6071 0.0209 216.23)",
+          "oklch(0.7214 0.0209 216.23)",
+          "oklch(0.8357 0.0209 216.23)",
+          "oklch(0.9500 0.0209 216.23)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Slate boundary",
+        "canonical": "#36515b",
+        "tonalRamp": [
+          "oklch(0.1500 0.0365 223.09)",
+          "oklch(0.2643 0.0365 223.09)",
+          "oklch(0.3786 0.0365 223.09)",
+          "oklch(0.4929 0.0365 223.09)",
+          "oklch(0.6071 0.0365 223.09)",
+          "oklch(0.7214 0.0365 223.09)",
+          "oklch(0.8357 0.0365 223.09)",
+          "oklch(0.9500 0.0365 223.09)"
+        ]
+      },
+      "gold": {
+        "role": "secondary",
+        "displayName": "Travel gold",
+        "canonical": "#dfc18a",
+        "tonalRamp": [
+          "oklch(0.1500 0.0792 82.27)",
+          "oklch(0.2643 0.0792 82.27)",
+          "oklch(0.3786 0.0792 82.27)",
+          "oklch(0.4929 0.0792 82.27)",
+          "oklch(0.6071 0.0792 82.27)",
+          "oklch(0.7214 0.0792 82.27)",
+          "oklch(0.8357 0.0792 82.27)",
+          "oklch(0.9500 0.0792 82.27)"
+        ]
+      },
+      "studio-nav": {
+        "role": "neutral",
+        "displayName": "Studio navy rail",
+        "canonical": "#102a35",
+        "tonalRamp": [
+          "oklch(0.1500 0.0378 228.24)",
+          "oklch(0.2643 0.0378 228.24)",
+          "oklch(0.3786 0.0378 228.24)",
+          "oklch(0.4929 0.0378 228.24)",
+          "oklch(0.6071 0.0378 228.24)",
+          "oklch(0.7214 0.0378 228.24)",
+          "oklch(0.8357 0.0378 228.24)",
+          "oklch(0.9500 0.0378 228.24)"
+        ]
+      },
+      "studio-nav-text": {
+        "role": "neutral",
+        "displayName": "Studio rail text",
+        "canonical": "#e8f1eb",
+        "tonalRamp": [
+          "oklch(0.1500 0.0124 157.00)",
+          "oklch(0.2643 0.0124 157.00)",
+          "oklch(0.3786 0.0124 157.00)",
+          "oklch(0.4929 0.0124 157.00)",
+          "oklch(0.6071 0.0124 157.00)",
+          "oklch(0.7214 0.0124 157.00)",
+          "oklch(0.8357 0.0124 157.00)",
+          "oklch(0.9500 0.0124 157.00)"
+        ]
+      },
+      "studio-dark-strong": {
+        "role": "primary",
+        "displayName": "Dark admin action hover",
+        "canonical": "#a3e8d8",
+        "tonalRamp": [
+          "oklch(0.1500 0.0726 178.47)",
+          "oklch(0.2643 0.0726 178.47)",
+          "oklch(0.3786 0.0726 178.47)",
+          "oklch(0.4929 0.0726 178.47)",
+          "oklch(0.6071 0.0726 178.47)",
+          "oklch(0.7214 0.0726 178.47)",
+          "oklch(0.8357 0.0726 178.47)",
+          "oklch(0.9500 0.0726 178.47)"
+        ]
+      },
+      "studio-dark-danger": {
+        "role": "neutral",
+        "displayName": "Dark admin danger",
+        "canonical": "#ffb4a9",
+        "tonalRamp": [
+          "oklch(0.1500 0.0896 28.41)",
+          "oklch(0.2643 0.0896 28.41)",
+          "oklch(0.3786 0.0896 28.41)",
+          "oklch(0.4929 0.0896 28.41)",
+          "oklch(0.6071 0.0896 28.41)",
+          "oklch(0.7214 0.0896 28.41)",
+          "oklch(0.8357 0.0896 28.41)",
+          "oklch(0.9500 0.0896 28.41)"
+        ]
+      },
+      "studio-light-paper": {
+        "role": "neutral",
+        "displayName": "Sand worktable",
+        "canonical": "#f7f4ed",
+        "tonalRamp": [
+          "oklch(0.1500 0.0098 87.47)",
+          "oklch(0.2643 0.0098 87.47)",
+          "oklch(0.3786 0.0098 87.47)",
+          "oklch(0.4929 0.0098 87.47)",
+          "oklch(0.6071 0.0098 87.47)",
+          "oklch(0.7214 0.0098 87.47)",
+          "oklch(0.8357 0.0098 87.47)",
+          "oklch(0.9500 0.0098 87.47)"
+        ]
+      },
+      "studio-light-surface": {
+        "role": "neutral",
+        "displayName": "Warm white",
+        "canonical": "#fffdf8",
+        "tonalRamp": [
+          "oklch(0.1500 0.0069 88.64)",
+          "oklch(0.2643 0.0069 88.64)",
+          "oklch(0.3786 0.0069 88.64)",
+          "oklch(0.4929 0.0069 88.64)",
+          "oklch(0.6071 0.0069 88.64)",
+          "oklch(0.7214 0.0069 88.64)",
+          "oklch(0.8357 0.0069 88.64)",
+          "oklch(0.9500 0.0069 88.64)"
+        ]
+      },
+      "studio-light-ink": {
+        "role": "neutral",
+        "displayName": "Ocean ink",
+        "canonical": "#183d42",
+        "tonalRamp": [
+          "oklch(0.1500 0.0428 207.20)",
+          "oklch(0.2643 0.0428 207.20)",
+          "oklch(0.3786 0.0428 207.20)",
+          "oklch(0.4929 0.0428 207.20)",
+          "oklch(0.6071 0.0428 207.20)",
+          "oklch(0.7214 0.0428 207.20)",
+          "oklch(0.8357 0.0428 207.20)",
+          "oklch(0.9500 0.0428 207.20)"
+        ]
+      },
+      "studio-light-muted": {
+        "role": "neutral",
+        "displayName": "Light admin muted copy",
+        "canonical": "#52696b",
+        "tonalRamp": [
+          "oklch(0.1500 0.0275 202.89)",
+          "oklch(0.2643 0.0275 202.89)",
+          "oklch(0.3786 0.0275 202.89)",
+          "oklch(0.4929 0.0275 202.89)",
+          "oklch(0.6071 0.0275 202.89)",
+          "oklch(0.7214 0.0275 202.89)",
+          "oklch(0.8357 0.0275 202.89)",
+          "oklch(0.9500 0.0275 202.89)"
+        ]
+      },
+      "studio-light-line": {
+        "role": "neutral",
+        "displayName": "Light admin separator",
+        "canonical": "#cbd3cb",
+        "tonalRamp": [
+          "oklch(0.1500 0.0139 145.45)",
+          "oklch(0.2643 0.0139 145.45)",
+          "oklch(0.3786 0.0139 145.45)",
+          "oklch(0.4929 0.0139 145.45)",
+          "oklch(0.6071 0.0139 145.45)",
+          "oklch(0.7214 0.0139 145.45)",
+          "oklch(0.8357 0.0139 145.45)",
+          "oklch(0.9500 0.0139 145.45)"
+        ]
+      },
+      "studio-light-teal": {
+        "role": "primary",
+        "displayName": "Light admin teal",
+        "canonical": "#14665f",
+        "tonalRamp": [
+          "oklch(0.1500 0.0749 186.21)",
+          "oklch(0.2643 0.0749 186.21)",
+          "oklch(0.3786 0.0749 186.21)",
+          "oklch(0.4929 0.0749 186.21)",
+          "oklch(0.6071 0.0749 186.21)",
+          "oklch(0.7214 0.0749 186.21)",
+          "oklch(0.8357 0.0749 186.21)",
+          "oklch(0.9500 0.0749 186.21)"
+        ]
+      },
+      "studio-light-hover": {
+        "role": "neutral",
+        "displayName": "Light admin hover",
+        "canonical": "#e7eee7",
+        "tonalRamp": [
+          "oklch(0.1500 0.0119 145.48)",
+          "oklch(0.2643 0.0119 145.48)",
+          "oklch(0.3786 0.0119 145.48)",
+          "oklch(0.4929 0.0119 145.48)",
+          "oklch(0.6071 0.0119 145.48)",
+          "oklch(0.7214 0.0119 145.48)",
+          "oklch(0.8357 0.0119 145.48)",
+          "oklch(0.9500 0.0119 145.48)"
+        ]
+      },
+      "studio-light-focus": {
+        "role": "secondary",
+        "displayName": "Warm gold focus",
+        "canonical": "#906119",
+        "tonalRamp": [
+          "oklch(0.1500 0.1031 72.49)",
+          "oklch(0.2643 0.1031 72.49)",
+          "oklch(0.3786 0.1031 72.49)",
+          "oklch(0.4929 0.1031 72.49)",
+          "oklch(0.6071 0.1031 72.49)",
+          "oklch(0.7214 0.1031 72.49)",
+          "oklch(0.8357 0.1031 72.49)",
+          "oklch(0.9500 0.1031 72.49)"
+        ]
+      },
+      "studio-light-danger": {
+        "role": "neutral",
+        "displayName": "Light admin danger",
+        "canonical": "#a3352f",
+        "tonalRamp": [
+          "oklch(0.1500 0.1463 27.03)",
+          "oklch(0.2643 0.1463 27.03)",
+          "oklch(0.3786 0.1463 27.03)",
+          "oklch(0.4929 0.1463 27.03)",
+          "oklch(0.6071 0.1463 27.03)",
+          "oklch(0.7214 0.1463 27.03)",
+          "oklch(0.8357 0.1463 27.03)",
+          "oklch(0.9500 0.1463 27.03)"
+        ]
+      },
+      "studio-light-strong": {
+        "role": "primary",
+        "displayName": "Light admin action hover",
+        "canonical": "#074c4a",
+        "tonalRamp": [
+          "oklch(0.1500 0.0622 191.70)",
+          "oklch(0.2643 0.0622 191.70)",
+          "oklch(0.3786 0.0622 191.70)",
+          "oklch(0.4929 0.0622 191.70)",
+          "oklch(0.6071 0.0622 191.70)",
+          "oklch(0.7214 0.0622 191.70)",
+          "oklch(0.8357 0.0622 191.70)",
+          "oklch(0.9500 0.0622 191.70)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "sans": {
+        "displayName": "Open Sans family",
+        "purpose": "Inherited body and controls."
+      },
+      "headings": {
+        "displayName": "Outfit family",
+        "purpose": "Established heading adapter and retained fallback."
+      },
+      "display": {
+        "displayName": "Merchandise display",
+        "purpose": "Product-led store headline; phone size is 44px."
+      },
+      "headline": {
+        "displayName": "Shared headline",
+        "purpose": "Public page title."
+      },
+      "title": {
+        "displayName": "Section title",
+        "purpose": "Shared section heading."
+      },
+      "body": {
+        "displayName": "Public body",
+        "purpose": "Desktop inherited body; phone base is 15px and shared shell paragraphs use 1.65 line height."
+      },
+      "label": {
+        "displayName": "Action label",
+        "purpose": "Public action label."
+      },
+      "input": {
+        "displayName": "Shared input",
+        "purpose": "Readable public form controls."
+      },
+      "editorial": {
+        "displayName": "Destination editorial",
+        "purpose": "Established Georgia destination material."
+      },
+      "studio-heading": {
+        "displayName": "Studio heading",
+        "purpose": "Admin title; MFA instead uses clamp(28px, 4vw, 36px)."
+      },
+      "studio-body": {
+        "displayName": "Studio body",
+        "purpose": "Compact admin data and controls."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shared-overlay",
+        "value": "0 24px 80px #0007",
+        "purpose": "Dialogs and account disclosure; runtime --p2-shadow."
+      },
+      {
+        "name": "travel-thumbnail",
+        "value": "0 8px 20px #0005",
+        "purpose": "Temporary actual-product image flight."
+      },
+      {
+        "name": "public-action-hover",
+        "value": "0 3px 18px #83d9c614",
+        "purpose": "Restrained public safe-action hover."
+      }
+    ],
+    "motion": [
+      {
+        "name": "travel-duration",
+        "value": "800ms",
+        "purpose": "41 measured cubic Bezier samples; linear timing along keyframes, shrinking scale; plane follows tangent."
+      },
+      {
+        "name": "local-duration",
+        "value": "300ms",
+        "purpose": "Local flourish when the receiving target is absent, hidden, offscreen or outside an active native dialog."
+      },
+      {
+        "name": "receiving-pulse",
+        "value": "300ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Receiving control scales to 1.09 while preserving its existing transform."
+      },
+      {
+        "name": "source-feedback",
+        "value": "180ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Source control briefly scales to .96 while preserving its existing transform."
+      },
+      {
+        "name": "count-feedback",
+        "value": "200ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Actual displayed count fades/slides; no manufactured intermediate numbers."
+      },
+      {
+        "name": "public-button",
+        "value": "180ms",
+        "purpose": "Background, border and shadow transition; reduced motion removes transitions."
+      },
+      {
+        "name": "studio-button",
+        "value": "160ms ease-out",
+        "purpose": "Admin button background transition; reduced motion removes it."
+      },
+      {
+        "name": "product-hover",
+        "value": "400ms",
+        "purpose": "Existing photograph scale to 1.025; disabled under reduced motion."
+      },
+      {
+        "name": "reduced-motion-confirmation",
+        "value": "700ms",
+        "purpose": "Static outline lifetime; no traveling node. Flights are capped at six and cancelled on navigation, resize, hiding or unmount."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "public-phone",
+        "value": "520px"
+      },
+      {
+        "name": "table-records",
+        "value": "600px"
+      },
+      {
+        "name": "merch-stack",
+        "value": "650px"
+      },
+      {
+        "name": "studio-drawer",
+        "value": "800px"
+      },
+      {
+        "name": "legacy-tablet",
+        "value": "921px"
+      },
+      {
+        "name": "merch-two-columns",
+        "value": "1000px"
+      },
+      {
+        "name": "studio-compact-rail",
+        "value": "1100px"
+      },
+      {
+        "name": "studio-wide",
+        "value": "1700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Public primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Shared safe action, with the established target size and hover/focus feedback.",
+      "html": "<button class=\"ds-primary\">Save changes</button>",
+      "css": ".ds-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid transparent;border-radius:10px;padding:11px 18px;font:600 14px/1.4 \"Open Sans\",sans-serif;text-decoration:none;cursor:pointer;white-space:normal;text-align:center;transition:background .18s,border-color .18s,box-shadow .18s;background:var(--p2-teal,#83d9c6);color:#08252b}.ds-primary:hover{background:#a4eadc;box-shadow:0 3px 18px #83d9c614}.ds-primary:focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}.ds-primary:active{box-shadow:inset 0 0 0 2px #ffffff50}.ds-primary:disabled{opacity:.5;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none}}"
+    },
+    {
+      "name": "Public quiet action",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Outlined secondary action on public navy surfaces.",
+      "html": "<button class=\"ds-quiet\">Cancel</button>",
+      "css": ".ds-quiet{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid transparent;border-radius:10px;padding:11px 18px;font:600 14px/1.4 \"Open Sans\",sans-serif;text-decoration:none;cursor:pointer;white-space:normal;text-align:center;transition:background .18s,border-color .18s,box-shadow .18s;background:transparent;border-color:var(--p2-line,#36515b);color:var(--p2-text,#f4f4eb)}.ds-quiet:hover{background:var(--p2-raised,#18333e);border-color:var(--p2-teal,#83d9c6)}.ds-quiet:focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}.ds-quiet:active{box-shadow:inset 0 0 0 2px #ffffff50}@media(prefers-reduced-motion:reduce){.ds-quiet{transition:none}}"
+    },
+    {
+      "name": "Public text field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Visible label and readable native field; the browser owns popup geometry for related select/date inputs.",
+      "html": "<label class=\"ds-field\">Place name<input class=\"ds-input\" type=\"text\" placeholder=\"Place name\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:8px;color:var(--p2-text,#f4f4eb);font:400 14px/1.6 \"Open Sans\",sans-serif}.ds-input{min-width:0;min-height:44px;border:1px solid var(--p2-line,#36515b);border-radius:8px;padding:12px;background:var(--p2-navy,#081823);color:var(--p2-text,#f4f4eb);font:400 16px/1.5 \"Open Sans\",sans-serif;color-scheme:dark}.ds-input::placeholder{color:var(--p2-muted,#b4c6cb);opacity:1}.ds-input:hover{border-color:#6d9298}.ds-input:focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}"
+    },
+    {
+      "name": "Public section navigation",
+      "kind": "nav",
+      "description": "Shared navigation uses a boundary and a visible current-page underline.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Account\"><a href=\"#\" aria-current=\"page\">Bucketlist</a><a href=\"#\">Visited Places</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;flex-wrap:wrap;gap:16px;border-bottom:1px solid var(--p2-line,#36515b);padding-bottom:18px;margin-bottom:28px;font:400 16px/1.85714286 \"Open Sans\",sans-serif}.ds-nav a{display:inline-flex;align-items:center;min-height:44px;padding:10px 0;color:var(--p2-teal,#83d9c6);text-decoration:none}.ds-nav a[aria-current=\"page\"]{color:var(--p2-text,#f4f4eb);border-bottom:2px solid var(--p2-teal,#83d9c6)}.ds-nav a:hover{text-decoration:underline}.ds-nav a:focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}"
+    },
+    {
+      "name": "Collection filter",
+      "kind": "chip",
+      "refersTo": "button-quiet",
+      "description": "Existing pressed filter state uses safe-action fill and explicit pressed semantics.",
+      "html": "<button class=\"ds-filter\" aria-pressed=\"true\">All</button>",
+      "css": ".ds-filter{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid transparent;border-radius:10px;padding:11px 18px;font:600 14px/1.4 \"Open Sans\",sans-serif;text-decoration:none;cursor:pointer;white-space:normal;text-align:center;transition:background .18s,border-color .18s,box-shadow .18s;background:transparent;color:var(--p2-text,#f4f4eb);border-color:var(--p2-line,#36515b)}.ds-filter[aria-pressed=\"true\"]{background:var(--p2-teal,#83d9c6);color:#08252b;border-color:var(--p2-teal,#83d9c6)}.ds-filter:hover{background:#a4eadc;color:#08252b}.ds-filter:focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}.ds-filter:active{box-shadow:inset 0 0 0 2px #ffffff50}@media(prefers-reduced-motion:reduce){.ds-filter{transition:none}}"
+    },
+    {
+      "name": "Featured card body and action",
+      "kind": "card",
+      "refersTo": "featured-card",
+      "description": "Source-derived body/action excerpt; the token preview omits the existing destination photograph.",
+      "html": "<article class=\"ds-featured\"><div class=\"ds-featured-body\"><a class=\"ds-featured-name\" href=\"#\">Place name</a><p class=\"ds-featured-meta\">Category · Travel time</p></div><button class=\"ds-featured-action\">Add to itinerary</button></article>",
+      "css": ".ds-featured{display:flex;flex-direction:column;min-width:0;background:#fff;border-radius:16px;overflow:hidden;font-family:\"Open Sans\",sans-serif}.ds-featured-body{display:block;padding:var(--p2-card-inset,20px)}.ds-featured-name{color:#11202a;font-weight:600;font-size:1.05rem;text-decoration:none}.ds-featured-name:hover{text-decoration:underline}.ds-featured-meta{display:flex;gap:16px;margin:10px 0 0;color:#45606f;font-size:.82rem}.ds-featured-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid transparent;border-radius:10px;padding:11px 18px;font:600 14px/1.4 \"Open Sans\",sans-serif;text-decoration:none;cursor:pointer;white-space:normal;text-align:center;transition:background .18s,border-color .18s,box-shadow .18s;align-self:start;margin:0 var(--p2-card-inset,20px) var(--p2-card-inset,20px);font-size:12px;color:#123d3e;border-color:#567575;background:transparent}.ds-featured-action:hover{background:#e7eee7}.ds-featured-action:active{box-shadow:inset 0 0 0 2px #ffffff50}.ds-featured :is(a,button):focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-featured-action{transition:none}}"
+    },
+    {
+      "name": "Studio dark primary action",
+      "kind": "button",
+      "refersTo": "studio-button-dark",
+      "description": "Default navy Studio primary action with gold focus.",
+      "html": "<button class=\"ds-studio-dark\">Save changes</button>",
+      "css": ".ds-studio-dark{min-height:44px;border:1px solid;border-radius:7px;padding:9px 14px;font:600 14px/1.4 \"Open Sans\",sans-serif;cursor:pointer;transition:background-color .16s ease-out;background:#83d9c6;color:#08252b;border-color:#83d9c6}.ds-studio-dark:hover:not(:disabled){background:#a3e8d8}.ds-studio-dark:focus-visible{outline:3px solid #dfc18a;outline-offset:3px}.ds-studio-dark:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-studio-dark{transition:none}}"
+    },
+    {
+      "name": "Studio light primary action",
+      "kind": "button",
+      "refersTo": "studio-button-light",
+      "description": "Warm-light Studio action preserves the same geometry with the light theme contrast pair.",
+      "html": "<button class=\"ds-studio-light\">Save changes</button>",
+      "css": ".ds-studio-light{min-height:44px;border:1px solid;border-radius:7px;padding:9px 14px;font:600 14px/1.4 \"Open Sans\",sans-serif;cursor:pointer;transition:background-color .16s ease-out;background:#14665f;color:#fffdf8;border-color:#14665f}.ds-studio-light:hover:not(:disabled){background:#074c4a}.ds-studio-light:focus-visible{outline:3px solid #906119;outline-offset:3px}.ds-studio-light:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-studio-light{transition:none}}"
+    },
+    {
+      "name": "Studio light text field",
+      "kind": "input",
+      "refersTo": "studio-input-light",
+      "description": "Scoped warm surface with ocean ink; the native color-scheme follows the admin preference.",
+      "html": "<label class=\"ds-studio-field\">Place name<input class=\"ds-studio-input\" type=\"text\" placeholder=\"Place name\"></label>",
+      "css": ".ds-studio-field{display:flex;flex-direction:column;gap:6px;color:#183d42;font:400 14px/1.6 \"Open Sans\",sans-serif}.ds-studio-input{min-width:0;min-height:44px;border:1px solid #cbd3cb;border-radius:7px;padding:10px 12px;color:#183d42;background:#fffdf8;font:400 14px/1.6 \"Open Sans\",sans-serif;color-scheme:light}.ds-studio-input::placeholder{color:#52696b;opacity:1}.ds-studio-input:focus-visible{outline:3px solid #906119;outline-offset:3px}"
+    },
+    {
+      "name": "Studio status pair",
+      "kind": "chip",
+      "description": "Read-only published status shown in both authored admin theme pairs.",
+      "html": "<div class=\"ds-status-pair\"><span class=\"ds-status ds-status-dark\">Published</span><span class=\"ds-status ds-status-light\">Published</span></div>",
+      "css": ".ds-status-pair{display:flex;flex-wrap:wrap;gap:12px}.ds-status{display:inline-flex;padding:3px 8px;border:1px solid;border-radius:5px;font:600 12px/1.6 \"Open Sans\",sans-serif;white-space:nowrap;text-transform:capitalize}.ds-status-dark{color:#a3e8d8;background:#183d3b;border-color:#45766c}.ds-status-light{color:#185346;background:#e0eee1;border-color:#a6c1af}@media(forced-colors:active){.ds-status{border:1px solid CanvasText}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Palawan map and travel notebook",
+    "overview": "The existing Unlock Paradise Palawan map, immersive destination photographs and original Outfit lettering define the visual world. Planning feels like arranging stops on a travel notebook alongside a satellite map. Destination guides use an editorial reading column and an ordered journey from city to shore.\n\nPhotography and maps carry expression. Home and merchandise support discovery; destination guides support reading; member planning and Admin Studio support tasks. Forms, tables, permissions and confirmations stay familiar and legible. Admin extends this same identity with a navy navigation rail, calm working surfaces and the existing official palm-lock mark.",
+    "keyCharacteristics": [
+      "Existing Palawan photography, maps and official identity assets.",
+      "Outfit headings with Open Sans controls and data.",
+      "Navy, teal and gold public surfaces; scoped navy and warm sand admin themes.",
+      "Shared card anatomy, clear action boundaries and measured travel feedback."
+    ],
+    "rules": [
+      {
+        "name": "The Scoped Theme Rule",
+        "body": "Admin defaults to dark navy and offers a persistent warm light option only within the admin scope. Public pages and public-style admin Place previews retain their established palette.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Heading Family Rule",
+        "body": "New store and admin headings inherit Outfit from their shared owner; Georgia stays with the established destination editorial material.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shared Card Anatomy Rule",
+        "body": "Use the shared inset, compact and gap tokens for card content. Destination bodies and featured card bodies use the shared inset; Featured Destination cards navigate to the Place and do not offer an itinerary action. Product text and purchase controls are separate semantic siblings; names wrap naturally. The compact step is part of the authored scale, not a blanket override of every card.",
+        "section": "layout"
+      },
+      {
+        "name": "The Measured Clearance Rule",
+        "body": "Floating Bucketlist/cart controls reserve space around actual fields, actions, product titles and metadata, and footer links at their current viewport edge. Maintain the measured control gap (8px), remain below the header, and hide when no clear position exists. Settle clearance before measuring a flight endpoint; a moved dock cancels old flights. Existing focus and open-dialog visibility rules remain in force.",
+        "section": "layout"
+      },
+      {
+        "name": "The Confirmed Travel Rule",
+        "body": "Launch a Bucketlist plane only after the existing mutation confirms success; cart travel follows a validated browser-local addition. Flights decorate the actual state and counts, never manufacture them.",
+        "section": "components"
+      },
+      {
+        "name": "The Consented Identity Rule",
+        "body": "Public traveler badges appear only after explicit sharing consent. A teal traveler-type badge leads up to two muted interest badges; private answers remain in the owner's account. Badge groups wrap naturally and keep readable labels. The account sharing checkbox shows its pending choice while disabled, announces saving, and restores the confirmed choice on failure.",
+        "section": "components"
+      },
+      {
+        "name": "The Browsing Navigation Rule",
+        "body": "Primary navigation orders About, Membership, Merch, Contact Us, Itinerary Planner and Profile. Profile uses a photograph/person icon with an accessible Profile name and no visible text label. Area category navigation retains the selected area. Merchandise has one shared floating cart; the upper breadcrumb does not duplicate it.",
+        "section": "components"
+      },
+      {
+        "name": "The Product Selection Rule",
+        "body": "Brands own collections and products select both. Existing options use native selects; inline Add creates reusable options without leaving the editor. Product photos are uploaded directly into the current editor, with cover, reorder, replace and remove actions. There is no cross-product photo picker.",
+        "section": "components"
+      },
+      {
+        "name": "The Access Point Rule",
+        "body": "Verified access points are separate from destination coordinates and remain protected by Place membership rules. Teal square pins, transport icons and visible text labels distinguish access points from the gold destination pin. Text lists retain access information when map tiles fail.",
+        "section": "components"
+      },
+      {
+        "name": "The Branded Auth Rule",
+        "body": "Auth routes use the official palm-lock mark, established typography and navy surface. Field and autofill text use --p2-text. Password visibility is an inset eye icon with an accessible action name. Registration confirms the password and requires twelve characters on the page and server; email verification and existing access checks remain intact.",
+        "section": "components"
+      },
+      {
+        "name": "The Compact Discovery Rule",
+        "body": "The planner's right-hand Your day, on the map panel defaults to homepage-style area/category discovery, destination pins and a keyboard/touch list. Day stops switches that same panel to saved numbered stops. The search column has no duplicate map; its map action focuses the right panel (Map view on phones). Search and map share filters and one cancelable catalog load. Categories stay inline, saved additions remain visible, and membership-filtered inventory is authoritative. The admin Collection filter remains visible even with one collection and persists in the list URL.",
+        "section": "components"
+      },
+      {
+        "name": "The Inclusive Trip Rule",
+        "body": "Start and end dates determine the initial day count inclusively. Flexible new trips start with one day. Add day extends the end date; occupied days must be cleared before shortening a trip.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** keep the map, real photography and official palm-lock identity central to discovery.",
+      "**Do** reuse the shared state, form, tooltip, modal, card and travel owners across screens.",
+      "**Do** keep admin themes scoped and propagate the chosen theme through portals and native controls.",
+      "**Do** preserve membership, variant, quantity and owner isolation at their authoritative boundaries.",
+      "**Do** preserve visible text and control geometry throughout navigation and saves."
+    ],
+    "donts": [
+      "**Don't** replace the established public palette or fonts while extending admin or merchandise.",
+      "**Don't** turn legacy generic travel time into a boat or hike duration.",
+      "**Don't** claim purchases, saves or plans succeeded before their real storage confirms them.",
+      "**Don't** aim decorative travel at a hardcoded viewport corner or cover active controls with a floating dock.",
+      "**Don't** turn inherited decorative eyebrows or glyph placeholders into reusable system rules."
+    ]
+  }
+}

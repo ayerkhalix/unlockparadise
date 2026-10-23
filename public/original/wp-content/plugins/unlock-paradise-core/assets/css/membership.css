@@ -1,0 +1,972 @@
+/* ==========================================================================
+   Membership: wall, upgrade prompt, auth forms, account page, nav items
+   Palette: tokens only; see the teal ramp and --upd-vip-gold in style.css :root.
+            Use --upd-fill (solid controls), --upd-accent (text/icons on navy),
+            --upd-vip-gold (Explorer+). #16242c is the dark label on teal/gold.
+   ========================================================================== */
+
+/* ---------------- Shared card shell (wall + upgrade panels) --------------- */
+/* Dark panel, matching the member surfaces. As a white card the shell's <h2>
+   inherits white from Astra (white on white, 1.00:1), which makes "Unlock more
+   of paradise" invisible to free members on Explorer+ places. The colours below
+   are the .upd-auth-card token values. .upd-wall shares the shell but only ever
+   renders into REST and RSS (upd_gate_place_content), so it has no visual
+   surface of its own. */
+.upd-wall,
+.upd-upgrade {
+	max-width: 460px;
+	margin: 2.5rem auto;
+	padding: 2rem 1.5rem;
+	text-align: center;
+	background: rgba(255, 255, 255, .04);
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: var(--upd-r-18px);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+}
+
+.upd-wall__icon,
+.upd-upgrade__icon {
+	display: flex;
+	justify-content: center;
+	margin-bottom: .75rem;
+	color: var(--upd-accent); /* --upd-accent, the member-surface teal */
+}
+
+.upd-wall__title,
+.upd-upgrade__title {
+	font-size: 1.4rem;
+	margin: 0 0 .4rem;
+	color: var(--upd-c-blue-05bbb);
+}
+
+.upd-wall__sub,
+.upd-upgrade__sub {
+	color: var(--upd-c-blue-20b);
+	margin: 0 0 1.25rem;
+}
+
+.upd-upgrade__note {
+	font-size: var(--upd-fs-85rem);
+	color: var(--upd-c-blue-40b);
+	margin-top: .75rem;
+}
+
+.upd-upgrade__note a {
+	color: var(--upd-accent);
+}
+
+/* Container for the gated single-place shells. The guest branch renders <main
+   class="upd-place upd-place--gated upd-gate"> and gets its width from
+   .upd-gate. The free-member branch (single-place.php) renders the same main
+   WITHOUT .upd-gate, so it needs a container here; Astra's .ast-container is a
+   flex row, and without this the whole page shrink-wraps to ~500px,
+   left-aligned, with a 70px unstyled title flush to the viewport edge. */
+.upd-place--gated {
+	width: 100%;
+	max-width: 1040px;
+	margin: 1.5rem auto 3rem;
+	padding: 0 16px;
+}
+
+.upd-place__title {
+	margin: 0 0 1.25rem;
+	color: var(--upd-c-blue-05bbb);
+	font-size: clamp(1.75rem, 1.3rem + 2vw, 2.4rem);
+	line-height: 1.15;
+	text-wrap: balance;
+}
+
+/* Auth card: join / login, the guest state of /account/, and the guest state of
+   the Bucketlist + Portfolio feeds. Shares the dark panel language of
+   /account/, so the whole member area reads as one place and no .upd-auth-*
+   rule has to assume a light background (a light-card variant would make the
+   labels invisible where the profile hub reuses them on the dark page). */
+.upd-auth-card {
+	--upd-line: rgba(255, 255, 255, .12);
+	--upd-ink: #f5f7fa;
+	--upd-ink-soft: #c8d2d8;
+	--upd-ink-mute: #8ea3ad;
+
+	max-width: 440px;
+	margin: 2.5rem auto 3.5rem;
+	padding: 2.25rem 1.75rem;
+	border: 1px solid var(--upd-line);
+	border-radius: var(--upd-r-18px);
+	background: rgba(255, 255, 255, .04);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+	color: var(--upd-ink-soft);
+}
+
+.upd-auth-card .upd-account {
+	margin: 0;
+	max-width: none;
+}
+
+/* The card carries its own heading, so the WordPress page title above it is a
+   duplicate ("Sign in" twice, at the same 30px). Hidden only when a card is
+   actually present; a logged-in /account/ renders .upd-profile instead and
+   keeps its "Account" title. */
+.upd-auth-page:has(.upd-auth-card) .entry-title {
+	display: none;
+}
+
+/* ---------------- Auth card head ------------------------------------------ */
+.upd-auth-head {
+	margin-bottom: 1.75rem;
+}
+
+/* The lock is the product's own metaphor, the same glyph pair used by the
+   Explorer+ filter toggle and the place gate. Given a quiet teal badge here it
+   ties the page to the brand verb instead of reading as a stock padlock. */
+.upd-auth-head__icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 58px;
+	height: 58px;
+	margin-bottom: 1.15rem;
+	border: 1px solid rgba(134, 216, 200, .32);
+	border-radius: var(--upd-r-50);
+	background: radial-gradient(circle at 32% 26%, rgba(31, 158, 138, .34), rgba(31, 158, 138, .1));
+	color: var(--upd-accent);
+}
+
+.upd-auth-head__icon svg {
+	width: 26px;
+	height: 26px;
+	fill: currentColor;
+}
+
+/* Overrides Astra's 30px h2, the same size as the page title above it, which
+   pushes "Join Unlock Paradise, free" onto two lines with a dangling "free".
+   balance keeps the wrap even without touching the copy. */
+.upd-auth-card .upd-auth-head__title {
+	margin: 0 0 .55rem;
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-1-5rem);
+	line-height: 1.25;
+	text-wrap: balance;
+}
+
+.upd-auth-card .upd-auth-head__sub {
+	margin: 0;
+	color: var(--upd-ink-mute);
+	font-size: var(--upd-fs-95rem);
+	line-height: 1.55;
+}
+
+/* ---------------- Auth form (join / login pages) -------------------------- */
+.upd-auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: .85rem;
+	text-align: left;
+}
+
+/* Dark-surface defaults. These are the shared field styles for every context
+   the auth form appears in (auth card + profile hub); there is no light-card
+   variant, which is what would make them invisible when reused. */
+.upd-auth-field {
+	display: flex;
+	flex-direction: column;
+	gap: .4rem;
+	font-size: var(--upd-fs-85rem);
+	font-weight: 600;
+	color: var(--upd-c-blue-20b);
+}
+
+.upd-auth-field input {
+	padding: .75rem .85rem;
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: var(--upd-r-10px);
+	background: rgba(255, 255, 255, .06);
+	color: var(--upd-c-blue-05bbb);
+	font-size: var(--upd-fs-1rem);
+	font-weight: 400;
+}
+
+.upd-auth-field input::placeholder {
+	color: var(--upd-c-blue-40b);
+}
+
+.upd-auth-field input:focus {
+	outline: none;
+	border-color: var(--upd-teal);
+	box-shadow: 0 0 0 3px rgba(31, 158, 138, .25);
+}
+
+.upd-auth-error {
+	margin: 0;
+	padding: .65rem .85rem;
+	border: 1px solid rgba(229, 115, 115, .45);
+	border-radius: var(--upd-r-10px);
+	background: rgba(229, 115, 115, .14);
+	color: #f3b0b0;
+	font-size: var(--upd-fs-9rem);
+}
+
+/* Recovery link: right-aligned and pulled up against the flex gap so it reads
+   as belonging to the password field above it, not as its own row. */
+.upd-auth-forgot {
+	margin-top: -.45rem;
+	align-self: flex-end;
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-82rem);
+	text-decoration: none;
+}
+
+.upd-auth-forgot:hover,
+.upd-auth-forgot:focus-visible {
+	color: var(--upd-c-blue-05bbb);
+	text-decoration: underline;
+}
+
+/* Terms consent on the join form. The whole label is the tap target; the box
+   sits on the first line of text so a wrapped sentence still reads as one row. */
+.upd-auth-consent {
+	display: flex;
+	align-items: flex-start;
+	gap: .65rem;
+	padding: .35rem 0;
+	color: var(--upd-c-blue-20b);
+	font-size: var(--upd-fs-85rem);
+	font-weight: 400;
+	line-height: 1.45;
+	cursor: pointer;
+}
+
+.upd-auth-consent input[type="checkbox"] {
+	flex: none;
+	width: 20px;
+	height: 20px;
+	margin: .1rem 0 0;
+	accent-color: var(--upd-fill);
+	cursor: pointer;
+}
+
+.upd-auth-consent input[type="checkbox"]:focus-visible {
+	outline: 2px solid var(--upd-teal);
+	outline-offset: 2px;
+}
+
+.upd-auth-consent a {
+	color: var(--upd-accent);
+	font-weight: 600;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.upd-auth-consent a:hover,
+.upd-auth-consent a:focus-visible {
+	color: var(--upd-c-blue-05bbb);
+}
+
+.upd-auth-alt {
+	margin: .35rem 0 0;
+	color: var(--upd-c-blue-40b);
+	font-size: .88rem;
+	text-align: center;
+	text-wrap: balance; /* no single word left alone on a second line */
+}
+
+.upd-auth-alt a {
+	color: var(--upd-accent);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.upd-auth-alt a:hover {
+	color: var(--upd-c-blue-05bbb);
+	text-decoration: underline;
+}
+
+/* Success notice inside an auth card. The profile hub styles its own. */
+.upd-auth-card .upd-auth-ok {
+	margin: 0;
+	padding: .65rem .85rem;
+	border: 1px solid rgba(31, 158, 138, .45);
+	border-radius: var(--upd-r-10px);
+	background: rgba(31, 158, 138, .12);
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-9rem);
+	line-height: 1.5;
+}
+
+/* The member's own email inside a card sentence. */
+.upd-auth-card .upd-auth-em {
+	color: var(--upd-ink);
+	font-weight: 600;
+	overflow-wrap: anywhere;
+}
+
+/* Field hint, pulled up against the flex gap so it belongs to the field. */
+.upd-auth-hint {
+	margin: -.45rem 0 0;
+	color: var(--upd-c-blue-40b);
+	font-size: var(--upd-fs-82rem);
+}
+
+/* Password field with a Show / Hide control inside its right edge. Every state
+   is spelled out because Astra paints button:hover and :focus as a gold pill. */
+.upd-auth-reveal {
+	position: relative;
+	display: block;
+}
+
+.upd-auth-reveal input {
+	width: 100%;
+	padding-right: 4.25rem;
+}
+
+.upd-auth-field .upd-auth-reveal__btn,
+.upd-auth-field .upd-auth-reveal__btn:hover,
+.upd-auth-field .upd-auth-reveal__btn:focus {
+	position: absolute;
+	top: 50%;
+	right: .35rem;
+	transform: translateY(-50%);
+	min-width: 3.5rem;
+	padding: .5rem .6rem;
+	border: 0;
+	border-radius: var(--upd-r-8px);
+	background: transparent;
+	box-shadow: none;
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-82rem);
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: 0;
+	text-transform: none;
+	cursor: pointer;
+}
+
+.upd-auth-field .upd-auth-reveal__btn:hover {
+	color: var(--upd-c-blue-05bbb);
+}
+
+.upd-auth-field .upd-auth-reveal__btn:focus-visible {
+	outline: 2px solid var(--upd-fill);
+	outline-offset: 1px;
+}
+
+/* ---------------- Buttons ------------------------------------------------- */
+.upd-btn {
+	display: inline-block;
+	padding: .75rem 1.25rem;
+	border: none;
+	border-radius: var(--upd-r-10px);
+	font-size: var(--upd-fs-1rem);
+	font-weight: 600;
+	line-height: 1.25; /* explicit: Astra gives <button> 1 and <a> the body's
+	line-height: 1.25;    ~1.85, so a button and a link with the same class
+	line-height: 1.25;    would render 42px vs 56px tall */
+	cursor: pointer;
+	text-decoration: none;
+	text-align: center;
+	transition: background .15s, opacity .15s;
+	/* Astra uppercases and letter-spaces <button> elements; nothing else on the
+	   site does; the hero CTA, nav pills and "Post review" are all sentence
+	   case. Reset it on our own component so every .upd-btn matches. */
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* Primary: teal with dark legible text (matches nav CTA pattern) */
+.upd-btn--primary {
+	background: var(--upd-fill); /* --up-teal */
+	color: var(--upd-c-blue-85b);
+}
+
+.upd-btn--primary:hover {
+	background: #5faf90;
+	color: var(--upd-c-blue-85b);
+}
+
+/* VIP: bright amber gold, signals premium */
+.upd-btn--vip {
+	background: var(--upd-vip-gold);
+	color: var(--upd-c-blue-85b);
+}
+
+.upd-btn--vip:hover {
+	background: var(--upd-vip-gold-dark);
+	color: var(--upd-c-ink-00);
+}
+
+.upd-btn--vip:disabled {
+	opacity: .6;
+	cursor: not-allowed;
+}
+
+/* Ghost: outlined, neutral, for the dark surfaces these sit on */
+.upd-btn--ghost {
+	background: transparent;
+	border: 1px solid rgba(255, 255, 255, .12);
+	color: var(--upd-c-blue-20b);
+}
+
+.upd-btn--ghost:hover {
+	background: rgba(255, 255, 255, .07);
+	color: var(--upd-c-blue-05bbb);
+}
+
+/* Small variant */
+.upd-btn--sm {
+	padding: .4rem .8rem;
+	font-size: var(--upd-fs-85rem);
+}
+
+/* Full-width helper */
+.upd-btn--full {
+	display: block;
+	width: 100%;
+}
+
+/* ---------------- Account page -------------------------------------------- */
+.upd-account {
+	max-width: 460px;
+	margin: 2rem auto;
+}
+
+/* Upgrade CTA block: distinct section below account info */
+.upd-account__upgrade {
+	margin-top: 1.75rem;
+	padding: 1.25rem 1rem;
+	background: #fff8ef;
+	border: 1px solid color-mix(in srgb, var(--upd-vip-gold) 35%, transparent); /* VIP gold tint */
+	border-radius: var(--upd-r-12px);
+	text-align: center;
+}
+
+/* ---------------- Nav items ----------------------------------------------- */
+.upd-nav-login,
+.upd-nav-account,
+.upd-nav-logout,
+.upd-nav-bucketlist {
+	margin-left: .75rem;
+	font-weight: 600;
+}
+
+/* ---------------- Bucketlist: save/visited pills, cards ----------------- */
+/* Both contexts (single-place actions row + feed cards) render the same
+   .upd-action pill; there are no compact round variants (.upd-save /
+   .upd-visited--icon). */
+.upd-place__actions { position: relative; display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: .5rem 0 2.25rem; } /* bottom holds room for the .upd-note line */
+
+/* "Leave a review?" prompt floating under the Visited pill (JS-injected,
+   .upd-ask). Same glassy surface language as the pills; caret points at the
+   pill. Left offset + caret position are set inline by bucketlist.js. */
+.upd-ask {
+	position: absolute;
+	top: calc(100% + 10px);
+	left: 0;
+	z-index: 20;
+	box-sizing: border-box;
+	min-width: 220px;
+	max-width: 100%;
+	padding: 18px 20px 16px;
+	border: 1px solid var(--upd-c-teal-75);
+	border-radius: var(--upd-r-14px);
+	background: var(--upd-c-blue-85);
+	box-shadow: 0 12px 32px rgba(0, 0, 0, .45);
+	color: var(--upd-c-blue-10bbb);
+	animation: upd-ask-in .22s cubic-bezier(.2, .8, .2, 1);
+}
+.upd-ask::before {
+	content: '';
+	position: absolute;
+	top: -7px;
+	left: var(--upd-ask-caret, 20px);
+	width: 12px;
+	height: 12px;
+	transform: rotate(45deg);
+	border-left: 1px solid var(--upd-c-teal-75);
+	border-top: 1px solid var(--upd-c-teal-75);
+	background: var(--upd-c-blue-85);
+}
+.upd-ask__q { margin: 0 0 10px; font-size: var(--upd-fs-14px); font-weight: 600; line-height: 1.3; }
+.upd-ask__done { display: block; margin-bottom: 6px; font-size: var(--upd-fs-12px); font-weight: 400; color: var(--upd-accent); } /* same voice as .upd-note */ /* teal confirmation line above the white question */
+.upd-ask__row { display: flex; justify-content: flex-end; gap: 8px; }
+/* Confirmation variant: one teal line, no buttons, closes itself. */
+.upd-ask--done { padding: 12px 16px; }
+.upd-ask--done .upd-ask__q { margin: 0; color: var(--upd-accent); font-weight: 600; }
+.upd-ask--done .upd-ask__q a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.upd-place__actions .upd-ask__btn,
+.upd-place__actions .upd-ask__btn:hover,
+.upd-place__actions .upd-ask__btn:focus,
+.upd-place__actions .upd-ask__btn:active {
+	margin: 0;
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: var(--upd-r-999px);
+	background: none;
+	box-shadow: none;
+	color: var(--upd-c-blue-15);
+	font-size: var(--upd-fs-13px);
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: -0.02em;
+	text-transform: none;
+	cursor: pointer;
+}
+.upd-place__actions .upd-ask__btn--no:hover,
+.upd-place__actions .upd-ask__btn--no:focus-visible { color: var(--upd-c-ink-00); }
+.upd-place__actions .upd-ask__btn--yes,
+.upd-place__actions .upd-ask__btn--yes:active { background: var(--upd-fill); color: var(--upd-c-blue-90bbb); }
+.upd-place__actions .upd-ask__btn--yes:hover,
+.upd-place__actions .upd-ask__btn--yes:focus-visible { background: var(--upd-fill-hover); color: var(--upd-c-blue-90bbb); }
+.upd-place__actions .upd-ask__btn:focus-visible { outline: 2px solid var(--upd-fill); outline-offset: 2px; }
+@keyframes upd-ask-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .upd-ask { animation: none; } }
+
+/* ---- Destination action toggle (single-place: Bucketlist / Visited) ---------
+   Off = outline pill [icon label]. On (.is-saved / .is-visited) = the same pill
+   filled teal. The pill does not collapse to a circle (that read as sluggish);
+   the state change is colour + an inline .upd-note line under the row. Teal, not VIP gold: Bucketlist/Visited aren't premium
+   signals, they're ordinary actions. Both buttons share this class. */
+.upd-action {
+	display: inline-flex;
+	flex: 0 0 auto; /* never shrink; wrap instead on narrow screens */
+	align-items: center;
+	box-sizing: border-box;
+	width: auto;    /* dynamic: each pill sizes to its own label (was fixed 174px) */
+	padding: 8px 12px 8px 8px; /* left 8 fixed = circle inset; right trimmed to save space */
+	border: 1px solid var(--upd-c-teal-75);
+	border-radius: var(--upd-r-999px);
+	background: rgba(255, 255, 255, .04);
+	color: var(--upd-c-blue-15);
+	font-size: var(--upd-fs-14px);
+	letter-spacing: -0.02em; /* tighten label; default tracking read too wide */
+	font-weight: 600;
+	line-height: 1;
+	text-transform: none;
+	cursor: pointer;
+	overflow: hidden;
+	white-space: nowrap;
+	-webkit-tap-highlight-color: transparent;
+	transition: none; /* the fill is instant; the icon pop below carries the feedback */
+}
+
+.upd-action__icon {
+	flex: 0 0 auto;
+	display: inline-flex;
+	width: 14px;
+	height: 14px;
+}
+.upd-action__icon svg { display: block; width: 14px; height: 14px; }
+
+/* Share: icon-only round button, pushed to the right end of the same row. 18px
+   ios_share glyph in a 32px circle (= pill height). */
+.upd-action--share {
+	margin-left: auto;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	justify-content: center;
+}
+.upd-action--share .upd-action__icon,
+.upd-action--share .upd-action__icon svg { width: 18px; height: 18px; }
+
+/* Feature-on-profile: the same 32px circle as Share, sitting just before it at
+   the right end; teal when this is the featured place. Hidden (the attribute)
+   until the place is bucketlisted or visited. */
+.upd-action--feature {
+	margin-left: auto;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	justify-content: center;
+}
+/* Only a VISIBLE feature circle takes over the auto margin; hidden, Share keeps its own. */
+.upd-action--feature:not([hidden]) + .upd-action--share { margin-left: 8px; }
+.upd-action--feature .upd-action__icon,
+.upd-action--feature .upd-action__icon svg { width: 18px; height: 18px; }
+.upd-action--feature[hidden] { display: none; }
+.upd-action--feature.is-on,
+.upd-action--feature.is-on:hover,
+.upd-action--feature.is-on:focus { background: var(--upd-teal); border-color: transparent; color: var(--upd-c-teal-90b); }
+
+/* Icon-only circle form (feed cards): the same pill with the label dropped;
+   full labels live on the place page only. 36px (vs the 32px share circle)
+   keeps a real touch target floating over card photos. */
+.upd-action--icon {
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	justify-content: center;
+}
+.upd-action--icon .upd-action__icon,
+.upd-action--icon .upd-action__icon svg { width: 20px; height: 20px; }
+
+.upd-action__label { margin-left: 6px; }
+.upd-action__label > span { white-space: nowrap; }
+
+/* On state: teal-filled pill. Label stays. */
+.upd-action.is-saved,
+.upd-action.is-visited {
+	background: var(--upd-fill);
+	border-color: var(--upd-fill);
+	color: var(--upd-c-blue-90bbb);
+}
+
+/* Inline confirmation ("Added to bucketlist!", "Link copied"): JS-injected
+   .upd-note, absolutely placed under the row so nothing below shifts. */
+.upd-note {
+	position: absolute;
+	top: calc(100% + 10px);
+	left: 2px;
+	margin: 0;
+	font-size: var(--upd-fs-12px);
+	font-weight: 400;
+	line-height: 1;
+	color: var(--upd-accent);
+	pointer-events: none;
+	animation: upd-note-in .16s ease-out;
+	transition: opacity .25s ease;
+}
+.upd-note.is-out { opacity: 0; }
+@keyframes upd-note-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* Tap feedback: the whole pill pops, 1 to 1.07 to 1 in 200ms on an overshoot
+   curve. .is-pop is set on tap, removed on animationend (bucketlist.js). */
+.upd-action.is-pop { animation: upd-pop .2s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes upd-pop { 0% { transform: none; } 40% { transform: scale(1.07); } 100% { transform: none; } }
+
+/* Touch devices: neutralize the sticky :hover iOS applies after a tap. Astra's
+   unguarded gold `button:hover` would otherwise stick as a yellow shade (our
+   styled hover below is gated behind @media (hover: hover), so it can't cover
+   touch). Placed BEFORE that block so real-hover devices still get it. */
+.upd-action:hover {
+	background: rgba(255, 255, 255, .04);
+	border-color: var(--upd-c-teal-75);
+	color: var(--upd-c-blue-15);
+}
+.upd-action.is-saved:hover,
+.upd-action.is-visited:hover {
+	background: var(--upd-fill);
+	border-color: var(--upd-fill);
+	color: var(--upd-c-blue-90bbb);
+}
+
+/* Hover only on real hover devices; iOS applies a sticky :hover after a tap,
+   which leaves a teal ring on the button. Explicit bg also beats Astra's global
+   gold button:hover. */
+@media (hover: hover) {
+	.upd-action:hover {
+		background: rgba(123, 196, 168, .12);
+		border-color: var(--upd-fill);
+		color: var(--upd-c-ink-00);
+	}
+	.upd-action.is-saved:hover,
+	.upd-action.is-visited:hover {
+		background: var(--upd-fill-hover);
+		border-color: var(--upd-fill-hover);
+		color: var(--upd-c-blue-90bbb);
+	}
+}
+
+/* Pin focus/active to the state look (Astra's gold button:focus/:active would
+   otherwise flash through; blur() in bucketlist.js also clears focus). */
+.upd-action:focus,
+.upd-action:active {
+	background: rgba(255, 255, 255, .04);
+	color: var(--upd-c-blue-15);
+	border-color: var(--upd-c-teal-75);
+}
+.upd-action.is-saved:focus, .upd-action.is-saved:active,
+.upd-action.is-visited:focus, .upd-action.is-visited:active {
+	background: var(--upd-fill);
+	color: var(--upd-c-blue-90bbb);
+	border-color: var(--upd-fill);
+}
+.upd-action:focus-visible { outline: 2px solid var(--upd-fill); outline-offset: 2px; }
+.upd-action:focus:not(:focus-visible) { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+	.upd-note { animation: none; transition: none; }
+	.upd-action.is-pop { animation: none; }
+}
+
+.upd-card__visited {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background: var(--upd-fill);
+	color: var(--upd-c-blue-85b);
+	font-size: var(--upd-fs-75rem);
+	font-weight: 700;
+	padding: .2rem .5rem;
+	border-radius: var(--upd-r-6px);
+	z-index: 4;
+}
+.upd-card__nudge { display: block; margin: .4rem 0 0; padding: 0 1rem 1rem; color: var(--upd-accent); font-weight: 600; font-size: var(--upd-fs-85rem); }
+
+/* Feed/card overlay: the same .upd-action pills as the single-place row, side
+   by side over the photo (Explorer+ only). .upd-card__save is positioned
+   top-left by area-archive.css; make it a flex row. */
+.upd-card__save { display: flex; gap: 8px; }
+
+/* Over a photo the transparent pill is unreadable, so the OFF state sits on a
+   glassy dark ground (.upd-ask's surface, translucent). Grouped with :hover/
+   :focus/:active so Astra's gold and the sticky-hover neutralizer above can't
+   bleed through at equal specificity. State colours are untouched: teal on. */
+.upd-card__save .upd-action,
+.upd-card__save .upd-action:hover,
+.upd-card__save .upd-action:focus,
+.upd-card__save .upd-action:active {
+	background: rgba(22, 35, 43, .72);
+	border-color: rgba(255, 255, 255, .28);
+	color: var(--upd-c-blue-10bbb);
+	-webkit-backdrop-filter: blur(6px);
+	backdrop-filter: blur(6px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, .18);
+}
+.upd-card__save .upd-action.is-saved,
+.upd-card__save .upd-action.is-visited,
+.upd-card__save .upd-action.is-saved:hover,
+.upd-card__save .upd-action.is-visited:hover,
+.upd-card__save .upd-action.is-saved:focus,
+.upd-card__save .upd-action.is-visited:focus,
+.upd-card__save .upd-action.is-saved:active,
+.upd-card__save .upd-action.is-visited:active {
+	background: var(--upd-fill);
+	border-color: var(--upd-fill);
+	color: var(--upd-c-blue-90bbb);
+}
+@media (hover: hover) {
+	.upd-card__save .upd-action:hover {
+		background: rgba(22, 35, 43, .85);
+		border-color: var(--upd-fill);
+		color: var(--upd-c-ink-00);
+	}
+	.upd-card__save .upd-action.is-saved:hover,
+	.upd-card__save .upd-action.is-visited:hover {
+		background: var(--upd-fill-hover);
+		border-color: var(--upd-fill-hover);
+		color: var(--upd-c-blue-90bbb);
+	}
+}
+
+.upd-bucketlist-empty { max-width: 460px; margin: 3rem auto; text-align: center; color: #cdd6dc; }
+.upd-bucketlist-empty .upd-btn { margin-top: 1rem; }
+
+/* ==========================================================================
+   Single-place registration gate: blurred teaser + plan comparison table.
+   Mobile-first: cards stack; promote to 3 columns at >=720px.
+   ========================================================================== */
+.upd-gate {
+	max-width: 1040px;
+	margin: 1.5rem auto 3rem;
+	padding: 0 16px;
+}
+
+/* Holds the real place name (non-VIP, crawlable <h1>) or the VIP banner. */
+.upd-gate__title {
+	margin: 0 0 1.25rem;
+}
+
+.upd-gate__teaser {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 6px;
+	border-radius: var(--upd-r-16px);
+	overflow: hidden;
+	margin-bottom: 1.75rem;
+}
+.upd-gate__photo {
+	height: 170px;
+	background-size: cover;
+	background-position: center;
+}
+.upd-gate__photo--hero { height: 220px; }
+
+.upd-gate__intro { text-align: center; margin-bottom: 1.5rem; }
+.upd-gate__heading { font-size: 1.45rem; color: var(--upd-c-ink-00); margin: 0 0 .4rem; font-weight: 700; }
+.upd-gate__tier { color: var(--upd-vip-gold); }
+.upd-gate__sub { color: var(--upd-c-ink-20); margin: 0 auto; max-width: 48ch; }
+
+.upd-plans {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}
+.upd-plans__col {
+	display: flex;
+	flex-direction: column;
+	background: rgba(255, 255, 255, .04);
+	border: 1px solid rgba(255, 255, 255, .12);
+	border-radius: var(--upd-r-16px);
+	padding: 20px;
+}
+.upd-plans__col--vip {
+	border-color: var(--upd-vip-gold);
+	box-shadow: inset 0 0 0 1px var(--upd-vip-gold), 0 14px 36px rgba(0, 0, 0, .22);
+}
+.upd-plans__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	padding-bottom: 14px;
+	margin-bottom: 14px;
+	border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+.upd-plans__name { font-size: 1.15rem; font-weight: 700; color: var(--upd-c-ink-00); }
+.upd-plans__col--vip .upd-plans__name { color: var(--upd-vip-gold); }
+.upd-plans__price { font-size: var(--upd-fs-1rem); font-weight: 700; color: var(--upd-c-ink-00); white-space: nowrap; }
+.upd-plans__head { flex-wrap: wrap; }
+.upd-plans__note { flex-basis: 100%; margin-top: -6px; font-size: var(--upd-fs-8rem); color: var(--upd-accent); } /* the yearly saving, under the price */
+
+.upd-plans__features {
+	flex: 1;
+	list-style: none;
+	margin: 0 0 18px;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.upd-plans__feature {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	font-size: var(--upd-fs-92rem);
+	line-height: 1.35;
+	color: var(--upd-c-ink-10b);
+}
+.upd-plans__feature .upd-icon { flex: 0 0 auto; margin-top: 1px; }
+.upd-plans__feature.is-on .upd-icon { color: var(--up-teal); }
+.upd-plans__feature.is-off { opacity: .55; }
+.upd-plans__feature.is-off .upd-icon { color: var(--up-sage); }
+
+.upd-plans__cta { margin-top: auto; }
+.upd-plans__here {
+	display: block;
+	text-align: center;
+	font-size: var(--upd-fs-9rem);
+	color: var(--upd-c-ink-20);
+	padding: .6rem;
+	border: 1px dashed rgba(255, 255, 255, .25);
+	border-radius: var(--upd-r-8px);
+}
+
+.upd-gate__signin { text-align: center; margin-top: 1.5rem; color: var(--upd-c-ink-20); }
+.upd-gate__signin a { font-weight: 600; }
+
+@media (min-width: 720px) {
+	.upd-gate__teaser { grid-template-columns: 2fr 1fr; }
+	.upd-gate__photo, .upd-gate__photo--hero { height: 260px; }
+	.upd-plans { grid-template-columns: repeat(3, 1fr); align-items: stretch; }
+	.upd-plans__col--vip { transform: translateY(-8px); }
+}
+
+/* ------------------------------------------------------------
+ * Drawer identity row: first item in the off-canvas menu.
+ * Avatar + (name over Explorer+ badge); the whole row links to
+ * /account/ and sits on the same line as the drawer's close button.
+ * Desktop header is unaffected; the row is injected only for
+ * theme_location 'drawer'.
+ *
+ * Everything is scoped under .upd-drawer so these rules outrank the
+ * drawer's own link rules in chrome.css on specificity, not !important.
+ * ------------------------------------------------------------ */
+.upd-drawer {
+    --upd-drawer-row-h: 78px;
+}
+
+/* The close button floats over the top line so the identity row can take it,
+   stretched to the row height so the X centres against the row. :has() keeps
+   this scoped to logged-in drawers; a guest drawer has no identity row, so its
+   first menu item must not slide under the button. */
+.upd-drawer:has(.upd-menu-account) .upd-drawer__close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    height: var(--upd-drawer-row-h);
+    align-items: center;
+    display: flex;
+}
+
+.upd-drawer .upd-menu-account {
+    background: rgba(255, 255, 255, .045);
+    border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.upd-drawer .upd-menu-account__link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: var(--upd-drawer-row-h);
+    /* right padding clears the floated close button (46px wide) */
+    padding: 0 62px 0 20px;
+}
+
+.upd-drawer .upd-menu-account__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+/* min-width:0 on the column above is required: without it the flex item
+   refuses to shrink and a long display name overflows the drawer. */
+.upd-drawer .upd-menu-account__name {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+/* Drawer coda: brand mark + tagline + legal links filling the dead space under
+   the menu. The panel is a growing flex column, so margin-top:auto on the coda
+   pins it to the drawer's bottom edge; with a long menu it simply follows the
+   last item instead. */
+.upd-drawer .upd-drawer__panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+}
+
+.upd-drawer .upd-drawer-foot {
+    margin-top: auto;
+    padding: 32px 20px 26px;
+    text-align: left;
+}
+
+.upd-drawer .upd-drawer-foot__mark {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin-bottom: 10px;
+    opacity: .85;
+}
+
+.upd-drawer .upd-drawer-foot__tag {
+    margin: 0 0 12px;
+    font-size: var(--upd-fs-8rem);
+    line-height: 1.45;
+    color: rgba(255, 255, 255, .55);
+}
+
+.upd-drawer .upd-drawer-foot__legal {
+    display: flex;
+    gap: 18px;
+    margin: 0;
+}
+
+.upd-drawer .upd-drawer-foot__legal a {
+    font-size: var(--upd-fs-72rem);
+    letter-spacing: .04em;
+    color: rgba(255, 255, 255, .38);
+    text-decoration: none;
+}
+
+.upd-drawer .upd-drawer-foot__legal a:hover,
+.upd-drawer .upd-drawer-foot__legal a:focus {
+    color: var(--upd-accent);
+}

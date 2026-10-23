@@ -1,0 +1,273 @@
+/* ------------------------------------------------------------
+ * About page: "The Horizon"
+ * Enqueued only on the About template via upd_enqueue_css('upd-about', …).
+ *
+ * The photo is a full-bleed hero: the page title and lede are set in its empty
+ * sky, and its water dissolves into --upd-about-sea, the same navy the home
+ * hero ramps into and the Palawan map floats on, so photo-ocean and page read
+ * as one surface. Everything below is type on that sea, closing on a
+ * full-screen "Unlock Paradise."
+ *
+ * Mobile-first: base styles target phones (the photo is portrait, so it needs
+ * almost no cropping there), min-width queries scale up.
+ * ------------------------------------------------------------ */
+
+:root {
+	/* The sea. Same value as the home hero's bottom ramp and the map backdrop,
+	 * declared here as a named token rather than a magic hex repeated inline. */
+	--upd-about-sea: #11202a;
+	--upd-about-ink: #d8e4e8; /* body copy; matches .upd-hero-sub */
+	--upd-about-rule: rgba(123, 196, 168, .3); /* --up-teal at low alpha */
+	/* One column edge for the whole page. Deliberately in rem, not ch: `ch` is
+	 * relative to each element's OWN font-size, so a 65ch h2 is a wider box than
+	 * a 65ch paragraph and their left edges don't line up. */
+	--upd-about-measure: 36rem;
+}
+
+/* The whole page rides on the sea. The theme's main region has no container
+ * of its own, so the hero can go edge to edge and the body owns its spacing. */
+body:has(.upd-about),
+body:has(.upd-about) .upd-main {
+	background: var(--upd-about-sea);
+}
+/* Edge to edge: no container width or padding, and a block (not a flex row)
+ * so the article keeps its width and the full-bleed breakout resolves
+ * against it. */
+body:has(.upd-about) .upd-container { display: block; padding: 0; max-width: none; }
+@media (max-width: 544px) {
+	body:has(.upd-about) .upd-container { padding: 0 .54em; }
+}
+body:has(.upd-about) .upd-about { width: 100%; }
+
+/* ---------- Hero ---------- */
+
+.upd-about__hero {
+	position: relative;
+	overflow: hidden;
+	/* Break out of any container to the full viewport (same trick as .upd-hero). */
+	width: 100vw;
+	max-width: 100vw;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+	min-height: 92vh;
+	/* svh so mobile browser chrome doesn't clip the horizon. Not dvh: that grows
+	 * as the toolbar hides and re-fits the cover photo mid-scroll (a zoom). */
+	min-height: 92svh;
+	display: flex;
+	flex-direction: column;
+	/* Content sits at the TOP, where the sky is. The subject is in the lower
+	 * half of the frame and must not be covered by type. */
+	justify-content: flex-start;
+	padding: 18vh 24px 0;
+	background-color: var(--upd-about-sea); /* fallback before the photo paints */
+}
+
+.upd-about__photo {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background-size: cover;
+	/* Anchor on the horizon: keeps sky above and the subject below in frame as
+	 * the viewport widens and the portrait photo gets cropped top and bottom. */
+	background-position: center 42%;
+}
+
+/* Legibility + the dissolve. Top: a light scrim so white type holds against the
+ * bright sky. Bottom: ramp to solid sea, killing the photo's hard bottom edge so
+ * the water becomes the page. */
+.upd-about__hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	background: linear-gradient(180deg,
+		rgba(8, 16, 20, .42) 0%,
+		rgba(8, 16, 20, .18) 38%,
+		rgba(17, 32, 42, .35) 72%,
+		rgba(17, 32, 42, .88) 92%,
+		var(--upd-about-sea) 100%);
+}
+
+.upd-about__sky {
+	position: relative;
+	z-index: 2;
+	max-width: 34ch;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.upd-about__title {
+	color: var(--upd-c-ink-00);
+	font-size: clamp(2rem, 9vw, 3.5rem);
+	font-weight: 600;
+	letter-spacing: 2px;
+	margin: 0 0 .5em;
+	text-shadow: 0 2px 16px rgba(0, 0, 0, .45);
+}
+
+.upd-about__lede {
+	color: #eaf2f5;
+	font-size: clamp(1.05rem, 4.2vw, 1.35rem);
+	line-height: 1.6;
+	margin: 0;
+	text-shadow: 0 1px 12px rgba(0, 0, 0, .5);
+}
+
+/* ---------- Body: type on the sea ---------- */
+
+.upd-about__body {
+	width: 100vw;
+	max-width: 100vw;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+	background: var(--upd-about-sea);
+	padding: 8vh 24px 0;
+	color: var(--upd-about-ink);
+}
+
+.upd-about__body > * {
+	max-width: var(--upd-about-measure); /* a real reading measure */
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.upd-about__body p {
+	font-size: var(--upd-fs-1-0625rem);
+	line-height: 1.75;
+	/* `auto` on the side margins is required, not optional: the shorthand would
+	 * otherwise reset the margin-left/right:auto set by `.upd-about__body > *`
+	 * and knock every paragraph out of the centered column (leaving the h2s,
+	 * which keep their auto, centered, leaving a ragged left edge). */
+	margin: 0 auto 1.5em;
+}
+
+.upd-about__body h2 {
+	color: var(--upd-c-ink-00);
+	font-size: clamp(1.35rem, 5vw, 1.75rem);
+	font-weight: 600;
+	letter-spacing: 2px;
+	margin: 3em auto 1.2em;
+	padding-bottom: .6em;
+	border-bottom: 1px solid var(--upd-about-rule); /* the horizon, echoed */
+}
+
+/* The closing line, the answer to the question the paragraph above just asked.
+ * It sits close enough to stay attached to that sentence (a beat, not a
+ * separate screen), with the tail space below carrying the pause instead. No
+ * CTA; a button here would kill the line. */
+.upd-about__body .upd-about__coda {
+	max-width: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 2.25em 0 0;
+	padding: 0 16px 18vh;
+	color: var(--upd-c-ink-00);
+	/* Derived from the body size (1.5x), not a magic display value, so it stays
+	 * proportional if the body scale ever changes. */
+	font-size: calc(1.0625rem * 1.5);
+	font-weight: 600;
+	letter-spacing: 2px;
+	line-height: 1.3;
+	text-align: center;
+}
+
+/* ---------- Photo bands ---------- */
+
+/* A photograph that surfaces out of the sea and sinks back into it.
+ *
+ * This is the hero's move reused, not a second idea: .upd-about__hero::after
+ * already ramps its photo into --upd-about-sea, and every image on this page
+ * should speak that same sentence.
+ *
+ * Two-class specificity (0,2,0) is load-bearing, not stylistic: the sibling
+ * rule `.upd-about__body > *` is ALSO a single class, so a single-class
+ * .upd-about__plate would TIE on specificity and be decided by source order.
+ * Same reason .upd-about__coda is written this way. */
+.upd-about__body .upd-about__plate {
+	position: relative;
+	max-width: none;                 /* escape the 36rem reading measure */
+	width: 100vw;
+	margin: 3.5em calc(50% - 50vw);  /* same full-bleed idiom as .upd-about__body */
+	overflow: hidden;
+	background: var(--upd-about-sea);
+}
+
+.upd-about__body .upd-about__plate-img {
+	display: block;   /* kills the inline-image baseline gap under the figure */
+	width: 100%;
+	height: auto;     /* mobile: no crop at all; a 3:4 frame at 390px is 520px
+	                   * tall, already the right beat */
+	margin: 0 auto;
+}
+
+/* The dissolve, BOTTOM ONLY. The top edge is hard, and so are left and right.
+ *
+ * Only the bottom fades because on this page down is always water: the first
+ * photo's sea, the third's river and the page's own navy are one surface. A
+ * photo therefore arrives at a clean edge and then sinks, which is a thing
+ * water does. Fading the top as well makes it seep in from nowhere and read as
+ * a vignette, decoration rather than subject.
+ *
+ * The stops are EASED, not evenly spaced, and that is the load-bearing part.
+ * The fade has to be long to feel like water, but the first photo's subject
+ * sits low in the frame (head near 48%, body to about 74%), so a linear ramp
+ * from 55% would wash the subject out by the time it looked gradual. Easing
+ * keeps the wash under 20% opacity until roughly 80% of the height and puts the
+ * real darkening in the last fifth: long and soft, but it only ever eats water.
+ * Respace these stops evenly and the subject drowns. */
+.upd-about__body .upd-about__plate::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: linear-gradient(180deg,
+		rgba(17, 32, 42, 0) 0%,
+		rgba(17, 32, 42, 0) 55%,
+		rgba(17, 32, 42, .06) 68%,
+		rgba(17, 32, 42, .18) 78%,
+		rgba(17, 32, 42, .40) 86%,
+		rgba(17, 32, 42, .68) 93%,
+		rgba(17, 32, 42, .90) 97%,
+		var(--upd-about-sea) 100%);
+}
+
+/* ---------- Scale up ---------- */
+
+@media (min-width: 768px) {
+	.upd-about__hero { padding-top: 16vh; }
+	.upd-about__sky { max-width: 40ch; }
+	.upd-about__body { padding: 12vh 32px 0; }
+	.upd-about__body p { font-size: var(--upd-fs-1-125rem); }
+	/* still 1.5x the (now larger) body size */
+	.upd-about__body .upd-about__coda { font-size: calc(1.125rem * 1.5); letter-spacing: 3px; }
+	/* Photos align to the SAME measure as the body copy, so the page keeps one
+	 * vertical axis from hero to coda. Note this is --upd-about-measure, not a
+	 * repeated 36rem: if the reading measure is ever retuned the photos follow
+	 * it, and the alignment stays structural rather than coincidental.
+	 *
+	 * Breaking WIDER than the measure does not work: an uncropped 3:4 portrait
+	 * wide enough to exceed 36rem is taller than the viewport, so a height cap
+	 * always binds first and the band comes out NARROWER than the text it was
+	 * meant to break out of (477px against a 576px column). Sharing the text's
+	 * edges reads as a decision; falling 99px short of them reads as a mistake.
+	 *
+	 * Height is deliberately left free so nothing is ever cropped. At this
+	 * measure the two 3:4 photos settle at 94dvh and the 9:16 one at 125dvh,
+	 * which is honest: it is simply a taller photo, and the dissolve carries
+	 * the scroll through it. max-height is a runaway guard for a future swap,
+	 * not a layout tool; if it ever binds, the band is misaligned by design. */
+	.upd-about__body .upd-about__plate-img {
+		max-width: var(--upd-about-measure);
+		max-height: 130vh;
+		max-height: 130dvh;
+	}
+}
+
+@media (min-width: 1200px) {
+	/* On wide screens the portrait photo is cropped hard top and bottom; bias
+	 * the frame slightly lower so the horizon and the subject both stay in
+	 * view. */
+	.upd-about__photo { background-position: center 48%; }
+	.upd-about__hero { padding-top: 15vh; }
+}

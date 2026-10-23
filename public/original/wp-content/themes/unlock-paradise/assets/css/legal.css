@@ -1,0 +1,320 @@
+/**
+ * Legal documents: Privacy, Terms, Refunds (page-legal.php).
+ *
+ * Adopts the same local token set .upd-auth-card declares, so these pages sit in
+ * the one dark panel language the member surfaces share rather than a
+ * parallel palette that almost matches.
+ *
+ * --upd-vip-gold is deliberately NOT used here. Gold is the Explorer+ signal
+ * site-wide; these pages do not sell, so structure is teal.
+ *
+ * The heading colour rules below are not just styling: Astra paints h2/h3
+ * rgb(17,32,42), which is the exact page background, so without them all 30
+ * section headings across the three documents render at 1.38:1, invisible.
+ * Keep their specificity above Astra's dynamic CSS.
+ *
+ * Mobile-first: base rules are the small-screen case, min-width only.
+ */
+
+.upd-legal {
+	--upd-line: rgba(255, 255, 255, .12);
+	--upd-ink: #f5f7fa;
+	--upd-ink-soft: #c8d2d8;
+	--upd-ink-mute: #8ea3ad;
+	--upd-surface: rgba(255, 255, 255, .04);
+
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 2.5rem 1.25rem 4rem;
+	color: var(--upd-ink-soft);
+}
+
+/* ------------------------------------------------------------- masthead */
+
+.upd-legal__masthead {
+	padding-bottom: 1.75rem;
+	border-bottom: 1px solid var(--upd-line);
+}
+
+.upd-legal__eyebrow {
+	margin: 0 0 .5rem;
+	color: var(--upd-ink-mute);
+	font-family: "Open Sans", sans-serif;
+	font-size: var(--upd-fs-6875rem);
+	font-weight: 600;
+	letter-spacing: .16em;
+	text-transform: uppercase;
+}
+
+.upd-legal .upd-legal__title {
+	margin: 0;
+	color: var(--upd-ink);
+	font-family: Outfit, Quicksand, sans-serif;
+	font-size: clamp(1.9rem, 1.4rem + 2vw, 2.6rem);
+	font-weight: 500;
+	line-height: 1.15;
+	text-wrap: balance;
+}
+
+.upd-legal__updated {
+	margin: .625rem 0 0;
+	color: var(--upd-ink-mute);
+	font-size: var(--upd-fs-8125rem);
+}
+
+/* Document switcher: the three policies are a set, and moving between them is a
+   real need. */
+
+.upd-legal__switch {
+	display: flex;
+	flex-wrap: wrap;
+	gap: .5rem;
+	margin-top: 1.5rem;
+}
+
+.upd-legal__switch-link {
+	padding: .4375rem .875rem;
+	border: 1px solid var(--upd-line);
+	border-radius: var(--upd-r-999px);
+	color: var(--upd-ink-soft);
+	font-size: var(--upd-fs-8125rem);
+	line-height: 1.3;
+	text-decoration: none;
+	transition: border-color .18s ease, color .18s ease, background-color .18s ease;
+}
+
+.upd-legal__switch-link.is-current {
+	border-color: transparent;
+	background: var(--upd-accent);
+	color: var(--upd-c-blue-90bbbb);
+	font-weight: 600;
+}
+
+@media (hover: hover) {
+	.upd-legal__switch-link:not(.is-current):hover {
+		border-color: var(--upd-accent);
+		color: var(--upd-ink);
+	}
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.upd-legal__layout {
+	display: grid;
+	gap: 2.5rem;
+	margin-top: 2.5rem;
+}
+
+/* The waypoint rail is a desktop affordance. On a phone it would cost a
+   screenful of scrolling before the document starts, and the numbered headings
+   below already carry the structure, so it is not rendered small. */
+.upd-legal__index {
+	display: none;
+}
+
+/* ------------------------------------------------------------- document */
+
+.upd-legal__doc {
+	counter-reset: upd-section;
+	max-width: 66ch;
+	font-size: var(--upd-fs-1rem);
+	line-height: 1.75;
+}
+
+.upd-legal .upd-legal__doc h2 {
+	counter-increment: upd-section;
+	margin: 2.75rem 0 .875rem;
+	color: var(--upd-ink);
+	font-family: "Open Sans", sans-serif;
+	font-size: var(--upd-fs-1-0625rem);
+	font-weight: 600;
+	line-height: 1.35;
+	letter-spacing: .01em;
+	scroll-margin-top: 6rem;
+}
+
+/* The number carries the eye, so the heading itself can stay small and firm.
+   Plain numerals, not 01/02: legal text is cited as "section 7". */
+.upd-legal .upd-legal__doc h2::before {
+	content: counter(upd-section);
+	display: block;
+	margin-bottom: .25rem;
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-75rem);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: .08em;
+}
+
+/* Refunds opens straight on a heading (its "Last updated" line is lifted into
+   the masthead), while Terms and Privacy lead with a standfirst paragraph. Only
+   collapse the top margin in the first case, or the layout's own margin stacks
+   on top of the heading's and leaves a dead band above section 1. */
+.upd-legal .upd-legal__doc > h2:first-child {
+	margin-top: 0;
+}
+
+.upd-legal .upd-legal__doc h2:focus {
+	outline: none;
+}
+
+.upd-legal .upd-legal__doc h3 {
+	margin: 1.75rem 0 .5rem;
+	color: var(--upd-ink);
+	font-family: "Open Sans", sans-serif;
+	font-size: var(--upd-fs-9375rem);
+	font-weight: 600;
+}
+
+.upd-legal .upd-legal__doc p {
+	margin: 0 0 1.125rem;
+	color: var(--upd-ink-soft);
+}
+
+.upd-legal .upd-legal__doc ul,
+.upd-legal .upd-legal__doc ol {
+	margin: 0 0 1.125rem;
+	padding-left: 1.125rem;
+	color: var(--upd-ink-soft);
+}
+
+.upd-legal .upd-legal__doc li {
+	margin-bottom: .5rem;
+	padding-left: .25rem;
+}
+
+.upd-legal .upd-legal__doc li::marker {
+	color: var(--upd-ink-mute);
+}
+
+.upd-legal .upd-legal__doc strong {
+	color: var(--upd-ink);
+	font-weight: 600;
+}
+
+.upd-legal .upd-legal__doc a {
+	color: var(--upd-accent);
+	text-decoration: underline;
+	text-underline-offset: .18em;
+	text-decoration-thickness: 1px;
+}
+
+@media (hover: hover) {
+	.upd-legal .upd-legal__doc a:hover {
+		color: var(--upd-ink);
+	}
+}
+
+/* ------------------------------------------------- desktop: waypoint rail */
+
+@media (min-width: 1080px) {
+
+	.upd-legal__layout {
+		grid-template-columns: 15.5rem minmax(0, 1fr);
+		gap: 4rem;
+		align-items: start;
+	}
+
+	.upd-legal__index {
+		display: block;
+		position: sticky;
+		top: 6rem;
+		max-height: calc(100vh - 8rem);
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+
+	.upd-legal__index-heading {
+		margin: 0 0 1rem;
+		color: var(--upd-ink-mute);
+		font-family: "Open Sans", sans-serif;
+		font-size: var(--upd-fs-6875rem);
+		font-weight: 600;
+		letter-spacing: .16em;
+		text-transform: uppercase;
+	}
+
+	/* The rail: one hairline, one dot per section, the same pin language the
+	   map and the place pages use. */
+	.upd-legal__waypoints {
+		position: relative;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.upd-legal__waypoints::before {
+		content: "";
+		position: absolute;
+		top: .75rem;
+		bottom: .75rem;
+		left: 3px;
+		width: 1px;
+		background: var(--upd-line);
+	}
+
+	.upd-legal__waypoint {
+		margin: 0;
+	}
+
+	.upd-legal__waypoint-link {
+		position: relative;
+		display: grid;
+		grid-template-columns: 7px minmax(0, 1fr);
+		align-items: start;
+		gap: .875rem;
+		padding: .375rem 0;
+		color: var(--upd-ink-mute);
+		font-size: var(--upd-fs-8125rem);
+		line-height: 1.45;
+		text-decoration: none;
+		transition: color .18s ease;
+	}
+
+	.upd-legal__waypoint-dot {
+		width: 7px;
+		height: 7px;
+		margin-top: .34rem;
+		border: 1px solid var(--upd-line);
+		border-radius: var(--upd-r-50);
+		background: var(--upd-c-blue-90bbbb);
+		transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+	}
+
+	.upd-legal__waypoint-link.is-active {
+		color: var(--upd-ink);
+	}
+
+	.upd-legal__waypoint-link.is-active .upd-legal__waypoint-dot {
+		border-color: var(--upd-accent);
+		background: var(--upd-accent);
+		box-shadow: 0 0 0 3px rgba(134, 216, 200, .16);
+	}
+
+	@media (hover: hover) {
+		.upd-legal__waypoint-link:hover {
+			color: var(--upd-ink);
+		}
+
+		.upd-legal__waypoint-link:hover .upd-legal__waypoint-dot {
+			border-color: var(--upd-accent);
+		}
+	}
+
+}
+
+/* --------------------------------------------------------------- a11y */
+
+.upd-legal a:focus-visible,
+.upd-legal__waypoint-link:focus-visible {
+	outline: 2px solid var(--upd-accent);
+	outline-offset: 3px;
+	border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.upd-legal *,
+	.upd-legal *::before {
+		transition: none !important;
+	}
+}

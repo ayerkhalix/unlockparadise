@@ -1,0 +1,731 @@
+/* ============================================================
+ * single-place.css: Single Place detail page
+ * Enqueued by the theme only on is_singular('place').
+ * Inline gallery viewer: main Swiper + thumb strip, FB-style.
+ * ============================================================ */
+
+/* ---------- Intro paragraph (under the hero, before the detail cards) ----------
+ * Renders the place `description` ACF (WYSIWYG). Hidden entirely when empty. */
+.upd-place-intro {
+    max-width: none;
+    margin: 0 -20px 32px; /* bleed past .place-single's 20px side padding, edge
+    margin: 0 -20px 32px;    to edge of the column */
+    padding: 20px 24px;
+    font-size: var(--upd-fs-12px);
+    line-height: 1.7;
+    color: var(--upd-c-blue-10bbb);
+    background: rgba(212, 163, 68, .07);
+    border-left: 3px solid var(--upd-vip-gold);
+    border-radius: var(--upd-r-10px);
+}
+.upd-place-intro > :first-child { margin-top: 0; }
+.upd-place-intro > :last-child  { margin-bottom: 0; }
+.upd-place-intro p { margin: 0 0 14px; }
+.upd-place-intro a,
+.upd-place-intro a:visited {
+    position: relative; /* anchors the ::after tap area */
+    color: var(--upd-accent);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 3px;
+}
+/* Invisible tap target: the 12px text box is ~15px tall, under the 24px touch
+ * floor. Centred on the link, zero layout cost; the visual box does not change. */
+.upd-place-intro a::after {
+    content: "";
+    position: absolute;
+    left: -4px;
+    right: -4px;
+    top: 50%;
+    height: 26px;
+    transform: translateY(-50%);
+}
+.upd-place-intro a:hover,
+.upd-place-intro a:focus-visible {
+    color: var(--upd-accent-soft);
+}
+.upd-place-intro a:focus-visible {
+    outline: 2px solid var(--upd-teal-400);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+.upd-gallery--inline {
+    margin: 0;
+}
+
+/* ---------- Main slider ---------- */
+.upd-gallery__main {
+    position: relative;
+    border-radius: var(--upd-r-12px);
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(17, 32, 42, .18);
+    background: var(--upd-c-blue-85bbb);
+}
+.upd-gallery__main .swiper-slide {
+    aspect-ratio: 16 / 10;
+}
+.upd-gallery__slide-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: zoom-in;
+}
+.upd-gallery__photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ---------- Arrows (overlaid on main photo) ----------
+ * Sized as perfect circles via explicit padding:0 + box-sizing + appearance:none
+ * to defeat theme/plugin button defaults (Astra/Elementor add inline padding
+ * and a yellow :focus background that would otherwise stretch the button and
+ * stick after click). Chevrons rendered as inline-SVG background-image so they
+ * are geometrically centered (the previous CSS-border + rotate trick was
+ * visually off-center).
+ */
+.upd-gallery__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: var(--upd-r-50);
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    /* Kill the mobile-browser tap-highlight (default is a yellowish tint on
+     * some Android browsers, dark on iOS). transparent = no flash on tap. */
+    -webkit-tap-highlight-color: transparent;
+    background-color: rgba(8, 16, 20, .55);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px 18px;
+    color: var(--upd-c-ink-00);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: opacity .2s ease, background-color .2s ease;
+    opacity: .85;
+    line-height: 0;
+}
+.upd-gallery__arrow:hover { opacity: 1; background-color: rgba(8, 16, 20, .75); }
+/* Defeat the theme's default :focus AND :active backgrounds (both were
+ * painting briefly yellow during/after click). :focus-visible (keyboard
+ * only) still gets a teal ring. */
+.upd-gallery__arrow:focus { outline: 0; background-color: rgba(8, 16, 20, .55); }
+.upd-gallery__arrow:focus:hover { background-color: rgba(8, 16, 20, .75); }
+.upd-gallery__arrow:active { background-color: rgba(8, 16, 20, .85); }
+.upd-gallery__arrow:focus-visible { outline: 2px solid var(--upd-teal); outline-offset: 2px; }
+.upd-gallery__arrow--prev {
+    left: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 6 9 12 15 18'/%3E%3C/svg%3E");
+}
+.upd-gallery__arrow--next {
+    right: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E");
+}
+
+.upd-gallery--inline[data-count="1"] .upd-gallery__arrow { display: none; }
+
+.upd-gallery__arrow.swiper-button-disabled { opacity: .35; cursor: default; }
+
+/* ---------- Thumb strip ----------
+ * Inactive thumbs: dimmed + slight grayscale so the active thumb (full color)
+ * pops naturally without needing a coloured border. No outline at all; a
+ * teal frame looks broken at the strip edges where neighbouring thumbs
+ * masked one side.
+ */
+.upd-gallery__thumbs {
+    margin-top: 10px;
+    overflow: hidden;
+}
+.upd-gallery__thumbs .swiper-slide {
+    width: 80px;
+    height: 60px;
+    border-radius: 4px;
+    overflow: hidden;
+    opacity: .45;
+    filter: grayscale(.4) brightness(.85);
+    cursor: pointer;
+    transition: opacity .2s ease, filter .2s ease;
+}
+.upd-gallery__thumbs .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.upd-gallery__thumbs .swiper-slide-thumb-active {
+    opacity: 1;
+    filter: none;
+}
+
+/* ---------- Mobile ---------- */
+@media (max-width: 640px) {
+    .upd-gallery__main .swiper-slide { aspect-ratio: 4 / 3; }
+    .upd-gallery__arrow { width: 32px; height: 32px; }
+    .upd-gallery__arrow--prev { left: 8px; }
+    .upd-gallery__arrow--next { right: 8px; }
+    .upd-gallery__thumbs .swiper-slide { width: 64px; height: 48px; }
+}
+
+/* ---------- GLightbox: match inline-viewer arrows ----------
+ * Native GLightbox arrows are thin square SVGs that disappear against bright
+ * photos. We swap them out (hide native SVG, use SVG-as-background) so the
+ * chevrons match the inline-viewer's circle buttons exactly: same shape,
+ * same stroke-width, same dark backdrop. Only thing we DON'T touch is
+ * GLightbox's native positioning (top:50% / translateY(-50%) anchored to
+ * the photo edges); overriding that breaks the layout.
+ */
+.glightbox-container .gnext,
+.glightbox-container .gprev {
+    background-color: rgba(8, 16, 20, .75) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: var(--upd-r-50) !important;
+    /* Lock to a perfect 48x48 square (becomes circle via border-radius).
+     * GLightbox's desktop layout puts these buttons inside a flex container
+     * that stretches them; without aspect-ratio + min/max locks + flex:none +
+     * padding:0, the button comes out as a wider oval on desktop. */
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+    aspect-ratio: 1 !important;
+    flex: none !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    -webkit-tap-highlight-color: transparent !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-size: 22px 22px !important;
+    transition: background-color .2s ease !important;
+    opacity: 1 !important;
+}
+.glightbox-container .gnext:hover,
+.glightbox-container .gprev:hover {
+    background-color: rgba(8, 16, 20, .92) !important;
+}
+.glightbox-container .gnext:focus,
+.glightbox-container .gprev:focus {
+    outline: 0 !important;
+    background-color: rgba(8, 16, 20, .75) !important;
+}
+.glightbox-container .gnext:active,
+.glightbox-container .gprev:active {
+    background-color: rgba(8, 16, 20, .98) !important;
+}
+.glightbox-container .gprev {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='15 6 9 12 15 18'/%3E%3C/svg%3E") !important;
+}
+.glightbox-container .gnext {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 6 15 12 9 18'/%3E%3C/svg%3E") !important;
+}
+.glightbox-container .gnext svg,
+.glightbox-container .gprev svg {
+    display: none !important;
+}
+
+/* Captions hidden: alt text on most images is the WP-default "img NNNN"
+ * filename pattern which adds visual noise without conveying info. The
+ * data-description is still emitted in the markup so a future PHP pass can
+ * filter useful alts and toggle this rule off. */
+.glightbox-container .gslide-description,
+.glightbox-container .gdesc-inner {
+    display: none !important;
+}
+
+/* ---------- IG-style overlay: counter + dot pagination ----------
+ * Injected at runtime by single-place.js when a multi-photo gallery opens.
+ * z-index above GLightbox's own controls so they stay visible. The dots
+ * use --upd-teal for the active state; counter is a neutral
+ * dark pill so it doesn't fight the photo for attention.
+ */
+.upd-lightbox-counter {
+    position: absolute;
+    top: 22px;
+    right: 22px;
+    z-index: 9999999;
+    background: rgba(8, 16, 20, .65);
+    color: var(--upd-c-ink-00);
+    font-size: var(--upd-fs-13px);
+    font-weight: 500;
+    letter-spacing: .02em;
+    padding: 6px 14px;
+    border-radius: var(--upd-r-999px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;
+    user-select: none;
+}
+
+.upd-lightbox-dots {
+    position: absolute;
+    /* Captions are hidden, so dots sit close to the bottom edge. Bump this back
+     * to ~90px if descriptions get re-enabled later. */
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999999;
+    display: flex;
+    gap: 8px;
+    background: rgba(8, 16, 20, .45);
+    padding: 8px 14px;
+    border-radius: var(--upd-r-999px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+.upd-lightbox-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--upd-r-50);
+    background: rgba(255, 255, 255, .45);
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    /* appearance:none + outline reset + tap-highlight-color reset = no
+     * browser default painting white/yellow over the active teal when the
+     * dot is clicked. tap-highlight-color is what causes the brief
+     * yellow flash on mobile. */
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .2s ease, transform .2s ease;
+}
+.upd-lightbox-dot:hover {
+    background: rgba(255, 255, 255, .85);
+}
+.upd-lightbox-dot:focus {
+    outline: none;
+}
+.upd-lightbox-dot:active {
+    background: rgba(255, 255, 255, .85);
+}
+/* Active state must beat :hover, :focus, AND :active. Without the explicit
+ * composite selectors below, those pseudos (specificity 0,2,0) would tie or
+ * beat plain --active (0,1,0) and paint the dot white/yellow on interaction
+ * with the just-clicked dot. */
+.upd-lightbox-dot--active,
+.upd-lightbox-dot--active:hover,
+.upd-lightbox-dot--active:focus,
+.upd-lightbox-dot--active:active {
+    background: var(--upd-teal);
+    transform: scale(1.25);
+}
+
+/* ---------- Place details: centered card grid ----------
+ * Each detail (Travel time, Accessibility, When to visit, Assets) renders
+ * as a centered block: icon on top, label below, value/pills/sub-rows
+ * underneath. Desktop = 4 columns; mobile = 2 columns. Bigger icons here
+ * (28px) than in the old left-aligned row (20px) since they're acting as
+ * card anchors, not inline ornaments.
+ */
+.upd-place-details {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px 24px;
+    padding: 28px 0;
+    margin-bottom: 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+/* Mobile: minimalist rows. The media block lives BELOW the .upd-place-card base
+ * rules (end of this section); at equal specificity the later base rules would
+ * override it here. */
+
+.upd-place-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    min-width: 0;
+}
+.upd-place-card__icon {
+    color: var(--upd-c-orange-45);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.upd-place-card__icon svg {
+    width: 28px;
+    height: 28px;
+}
+.upd-place-card__label {
+    font-size: var(--upd-fs-11px);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--upd-c-blue-35);
+    font-weight: 500;
+}
+.upd-place-card__value {
+    font-size: var(--upd-fs-15px);
+    color: #f1f5f9;
+    font-weight: 600;
+    margin-top: 2px;
+}
+.upd-place-card__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+@media (max-width: 767px) {
+    /* Minimalist rows (intentional, instead of stacked centered totems that
+     * fill a whole screen). Each fact is one line: small gold icon + tracked
+     * label left, value/pills right, the detail language the contact/legal
+     * pages already use. Must sit after the .upd-place-card base rules above
+     * (cascade order at equal specificity). */
+    .upd-place-details {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px 0 20px;
+    }
+    .upd-place-card {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        gap: 12px;
+        min-height: 32px;
+    }
+    .upd-place-card__icon svg {
+        width: 15px;
+        height: 15px;
+    }
+    .upd-place-card__label {
+        margin-left: -3px; /* optical: tucks the label to the icon */
+    }
+    .upd-place-card__value,
+    .upd-place-card__pills {
+        margin-left: auto;
+        margin-top: 0;
+    }
+    .upd-place-card__pills {
+        justify-content: flex-end;
+    }
+}
+
+/* Plain text pill (non-icon mode): used by any multi-value chip that isn't
+ * Assets or Accessibility. Same teal palette as the asset pills. */
+.upd-place-pill {
+    background: rgba(31, 158, 138, 0.18);
+    color: var(--upd-accent);
+    border: 1px solid rgba(31, 158, 138, 0.35);
+    padding: 3px 10px;
+    border-radius: var(--upd-r-999px);
+    font-size: var(--upd-fs-12px);
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+/* ---------- Asset pills (icon-only with hover tooltip) ----------
+ * Each selected Asset (Sunrise view, Sunset view, etc.) renders as a small
+ * circular pill containing only the SVG icon. Hovering reveals the label
+ * via the data-tooltip attribute + ::after pseudo-element, no JS needed.
+ * The tooltip is keyed off data-tooltip so the same class works for any
+ * future icon-only pill set.
+ */
+.upd-asset-pill {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--upd-r-50);
+    /* !important needed on background/border/outline: Astra+Elementor inject
+     * button:focus/:active rules with yellow accent colors that otherwise
+     * override our teal palette during click. */
+    background-color: rgba(31, 158, 138, 0.18) !important;
+    color: var(--upd-accent);
+    border: 1px solid rgba(31, 158, 138, 0.35) !important;
+    /* Button resets: pill is a <button> for click-popover semantics. */
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    transition: background-color .2s ease, color .2s ease, transform .15s ease;
+}
+.upd-asset-pill:hover {
+    background-color: rgba(31, 158, 138, 0.32) !important;
+    color: var(--upd-accent-soft);
+    /* Subtle grow-from-center on hover instead of vertical lift. */
+    transform: scale(1.08);
+}
+/* :focus and :active stay at hover style so click doesn't flash anything new.
+ * No coloured focus ring, on purpose. */
+.upd-asset-pill:focus,
+.upd-asset-pill:focus-visible,
+.upd-asset-pill:active {
+    outline: none !important;
+    box-shadow: none !important;
+    background-color: rgba(31, 158, 138, 0.32) !important;
+    color: var(--upd-accent-soft);
+}
+.upd-asset-pill--text {
+    width: auto;
+    height: auto;
+    border-radius: var(--upd-r-999px);
+    padding: 3px 10px;
+    font-size: var(--upd-fs-12px);
+    font-weight: 500;
+    line-height: 1.4;
+}
+/* Hover label tooltip (the small one above the pill). Always available on
+ * desktop AND mobile (mobile fires hover on tap), but suppressed globally while
+ * any popover is open; see the body.upd-popover-open rule below. That prevents
+ * the label tooltip and the description popover from stacking on top of each
+ * other. */
+.upd-asset-pill::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(2px);
+    background: rgba(8, 16, 20, 0.95);
+    color: var(--upd-c-ink-00);
+    font-size: var(--upd-fs-11px);
+    font-weight: 500;
+    letter-spacing: .02em;
+    /* Defeat any inherited uppercase styling; labels would otherwise render as
+     * "SUNRISE VIEW" because something up the cascade applies uppercase. */
+    text-transform: none;
+    padding: 5px 10px;
+    border-radius: var(--upd-r-6px);
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease, transform .15s ease;
+    z-index: 10;
+}
+/* Reveal on touch tap (.upd-tip-on via upd-tooltips.js); hover gated below. */
+.upd-asset-pill.upd-tip-on::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+/* Hover reveal only on real-hover devices. On touch :hover latches after a tap
+   so the tip would stay stuck; the tap/auto-hide path handles touch instead. */
+@media (hover: hover) {
+    .upd-asset-pill:hover::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+.upd-asset-pill[data-tooltip=""]::after,
+.upd-asset-pill--text::after {
+    display: none;
+}
+/* While any asset popover is open, kill ALL hover tooltips. The body class
+ * is toggled by initAssetPopover() in single-place.js. */
+body.upd-popover-open .upd-asset-pill::after,
+body.upd-popover-open .upd-asset-pill:hover::after {
+    opacity: 0 !important;
+    visibility: hidden;
+}
+
+/* Asset click popover, appended to <body> by single-place.js. Single shared
+ * element re-used across all pills. Position is set in JS based on the clicked
+ * pill's bounding rect. Arrow points down at the pill by default; the --below
+ * modifier flips it to point up when the popover had to render below the pill
+ * (when there wasn't room above). */
+.upd-asset-popover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    max-width: 260px;
+    min-width: 180px;
+    background: rgba(8, 16, 20, 0.96);
+    color: #e8ecf1;
+    border-radius: var(--upd-r-8px);
+    padding: 12px 14px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity .15s ease, transform .15s ease;
+}
+.upd-asset-popover.is-open {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+}
+.upd-asset-popover__title {
+    font-size: var(--upd-fs-13px);
+    font-weight: 600;
+    color: var(--upd-c-ink-00);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+.upd-asset-popover__body {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #c8d1d9;
+}
+.upd-asset-popover__arrow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: rgba(8, 16, 20, 0.96);
+}
+.upd-asset-popover--below .upd-asset-popover__arrow {
+    bottom: auto;
+    top: -6px;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .upd-gallery__main .swiper-wrapper,
+    .upd-gallery__thumbs .swiper-wrapper {
+        transition-duration: 0ms !important;
+    }
+}
+
+/* "‹ Return" gets its own line above the Area › Category eyebrow (which is
+   plain text, not a link). Goes exactly one level up: the category-filtered
+   area feed the visitor came from. Sits over the hero photo by default, so it
+   carries its own colour rather than inheriting the eyebrow's. */
+.upd-place-return {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 6px 2px;
+    color: var(--upd-accent); /* teal so it reads as a link, not a label */
+    opacity: 1;
+    font-size: var(--upd-fs-13px);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .45); /* legible on any hero photo */
+    transition: color .2s ease, opacity .2s ease;
+}
+
+/* No hero photo: the header sits on the dark navy page background, not an
+   image. Same accent teal (it's the chip/icon colour there), just no shadow. */
+.upd-place-return--plain {
+    text-shadow: none;
+}
+
+.upd-place-return:hover,
+.upd-place-return:focus-visible {
+    color: var(--upd-c-ink-00);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ---------------------------------------------------- map attribution */
+/* Mapbox attribution is required by their terms and is enabled on these maps
+   (see place-maps.js). Below 640px the control collapses to an info (i) button
+   on its own, and the theme's global button styles then bloat it to roughly
+   64x36px with the icon tiling, so it reads as two icons rather than one. These
+   are the same corrections palawan-map.css applies to the homepage map; they
+   are scoped to .palawan-map-wrap there, so the place maps need their own copy.
+   Styling only; the attribution itself is never hidden. */
+.place-map-embed .mapboxgl-ctrl-attrib-button {
+    width: 24px;
+    height: 24px;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 16px 16px;
+}
+.place-map-embed .mapboxgl-ctrl-attrib.mapboxgl-compact {
+    min-height: 24px;
+    padding: 0;
+}
+
+/* ---------------- Map footer: coords + Open in Maps ----------------------
+   Teal fill ramp, not gold: gold is the Explorer+/VIP colour and this is a
+   utility action. The coordinates line is a tap-to-copy button
+   (single-place.js, initCoordsCopy); every state is declared explicitly
+   because Astra's
+   button:hover/:focus gold pill out-specs a bare class. */
+.upd-place__mapfoot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.upd-coords,
+.upd-coords:hover,
+.upd-coords:focus,
+.upd-coords:active {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: var(--upd-fs-12px);
+    letter-spacing: .02em;
+    line-height: 1.4;
+    color: var(--upd-c-blue-35);
+    cursor: pointer;
+}
+
+.upd-coords:focus-visible {
+    outline: 2px solid var(--upd-fill);
+    outline-offset: 3px;
+}
+
+.upd-coords--copied,
+.upd-coords--copied:hover,
+.upd-coords--copied:focus {
+    color: var(--upd-accent);
+}
+
+.upd-maps-btn,
+.upd-maps-btn:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border: 1px solid var(--upd-fill);
+    border-radius: var(--upd-r-999px);
+    background: var(--upd-fill);
+    color: var(--upd-c-blue-90bbbb);
+    font-size: var(--upd-fs-13px);
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    transition: background-color .2s ease, border-color .2s ease, transform .15s ease;
+}
+
+.upd-maps-btn:hover,
+.upd-maps-btn:focus {
+    background: var(--upd-fill-hover);
+    border-color: var(--upd-fill-hover);
+    color: var(--upd-c-blue-90bbbb);
+    transform: translateY(-1px);
+}

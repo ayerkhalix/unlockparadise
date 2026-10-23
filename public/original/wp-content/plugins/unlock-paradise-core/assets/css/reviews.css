@@ -1,0 +1,404 @@
+/**
+ * Review widget, Unlock Paradise.
+ * Loaded on single Place pages (see functions.php, is_singular('place')).
+ * Styles the star picker, the review form inputs, the submit/delete actions,
+ * and the public review list. Mobile-first. Reuses site tokens
+ * (--upd-vip-gold for stars, --up-teal for focus/accents).
+ *
+ * Interaction (assets/js/reviews.js): each `.upd-star` gets `.is-on` toggled
+ * when its data-val <= hovered/selected rating; on mouseleave the row reverts
+ * to the committed value. So: show the OUTLINE star by default, the FILLED
+ * gold star when `.is-on`.
+ */
+
+/* ---------------- Section shell ---------------- */
+
+.upd-reviews-section {
+	scroll-margin-top: 96px; /* sticky header clearance for #reviews jumps
+	scroll-margin-top: 96px;    (nudge, feed link) */
+	margin-top: 40px;
+	padding-top: 28px;
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.upd-reviews-section__title {
+	font-size: 22px;
+	font-weight: 600;
+	color: var(--upd-c-ink-00);
+	margin: 0 0 12px;
+}
+
+.upd-reviews-empty {
+	color: var(--upd-c-blue-35);
+	font-size: var(--upd-fs-15px);
+	margin: 0 0 20px;
+}
+
+.upd-reviews-empty strong {
+	color: var(--upd-c-blue-10bbbb);
+}
+
+/* ---------------- Rating summary (avg + count) ---------------- */
+
+.upd-rating {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.upd-rating__stars {
+	display: inline-flex;
+	align-items: center;
+	color: var(--upd-vip-gold);
+	line-height: 0;
+}
+
+.upd-rating__num {
+	font-weight: 700;
+	color: var(--upd-c-blue-10bbbb);
+}
+
+.upd-rating__count {
+	color: var(--upd-c-blue-35);
+	font-size: var(--upd-fs-14px);
+}
+
+.upd-rating--summary {
+	margin: 0 0 20px;
+	font-size: var(--upd-fs-15px);
+}
+
+/* ---------------- Review form ---------------- */
+
+.upd-review-form {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-width: 560px;
+	margin: 0 0 28px;
+}
+
+/* Star picker */
+.upd-stars-input {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	align-self: flex-start;
+}
+
+.upd-star {
+	appearance: none;
+	-webkit-appearance: none;
+	background: none;
+	border: 0;
+	padding: 4px;
+	margin: 0;
+	line-height: 0;
+	cursor: pointer;
+	color: #475569; /* muted outline colour when not selected */
+	transition: color .12s ease, transform .12s ease;
+	-webkit-tap-highlight-color: transparent; /* no gold square on mobile tap */
+}
+
+.upd-star:hover {
+	transform: translateY(-1px);
+}
+
+/* Kill the sticky tap/hover/focus box on the picker; keep a keyboard focus
+   ring. Astra injects `button:hover, button:focus { background:#FDD42D }` as
+   inline <head> CSS; iOS applies a STICKY :hover to a tapped element, so the
+   last-tapped star showed that yellow box. Our higher-specificity rule
+   (0,2,0 > Astra's 0,1,1) wins without !important. */
+.upd-star:hover,
+.upd-star:focus,
+.upd-star:active {
+	background: none;
+	outline: none;
+	box-shadow: none;
+}
+
+.upd-star:focus-visible {
+	outline: 2px solid var(--up-teal);
+	outline-offset: 2px;
+	border-radius: var(--upd-r-6px);
+}
+
+.upd-star:focus:not(:focus-visible) {
+	outline: none;
+}
+
+.upd-star .upd-icon {
+	display: block;
+	width: 30px;
+	height: 30px;
+}
+
+/* Default: outline shown, filled hidden. `.is-on` (set by JS) flips it. */
+.upd-star__on {
+	display: none;
+	color: var(--upd-vip-gold);
+}
+
+.upd-star.is-on {
+	color: var(--upd-vip-gold);
+}
+
+.upd-star.is-on .upd-star__off {
+	display: none;
+}
+
+.upd-star.is-on .upd-star__on {
+	display: inline-flex;
+}
+
+/* Text inputs: match the dark theme (bare white boxes otherwise). The
+   `.upd-review-form` prefix lifts specificity to (0,2,0) so these beat Astra's
+   `input[type="text"], textarea` rule (0,1,1) without needing !important;
+   Astra's input styling is enqueued CSS, not inline. */
+.upd-review-form .upd-review-title,
+.upd-review-form .upd-review-body {
+	width: 100%;
+	box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.14);
+	border-radius: var(--upd-r-10px);
+	padding: 12px 14px;
+	color: var(--upd-c-blue-10bbbb);
+	font: inherit;
+	font-size: var(--upd-fs-15px);
+	line-height: 1.5;
+	transition: border-color .15s ease, background-color .15s ease;
+}
+
+.upd-review-form .upd-review-title::placeholder,
+.upd-review-form .upd-review-body::placeholder {
+	color: var(--upd-c-blue-35);
+}
+
+.upd-review-form .upd-review-title:focus,
+.upd-review-form .upd-review-body:focus {
+	outline: none;
+	border-color: var(--up-teal);
+	background: rgba(255, 255, 255, 0.06);
+}
+
+.upd-review-form .upd-review-body {
+	resize: vertical;
+	min-height: 110px;
+}
+
+/* Actions */
+.upd-review-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+/* Match the .upd-action pill text treatment: normal caps, tighter tracking,
+   smaller. Without this, Astra's global button typography renders these buttons
+   UPPERCASE with wide spacing (the pills escape it via their own
+   text-transform). */
+.upd-review-actions .upd-btn {
+	text-transform: none;
+	letter-spacing: -0.02em;
+	font-size: var(--upd-fs-14px);
+}
+
+.upd-review-msg {
+	color: #f0a5a5;
+	font-size: var(--upd-fs-14px);
+}
+
+.upd-review-cta a {
+	color: var(--up-teal);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+/* ---------------- Public review list ---------------- */
+
+.upd-reviews {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.upd-review {
+	padding: 16px;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: var(--upd-r-12px);
+}
+
+.upd-review.is-mine {
+	border-color: rgba(123, 196, 168, 0.4); /* --up-teal at low alpha */
+}
+
+.upd-review__head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.upd-review__head img {
+	width: 44px;
+	height: 44px;
+	border-radius: var(--upd-r-50);
+	flex: 0 0 auto;
+}
+
+.upd-review__meta {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.upd-review__author {
+	font-weight: 600;
+	color: var(--upd-c-blue-10bbbb);
+}
+
+.upd-review__meta .upd-rating__stars {
+	font-size: 0; /* collapse whitespace between inline icons */
+}
+
+.upd-review__date {
+	color: var(--upd-c-blue-35);
+	font-size: var(--upd-fs-13px);
+}
+
+.upd-review__you {
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-12px);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* Footer row: like on the left, Delete (own review) on the right. */
+.upd-review__foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-top: 10px;
+	min-height: 28px;
+}
+.upd-review__foot:empty { display: none; }
+.upd-review__foot .upd-review__del { margin-top: 0; margin-left: auto; }
+
+/* Like: scoped + state-explicit (Astra paints a gold pill on bare buttons).
+   Outlined heart off, filled teal heart on; the whole control pops on like
+   (reuses upd-pop from membership.css) and the count sits beside it. */
+.upd-review .upd-like,
+.upd-review .upd-like:hover,
+.upd-review .upd-like:focus,
+.upd-review .upd-like:active {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	margin: 0;
+	padding: 4px 8px 4px 6px;
+	border: 1px solid transparent;
+	border-radius: var(--upd-r-999px);
+	background: none;
+	box-shadow: none;
+	color: var(--upd-c-blue-35);
+	font-size: var(--upd-fs-13px);
+	font-weight: 600;
+	line-height: 1;
+	letter-spacing: 0;
+	text-transform: none;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+	transition: none;
+}
+.upd-review .upd-like--static { cursor: default; }
+.upd-review .upd-like__icon { display: inline-flex; width: 18px; height: 18px; }
+.upd-review .upd-like__icon svg { display: block; width: 18px; height: 18px; }
+.upd-review .upd-like__icon--on { display: none; }
+.upd-review .upd-like.is-liked .upd-like__icon--off { display: none; }
+.upd-review .upd-like.is-liked .upd-like__icon--on { display: inline-flex; }
+.upd-review .upd-like.is-liked,
+.upd-review .upd-like.is-liked:hover,
+.upd-review .upd-like.is-liked:focus,
+.upd-review .upd-like.is-liked:active { color: var(--upd-accent); }
+.upd-review .upd-like--static .upd-like__icon--on { display: inline-flex; }
+.upd-review .upd-like--static .upd-like__icon--off { display: none; }
+.upd-review .upd-like__count[hidden] { display: none; }
+@media (hover: hover) {
+	.upd-review .upd-like:not(.upd-like--static):hover { color: var(--upd-c-blue-10bbbb); border-color: var(--upd-c-teal-75); }
+}
+.upd-review .upd-like:focus-visible { outline: 2px solid var(--upd-fill); outline-offset: 2px; }
+.upd-review .upd-like:focus:not(:focus-visible) { outline: none; }
+.upd-review .upd-like.is-pop { animation: upd-pop .2s cubic-bezier(.34, 1.56, .64, 1); }
+@media (prefers-reduced-motion: reduce) { .upd-review .upd-like.is-pop { animation: none; } }
+
+/* Delete sits at the right of the head row on the viewer's own (pinned) review.
+   Two-step inline confirm ("Delete review? Yes / Keep"), no native dialog.
+   Scoped + state-explicit because Astra's `button:hover, button:focus` paints a
+   gold pill on any bare button (specificity 0,1,1). */
+.upd-review__del {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 10px;
+	color: var(--upd-c-blue-35);
+	font-size: var(--upd-fs-12px);
+	line-height: 1;
+}
+.upd-review__del-confirm { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px 14px; }
+.upd-review__del-q { padding: 6px 0; }
+/* `hidden` must win over the display rules above and Astra's button display. */
+.upd-review__del > [hidden] { display: none; }
+.upd-review .upd-review__delete,
+.upd-review .upd-review__delete:hover,
+.upd-review .upd-review__delete:focus,
+.upd-review .upd-review__delete:active {
+	margin: 0;
+	padding: 6px 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--upd-c-blue-35);
+	font: inherit;
+	font-size: var(--upd-fs-12px);
+	line-height: 1;
+	text-transform: none; /* Astra uppercases buttons */
+	letter-spacing: 0;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+.upd-review .upd-review__delete:hover,
+.upd-review .upd-review__delete:focus-visible { color: var(--upd-accent); outline: none; }
+.upd-review .upd-review__delete--yes,
+.upd-review .upd-review__delete--yes:hover,
+.upd-review .upd-review__delete--yes:focus { color: var(--upd-c-red-20b); } /* the destructive choice reads warmer */
+.upd-review .upd-review__delete:disabled { opacity: .5; cursor: default; }
+
+.upd-review__title {
+	margin: 12px 0 4px;
+	font-size: var(--upd-fs-16px);
+	font-weight: 600;
+	color: var(--upd-c-ink-00);
+}
+
+.upd-review__body {
+	color: var(--upd-c-blue-15);
+	font-size: var(--upd-fs-15px);
+	line-height: 1.6;
+}
+
+.upd-review__body p {
+	margin: 0 0 8px;
+}
+
+.upd-review__body p:last-child {
+	margin-bottom: 0;
+}

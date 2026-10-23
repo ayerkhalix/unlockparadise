@@ -1,0 +1,780 @@
+/**
+ * Membership + Checkout page chrome.
+ *
+ * Depends on membership.css, which owns the .upd-btn family and .upd-plans.
+ * Adopts the same local token set .upd-auth-card declares, so /membership/ and
+ * /checkout/ sit in the one dark panel language the member surfaces share
+ * rather than a parallel palette that almost matches.
+ *
+ * Mobile-first: base rules are the small-screen case, min-width only.
+ */
+
+.upd-membership,
+.upd-checkout {
+	--upd-line: rgba(255, 255, 255, .12);
+	--upd-ink: #f5f7fa;
+	--upd-ink-soft: #c8d2d8;
+	--upd-ink-mute: #8ea3ad;
+	--upd-surface: rgba(255, 255, 255, .04);
+
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 2.5rem 1.25rem 4rem;
+	color: var(--upd-ink-soft);
+}
+
+.upd-membership__h2,
+.upd-checkout__h2 {
+	color: var(--upd-ink);
+	font-size: 1.25rem;
+	margin: 0 0 1rem;
+}
+
+/* ---------------------------------------------------------- membership hero */
+
+.upd-membership__hero {
+	text-align: center;
+	padding: 1rem 0 2.5rem;
+	border-bottom: 1px solid var(--upd-line);
+}
+
+.upd-membership__eyebrow {
+	display: inline-block;
+	text-transform: uppercase;
+	letter-spacing: .12em;
+	font-size: var(--upd-fs-75rem);
+	color: var(--upd-vip-gold);
+	margin-bottom: .5rem;
+}
+
+.upd-membership__title {
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-2rem);
+	line-height: 1.15;
+	margin: 0 0 .75rem;
+	text-wrap: balance;
+}
+
+.upd-membership__lede {
+	max-width: 46ch;
+	margin: 0 auto 1.5rem;
+	color: var(--upd-ink-soft);
+	line-height: 1.6;
+}
+
+.upd-membership__price {
+	margin: 0 0 1.5rem;
+}
+
+.upd-membership__amount {
+	font-size: var(--upd-fs-2-75rem);
+	font-weight: 700;
+	color: var(--upd-vip-gold);
+	line-height: 1;
+}
+
+.upd-membership__period {
+	font-size: var(--upd-fs-1-125rem);
+	color: var(--upd-ink-mute);
+}
+
+.upd-membership__options {
+	margin: -1rem 0 1.5rem;
+	font-size: var(--upd-fs-9375rem);
+	color: var(--upd-ink-soft);
+}
+
+.upd-membership__current {
+	color: var(--upd-vip-gold);
+	margin: 0 0 1rem;
+}
+
+.upd-membership__alt {
+	margin: 1rem 0 0;
+	font-size: var(--upd-fs-9375rem);
+	color: var(--upd-ink-mute);
+}
+
+/* ------------------------------------------------------------ section rhythm */
+
+.upd-membership__plans,
+.upd-membership__how,
+.upd-membership__terms {
+	padding: 2.5rem 0 0;
+}
+
+/* --------------------------------------------------------------- how it works */
+
+.upd-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 1.25rem;
+}
+
+.upd-steps__item {
+	background: var(--upd-surface);
+	border: 1px solid var(--upd-line);
+	border-left: 3px solid var(--upd-accent);
+	border-radius: var(--upd-r-12px);
+	padding: 1.25rem;
+}
+
+.upd-steps__n {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: var(--upd-r-50);
+	background: var(--upd-accent);
+	color: var(--upd-c-blue-90bbbb);
+	font-weight: 700;
+	font-size: var(--upd-fs-875rem);
+	margin-bottom: .625rem;
+}
+
+.upd-steps__h {
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-1rem);
+	margin: 0 0 .375rem;
+}
+
+.upd-steps__p {
+	margin: 0;
+	color: var(--upd-ink-soft);
+	line-height: 1.55;
+	font-size: var(--upd-fs-9375rem);
+}
+
+/* -------------------------------------------------------------- billing terms */
+
+.upd-terms {
+	list-style: none;
+	margin: 0 0 1.5rem;
+	padding: 0;
+	display: grid;
+	gap: .625rem;
+}
+
+.upd-terms__item {
+	position: relative;
+	padding-left: 1.5rem;
+	color: var(--upd-ink-soft);
+	line-height: 1.55;
+}
+
+.upd-terms__item strong {
+	color: var(--upd-ink);
+}
+
+.upd-terms__item::before {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: .55em;
+	width: 6px;
+	height: 6px;
+	border-radius: var(--upd-r-50);
+	background: var(--upd-vip-gold);
+}
+
+.upd-membership__legal {
+	font-size: var(--upd-fs-875rem);
+	color: var(--upd-ink-mute);
+	line-height: 1.7;
+	margin: 0;
+}
+
+/* -------------------------------------------------------------------- links */
+
+.upd-membership__alt a,
+.upd-membership__legal a,
+.upd-checkout__legal a,
+.upd-checkout__back a {
+	color: var(--upd-accent);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.upd-membership__alt a:hover,
+.upd-membership__legal a:hover,
+.upd-checkout__legal a:hover,
+.upd-checkout__back a:hover {
+	color: var(--upd-ink);
+}
+
+/* ----------------------------------------------------------------- checkout */
+
+.upd-checkout {
+	max-width: 620px;
+}
+
+.upd-checkout__box,
+.upd-checkout__done {
+	background: var(--upd-surface);
+	border: 1px solid var(--upd-line);
+	border-radius: var(--upd-r-18px);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, .35);
+	padding: 1.5rem;
+}
+
+.upd-checkout__done {
+	text-align: center;
+}
+
+.upd-checkout__icon {
+	color: var(--upd-vip-gold);
+	margin-bottom: .75rem;
+	line-height: 0;
+}
+
+.upd-checkout__title {
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-1-5rem);
+	line-height: 1.2;
+	margin: 0 0 1.5rem;
+	text-wrap: balance;
+}
+
+.upd-checkout__done .upd-checkout__title {
+	margin-bottom: .5rem;
+}
+
+.upd-checkout__sub {
+	color: var(--upd-ink-soft);
+	margin: 0 0 1.25rem;
+}
+
+/* Paid panel. The card warms up behind the lock, the lock lands with one ring
+   pulse and a burst of sparks, and everything else fades up after it. One
+   sequence on load, then the page is still. */
+.upd-done {
+	position: relative;
+	overflow: hidden;
+	padding-top: 2.25rem;
+	background:
+		radial-gradient(ellipse 70% 45% at 50% 0%, color-mix(in srgb, var(--upd-vip-gold) 22%, transparent), transparent 70%),
+		var(--upd-surface);
+}
+
+.upd-done__mark {
+	position: relative;
+	width: 88px;
+	height: 88px;
+	margin: 0 auto .9rem;
+}
+
+.upd-done__lock {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	margin: 0;
+	border-radius: var(--upd-r-50);
+	background: color-mix(in srgb, var(--upd-vip-gold) 14%, transparent);
+	animation: upd-done-lock .7s cubic-bezier(.2, 1.4, .4, 1) both, upd-done-ring 1.1s ease-out .25s both;
+}
+
+.upd-done__burst {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.upd-done__burst i {
+	position: absolute;
+	top: calc(50% - 4px);
+	left: calc(50% - 4px);
+	width: 8px;
+	height: 8px;
+	border-radius: var(--upd-r-50);
+	background: var(--upd-vip-gold);
+	opacity: 0;
+	transform: rotate(var(--a)) translateY(0) scale(.4);
+	animation: upd-done-spark .9s cubic-bezier(.1, .8, .3, 1) .35s both;
+}
+
+.upd-done__burst i:nth-child(even) {
+	background: var(--upd-accent);
+	width: 6px;
+	height: 6px;
+	animation-delay: .42s;
+}
+
+.upd-done__hello {
+	margin: 0 0 .3rem;
+	color: var(--upd-ink-soft);
+	font-size: var(--upd-fs-1rem);
+}
+
+.upd-done__title {
+	font-size: var(--upd-fs-2rem);
+	letter-spacing: -.01em;
+}
+
+.upd-done__sub {
+	margin-bottom: 1.35rem;
+}
+
+/* The date is the one fact to keep: gold, larger, on its own line. */
+.upd-done__until {
+	display: flex;
+	flex-direction: column;
+	gap: .15rem;
+	margin: 0 0 1.5rem;
+	color: var(--upd-ink-soft);
+	font-size: var(--upd-fs-9rem);
+}
+
+.upd-done__date {
+	color: var(--upd-vip-gold);
+	font-size: 1.35rem;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.upd-done__hello,
+.upd-done__title,
+.upd-done__sub,
+.upd-done__until,
+.upd-done__cta {
+	animation: upd-done-rise .6s ease-out both;
+}
+
+.upd-done__title { animation-delay: .45s; }
+.upd-done__hello { animation-delay: .55s; }
+.upd-done__sub   { animation-delay: .65s; }
+.upd-done__until { animation-delay: .75s; }
+.upd-done__cta   { animation-delay: .85s; }
+
+@keyframes upd-done-lock {
+	from { transform: scale(.5); opacity: 0; }
+	to   { transform: scale(1);  opacity: 1; }
+}
+
+@keyframes upd-done-ring {
+	from { box-shadow: 0 0 0 0 color-mix(in srgb, var(--upd-vip-gold) 55%, transparent); }
+	to   { box-shadow: 0 0 0 44px color-mix(in srgb, var(--upd-vip-gold) 0%, transparent); }
+}
+
+@keyframes upd-done-spark {
+	0%   { opacity: 0; transform: rotate(var(--a)) translateY(0) scale(.4); }
+	20%  { opacity: 1; }
+	100% { opacity: 0; transform: rotate(var(--a)) translateY(-64px) scale(1); }
+}
+
+@keyframes upd-done-rise {
+	from { opacity: 0; transform: translateY(10px); }
+	to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.upd-done__lock,
+	.upd-done__burst i,
+	.upd-done__hello,
+	.upd-done__title,
+	.upd-done__sub,
+	.upd-done__until,
+	.upd-done__cta {
+		animation: none;
+	}
+	.upd-done__burst { display: none; }
+}
+
+.upd-checkout__summary {
+	margin-bottom: 2rem;
+}
+
+.upd-checkout__row {
+	display: flex;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: .75rem 0;
+	border-bottom: 1px solid var(--upd-line);
+}
+
+.upd-checkout__row--total {
+	border-bottom: 0;
+	font-weight: 700;
+}
+
+.upd-checkout__label {
+	color: var(--upd-ink-mute);
+}
+
+.upd-checkout__value {
+	color: var(--upd-ink);
+	text-align: right;
+	overflow-wrap: anywhere;
+}
+
+.upd-checkout__pay {
+	border-top: 1px solid var(--upd-line);
+	padding-top: 1.5rem;
+}
+
+.upd-checkout__paytext {
+	color: var(--upd-ink-soft);
+	margin: 0 0 .875rem;
+}
+
+.upd-checkout__notice {
+	background: rgba(212, 163, 68, .1);
+	border-left: 3px solid var(--upd-vip-gold);
+	border-radius: var(--upd-r-8px);
+	padding: .875rem 1rem;
+	margin: 0 0 1rem;
+	color: var(--upd-ink);
+	line-height: 1.55;
+	font-size: var(--upd-fs-9375rem);
+}
+
+.upd-checkout__legal,
+.upd-checkout__back {
+	font-size: var(--upd-fs-875rem);
+	color: var(--upd-ink-mute);
+	line-height: 1.7;
+}
+
+.upd-checkout__legal {
+	margin: 0;
+}
+
+.upd-checkout__back {
+	margin: 1.5rem 0 0;
+	text-align: center;
+}
+
+/* ------------------------------------------------------------------ desktop */
+
+@media (min-width: 768px) {
+	.upd-membership,
+	.upd-checkout {
+		padding: 3.5rem 2rem 5rem;
+	}
+
+	.upd-membership__title {
+		font-size: var(--upd-fs-2-75rem);
+	}
+
+	.upd-membership__amount {
+		font-size: 3.5rem;
+	}
+
+	.upd-steps {
+		grid-template-columns: repeat(3, 1fr);
+	}
+
+	.upd-checkout__box,
+	.upd-checkout__done {
+		padding: 2rem;
+	}
+}
+
+/* Subscribe form: the button is the only control, the follow up line sits under it. */
+.upd-checkout__form {
+	margin: 0 0 .75rem;
+}
+
+.upd-checkout .upd-auth-error {
+	margin: 0 0 1.25rem;
+}
+
+/* ------------------------------------------------------------ plan chooser */
+/* Three stacked options, radio hidden, the picked one outlined teal on a faint
+   tint like the feed's segmented pills. Yearly alone wears the gold chip:
+   gold is the Explorer+ signal, so the flag reads as the brand's own pick. */
+.upd-plan-pick {
+	margin: 0 0 2rem;
+	padding: 0;
+	border: 0;
+	min-width: 0;
+}
+
+.upd-plan-pick legend {
+	padding: 0;
+}
+
+.upd-plan-pick__opt {
+	position: relative;
+	display: grid;
+	grid-template-columns: 1fr auto;
+	column-gap: 1rem;
+	row-gap: .15rem;
+	align-items: baseline;
+	padding: .9rem 1rem;
+	border: 1px solid var(--upd-line);
+	border-radius: var(--upd-r-12px);
+	background: rgba(255, 255, 255, .03);
+	cursor: pointer;
+	transition: border-color .15s, background .15s;
+}
+
+.upd-plan-pick__opt + .upd-plan-pick__opt {
+	margin-top: .6rem;
+}
+
+.upd-plan-pick__opt input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.upd-plan-pick__opt:hover {
+	border-color: rgba(255, 255, 255, .22);
+}
+
+.upd-plan-pick__opt:has(input:checked) {
+	border-color: var(--upd-teal);
+	background: rgba(31, 158, 138, .10);
+	box-shadow: inset 0 0 0 1px var(--upd-teal);
+}
+
+.upd-plan-pick__opt:has(input:focus-visible) {
+	outline: 2px solid var(--upd-fill);
+	outline-offset: 2px;
+}
+
+.upd-plan-pick__cadence {
+	grid-column: 1;
+	grid-row: 1;
+	color: var(--upd-ink);
+	font-weight: 600;
+}
+
+.upd-plan-pick__equiv {
+	grid-column: 1;
+	grid-row: 2;
+	color: var(--upd-ink-mute);
+	font-size: var(--upd-fs-85rem);
+}
+
+.upd-plan-pick__amount {
+	grid-column: 2;
+	grid-row: 1;
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-1-125rem);
+	font-weight: 700;
+	text-align: right;
+}
+
+.upd-plan-pick__per {
+	grid-column: 2;
+	grid-row: 2;
+	color: var(--upd-accent);
+	font-size: var(--upd-fs-85rem);
+	font-weight: 600;
+	text-align: right;
+}
+
+.upd-plan-pick__flag {
+	position: absolute;
+	top: -.6rem;
+	right: .9rem;
+	padding: .15rem .6rem;
+	border-radius: var(--upd-r-999px);
+	background: linear-gradient(135deg, var(--upd-c-orange-35), var(--upd-vip-gold));
+	color: var(--upd-c-orange-85);
+	font-size: var(--upd-fs-72rem);
+	font-weight: 700;
+	line-height: 1.4;
+}
+
+/* The summary, total and button follow the picked option without any script.
+   Browsers without :has() see the monthly text, which is the default choice. */
+.upd-plan-var {
+	display: none;
+}
+
+.upd-checkout__box:has(input[name="plan"][value="monthly"]:checked) .upd-plan-var--monthly,
+.upd-checkout__box:has(input[name="plan"][value="quarterly"]:checked) .upd-plan-var--quarterly,
+.upd-checkout__box:has(input[name="plan"][value="yearly"]:checked) .upd-plan-var--yearly {
+	display: inline;
+}
+
+@supports not selector(:has(a)) {
+	.upd-plan-var--monthly {
+		display: inline;
+	}
+}
+
+/* ------------------------------------------------------------ auto-renew */
+/* Pay once is the default. The switch is a plain setting line under the plan
+   rows, deliberately unboxed so it never reads as a fourth plan, and it swaps
+   the wording the same way the plan rows do. */
+.upd-renew {
+	margin: -.75rem 0 2rem;
+}
+
+.upd-renew__switch {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: .25rem 0;
+	border-radius: var(--upd-r-8px);
+	cursor: pointer;
+}
+
+.upd-renew__label {
+	color: var(--upd-ink);
+	font-size: var(--upd-fs-9375rem);
+	font-weight: 600;
+}
+
+.upd-renew__switch input {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+	pointer-events: none;
+}
+
+.upd-renew__track {
+	position: relative;
+	flex: none;
+	width: 44px;
+	height: 26px;
+	border-radius: var(--upd-r-999px);
+	background: rgba(255, 255, 255, .18);
+	transition: background .15s;
+}
+
+.upd-renew__track::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 20px;
+	height: 20px;
+	border-radius: var(--upd-r-50);
+	background: var(--upd-c-ink-00);
+	transition: transform .15s;
+}
+
+.upd-renew__switch:has(input:checked) .upd-renew__track {
+	background: var(--upd-teal);
+}
+
+.upd-renew__switch:has(input:checked) .upd-renew__track::after {
+	transform: translateX(18px);
+}
+
+.upd-renew__switch:has(input:focus-visible) {
+	outline: 2px solid var(--upd-fill);
+	outline-offset: 2px;
+}
+
+.upd-renew__switch:has(input:disabled) {
+	cursor: default;
+	opacity: .55;
+}
+
+.upd-renew__note {
+	margin: .4rem 0 0;
+	color: var(--upd-ink-mute);
+	font-size: var(--upd-fs-8rem);
+	line-height: 1.45;
+}
+
+.upd-mode--renew {
+	display: none;
+}
+
+.upd-checkout__box:has(input[name="renew"]:checked) .upd-mode--renew {
+	display: inline;
+}
+
+.upd-checkout__box:has(input[name="renew"]:checked) .upd-mode--once {
+	display: none;
+}
+/* ------------------------------------------------------------ receipt */
+/* The order summary is printed on a paper strip that runs past both sides of
+   the panel, folds back behind it at the corners, and ends in a torn edge.
+   The paper surface class re-points the panel's own tokens, so the rows
+   inside keep their markup and simply read dark on light. */
+.upd-checkout__summary {
+	--wrap: 12px;
+	--tooth: 5px;
+	--paper: var(--upd-surface);
+	--fold: #7f8a90;
+	--receipt-red: #b3261e;
+
+	position: relative;
+	margin: 0 calc(-1.5rem - 1px - var(--wrap)) calc(2rem + var(--wrap));
+	padding: 1.1rem calc(1.5rem + var(--wrap)) .5rem;
+	background: var(--paper);
+	color: var(--upd-ink);
+	filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .35));
+	font-size: var(--upd-fs-8125rem);
+	font-variant-numeric: tabular-nums;
+}
+
+.upd-checkout__summary .upd-checkout__h2 {
+	font-size: var(--upd-fs-1rem);
+	margin-bottom: .5rem;
+}
+
+/* The folds: the strip's underside, in shadow, tucking back to the panel edge. */
+.upd-checkout__summary::before {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	height: var(--wrap);
+	background:
+		linear-gradient(to bottom left, var(--fold) 50%, transparent 50%) left top / var(--wrap) var(--wrap) no-repeat,
+		linear-gradient(to bottom right, var(--fold) 50%, transparent 50%) right top / var(--wrap) var(--wrap) no-repeat;
+}
+
+/* The torn edge, between the folds. */
+.upd-checkout__summary::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: var(--wrap);
+	right: var(--wrap);
+	height: var(--tooth);
+	background: conic-gradient(from -45deg at 50% 100%, var(--paper) 90deg, transparent 0) 0 0 / calc(var(--tooth) * 2) var(--tooth) repeat-x;
+}
+
+.upd-checkout__summary .upd-checkout__row {
+	padding: .6rem 0;
+	border-bottom-style: dashed;
+}
+
+.upd-checkout__summary .upd-checkout__row--total {
+	margin-top: .25rem;
+	border-top: 2px solid var(--upd-ink);
+	border-bottom: 0;
+	font-size: var(--upd-fs-9375rem);
+}
+
+/* The solid rule above the total already closes the list. */
+.upd-checkout__summary .upd-checkout__row:has(+ .upd-checkout__row--total) {
+	border-bottom: 0;
+}
+
+.upd-checkout__summary .upd-checkout__row--total .upd-checkout__value {
+	color: var(--receipt-red);
+	font-weight: 800;
+}
+
+.upd-checkout__summary + .upd-checkout__pay {
+	border-top: 0;
+	padding-top: 0;
+}
+
+@media (min-width: 768px) {
+	.upd-checkout__summary {
+		--wrap: 20px;
+		margin-inline: calc(-2rem - 1px - var(--wrap));
+		padding-inline: calc(2rem + var(--wrap));
+	}
+}

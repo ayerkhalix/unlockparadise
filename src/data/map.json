@@ -1,0 +1,118 @@
+{
+  "areas": [
+    {
+      "name": "El Nido",
+      "slug": "el-nido",
+      "coords": [
+        119.453714279105,
+        11.180920242643845
+      ],
+      "desc": ""
+    },
+    {
+      "name": "Puerto North",
+      "slug": "ppc-north",
+      "coords": [
+        118.938119,
+        10.096134
+      ],
+      "desc": "Relatively 1 - 2 hrs away from PPC"
+    },
+    {
+      "name": "Puerto Princesa City",
+      "slug": "puerto-princesa",
+      "coords": [
+        118.703272,
+        9.928504
+      ],
+      "desc": ""
+    },
+    {
+      "name": "Puerto South",
+      "slug": "ppc-south",
+      "coords": [
+        118.598878,
+        9.6139
+      ],
+      "desc": "Relatively 40 mins to 1hr drive from PPC"
+    }
+  ],
+  "availability": {
+    "puerto-princesa": {
+      "beaches": 1,
+      "waterfalls": 1,
+      "rivers": 1,
+      "islands": 1,
+      "mountain-hikes": 1,
+      "others": 1,
+      "coffee": 1,
+      "restaurants": 1
+    },
+    "ppc-south": {
+      "beaches": 1,
+      "waterfalls": 1,
+      "rivers": 1,
+      "others": 1
+    },
+    "ppc-north": {
+      "mountain-hikes": 1,
+      "waterfalls": 1,
+      "rivers": 1,
+      "islands": 1,
+      "others": 1,
+      "beaches": 1
+    },
+    "el-nido": {
+      "waterfalls": 1,
+      "rivers": 1,
+      "beaches": 1,
+      "others": 1,
+      "mountain-hikes": 1,
+      "islands": 1,
+      "restaurants": 1,
+      "coffee": 1
+    }
+  },
+  "categories": [
+    {
+      "slug": "beaches",
+      "name": "Beaches",
+      "image": "/original/wp-content/uploads/2026/05/dji_fly_20260529_102050_0108_1780017720444_photo-768x768.jpg"
+    },
+    {
+      "slug": "islands",
+      "name": "Islands",
+      "image": "/original/wp-content/uploads/2026/04/dji_fly_20260530_121206_0182_1780114657481_photo-768x768.jpg"
+    },
+    {
+      "slug": "rivers",
+      "name": "Rivers",
+      "image": "/original/wp-content/uploads/2026/07/IMG_1967-768x1024.jpg"
+    },
+    {
+      "slug": "waterfalls",
+      "name": "Waterfalls",
+      "image": "/original/wp-content/uploads/2026/05/att.QlotxKZiyAmtlgBTmdYnF0S1WV_OrLRBqe0wrYRd94o-768x768.jpg"
+    },
+    {
+      "slug": "mountain-hikes",
+      "name": "Mountains",
+      "image": "/original/wp-content/uploads/2026/05/IMG_20260407_175102-768x577.jpg"
+    },
+    {
+      "slug": "others",
+      "name": "Local Visits",
+      "image": "/original/wp-content/uploads/2026/05/IMG_2864-768x576.jpg"
+    },
+    {
+      "slug": "restaurants",
+      "name": "Food",
+      "image": "/original/wp-content/uploads/2026/08/IMG_4759-768x546.jpg"
+    },
+    {
+      "slug": "coffee",
+      "name": "Coffee",
+      "image": "/original/wp-content/uploads/2026/08/IMG_2004-768x576.jpg"
+    }
+  ]
+}

@@ -1,0 +1,527 @@
+/* Base layer: fonts, reset, element defaults, the page frame.
+ *
+ * Element defaults are the ones Astra rendered on this site (its stylesheet
+ * plus the Customizer's generated CSS), so pages that never styled a heading
+ * or a paragraph themselves keep their look. Mobile first: Astra's tablet
+ * (921px) and phone (544px) breakpoints stay where they were.
+ */
+
+/* ------------------------------------------------------------------ fonts
+ * Self-hosted, latin subsets. Outfit is the display face (chosen as the
+ * closest free stand-in for Avenir, which the brand package supplies only as
+ * a desktop licence); Open Sans is the body face; Quicksand only draws the
+ * header wordmark. Body copy and headings never use Avenir. */
+@font-face {
+	font-family: 'Outfit';
+	src: url('../fonts/outfit-400.woff2') format('woff2');
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Outfit';
+	src: url('../fonts/outfit-500.woff2') format('woff2');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Outfit';
+	src: url('../fonts/outfit-600.woff2') format('woff2');
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+@font-face {
+	font-family: 'Open Sans';
+	src: url('../fonts/open-sans.woff2') format('woff2');
+	/* 400 and 500 only, as the site loaded them under Astra: heavier weights
+	   keep synthesising so nothing gets wider. */
+	font-weight: 400 500;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+	font-family: 'Quicksand';
+	src: url('../fonts/quicksand-500.woff') format('woff');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------ reset */
+html {
+	box-sizing: border-box;
+	font-size: 100%;
+	-webkit-text-size-adjust: 100%;
+}
+*, ::before, ::after {
+	box-sizing: inherit;
+}
+address, blockquote, body, dd, dl, dt, fieldset, figure, h1, h2, h3, h4, h5, h6, hr, html, iframe, legend, li, ol, p, pre, textarea, ul {
+	border: 0;
+	font-size: 100%;
+	font-style: inherit;
+	font-weight: inherit;
+	margin: 0;
+	outline: 0;
+	padding: 0;
+	vertical-align: baseline;
+}
+/* No iOS tap-highlight flash; components carry their own press states. */
+* {
+	-webkit-tap-highlight-color: transparent;
+}
+img {
+	border: 0;
+	height: auto;
+	max-width: 100%;
+}
+figure {
+	margin: 0;
+}
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+	border: 1px solid rgba(0, 0, 0, .1);
+	border-width: 1px 0 0 1px;
+	margin: 0 0 1.5em;
+	width: 100%;
+}
+td, th {
+	border: 1px solid rgba(0, 0, 0, .1);
+}
+
+/* ------------------------------------------------------------------- body */
+body {
+	margin: 0;
+	overflow-x: hidden;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 400;
+	font-size: 15px;
+	line-height: 1.85714286;
+	color: var(--upd-c-ink-10b);
+	background-color: var(--upd-c-blue-90bbbb);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+/* Form controls take the surrounding font, line height included; a select
+   keeps a single line. */
+button, input, optgroup, select, textarea {
+	color: inherit;
+	font: inherit;
+	margin: 0;
+}
+input {
+	line-height: normal;
+}
+select {
+	line-height: 1;
+}
+@media (min-width: 922px) {
+	body, button, input, select, textarea {
+		font-size: 16px;
+	}
+}
+/* Astra positioned the body only for visitors; members got a static one. */
+body:not(.logged-in) {
+	position: relative;
+}
+
+/* --------------------------------------------------------------- headings
+ * Outfit at every level; Astra's per-level sizes and line heights. */
+h1, h2, h3, h4, h5, h6 {
+	clear: both;
+	font-family: 'Outfit', 'Quicksand', sans-serif;
+	font-weight: 500;
+	line-height: 1.5em;
+	color: var(--upd-c-ink-00);
+}
+h1 { font-size: 35px; line-height: 1.4em; letter-spacing: 0; }
+h2 { font-size: 30px; line-height: 1.3em; }
+h3 { font-size: 22px; line-height: 1.3em; }
+h4 { font-size: 26px; line-height: 1.2em; }
+h5 { font-size: 20px; line-height: 1.2em; }
+h6 { font-size: 17px; line-height: 1.25em; }
+@media (min-width: 545px) {
+	h1 { font-size: 56px; }
+	h2 { font-size: 35px; }
+	h3 { font-size: 26px; }
+}
+@media (min-width: 922px) {
+	h1 { font-size: 70px; }
+	h2 { font-size: 48px; }
+	h3 { font-size: 28px; }
+}
+
+/* ------------------------------------------------------------------- text */
+p {
+	margin-bottom: 1.75em;
+}
+.entry-content p {
+	margin-bottom: 1.6em;
+}
+.entry-content > :last-child,
+.entry-summary > :last-child,
+.page-content > :last-child {
+	margin-bottom: 0;
+}
+ol, ul {
+	margin: 0 0 1.5em 3em;
+}
+ul { list-style: disc; }
+ol { list-style: decimal; }
+li > ol, li > ul {
+	margin-bottom: 0;
+	margin-left: 1.5em;
+}
+blockquote {
+	border-left: 5px solid rgba(0, 0, 0, .05);
+	padding: 20px;
+	font-size: 1.2em;
+	font-style: italic;
+	margin: 1.5em;
+	position: relative;
+	quotes: "" "";
+}
+blockquote::before, blockquote::after {
+	content: "";
+}
+
+/* ------------------------------------------------------------------ links */
+a {
+	color: var(--up-teal);
+	background-color: transparent;
+	text-decoration: none;
+}
+a:hover, a:focus {
+	color: var(--up-terracotta);
+}
+a:focus-visible {
+	outline: thin dotted;
+}
+
+/* Selection is teal (gold is Explorer+ only) and invisible on images, so a
+   long-press on a phone never leaves a card photo washed over. */
+::selection {
+	background-color: color-mix(in srgb, var(--upd-fill) 40%, transparent);
+	color: inherit;
+}
+img::selection {
+	background-color: transparent;
+}
+
+/* ---------------------------------------------------------------- buttons
+ * The default button as Astra styled it; components restyle their own. */
+button, input[type=button], input[type=reset], input[type=submit], .wp-block-button__link {
+	-webkit-appearance: button;
+	cursor: pointer;
+	border: 1px solid #ffb701;
+	background-color: #ffb701;
+	color: var(--upd-c-blue-90bbbb);
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 500;
+	font-size: 15px;
+	line-height: 1em;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	border-radius: 7px;
+	padding: 18px 32px;
+	vertical-align: baseline;
+}
+button:hover, button:focus, input[type=button]:hover, input[type=reset]:hover, input[type=submit]:hover, input[type=submit]:focus, .wp-block-button__link:hover, .wp-block-button__link:focus {
+	color: var(--upd-c-blue-90bbbb);
+	background-color: #fdd42d;
+	border-color: #fdd42d;
+}
+button[disabled], input[disabled] {
+	cursor: default;
+}
+button::-moz-focus-inner, input::-moz-focus-inner {
+	border: 0;
+	padding: 0;
+}
+
+/* ------------------------------------------------------------ form fields */
+input, select, textarea {
+	font-weight: 400;
+	font-size: 100%;
+	vertical-align: baseline;
+	outline: none;
+}
+input[type=email], input[type=password], input[type=search], input[type=tel], input[type=text], input[type=url], input[type=number], select, textarea {
+	color: #666;
+	padding: .75em;
+	height: auto;
+	border: 1px solid rgba(0, 0, 0, .1);
+	border-radius: 2px;
+	background: #fafafa;
+}
+input[type=email], input[type=password], input[type=search], input[type=tel], input[type=text], input[type=url], input[type=number], textarea {
+	-webkit-appearance: none;
+}
+input[type=email]:focus, input[type=password]:focus, input[type=search]:focus, input[type=tel]:focus, input[type=text]:focus, input[type=url]:focus, input[type=number]:focus, textarea:focus {
+	color: #111;
+	border-style: dotted;
+	border-color: inherit;
+	border-width: thin;
+}
+input[type=checkbox], input[type=radio] {
+	box-sizing: border-box;
+	padding: 0;
+}
+input[type=search] {
+	-webkit-appearance: textfield;
+}
+textarea {
+	overflow: auto;
+}
+select {
+	text-transform: none;
+}
+
+/* ------------------------------------------------------------- utilities */
+.screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+	word-wrap: normal !important;
+}
+.screen-reader-text:focus {
+	background-color: #f1f1f1;
+	border-radius: 2px;
+	box-shadow: 0 0 2px 2px rgba(0, 0, 0, .6);
+	clip: auto !important;
+	color: #21759b;
+	display: block;
+	font-size: .875rem;
+	height: auto;
+	left: 5px;
+	line-height: normal;
+	padding: 15px 23px 14px;
+	text-decoration: none;
+	top: 5px;
+	width: auto;
+	z-index: 100000;
+}
+.alignleft {
+	display: inline;
+	float: left;
+	margin-right: 1.5em;
+}
+.alignright {
+	display: inline;
+	float: right;
+	margin-left: 1.5em;
+}
+.aligncenter {
+	clear: both;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+.wp-caption {
+	margin-bottom: 1.5em;
+	max-width: 100%;
+}
+.wp-caption img[class*=wp-image-] {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+.wp-caption .wp-caption-text {
+	margin: .8075em 0;
+}
+
+/* ------------------------------------------------------------ page frame
+ * The header is fixed and out of flow, so the site wrapper is pushed down by
+ * the header's height on every template. Home keeps no offset (the hero sits
+ * under the bar), and neither does a page that opens with a full-bleed photo
+ * band: it starts at the very top, under the header, which is also what lets
+ * the band's parallax engage from the first pixel of scroll. The test is the
+ * band itself rather than the page type, because a feed only renders its band
+ * when it has a photo; a browser without :has() keeps the offset. */
+.upd-site {
+	position: relative;
+	padding-top: 90px;
+}
+@media (min-width: 922px) {
+	.upd-site {
+		padding-top: 64px;
+	}
+}
+body:has(.upd-home) .upd-site,
+body:has(.upd-feed__header--hero, .upd-profile__band, .upd-about__hero) .upd-site {
+	padding-top: 0;
+}
+/* Home's "Start exploring" and "Featured destinations" links glide to their
+   targets. The page builder's script used to do this for the links inside
+   its container, which on this site was only the home page; every other
+   page's anchor links jump, as they always did. */
+html:has(body:has(.upd-home)) {
+	scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+	html:has(body:has(.upd-home)) {
+		scroll-behavior: auto;
+	}
+}
+/* The main region is plain; inside it the container every template used to
+ * sit in: 1240px at most with 20px sides (a hair on phones), a flex row from
+ * 922px up. Home is the page-builder layout: full width, no padding. */
+.upd-main {
+	display: block;
+}
+.upd-container {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+@media (max-width: 544px) {
+	.upd-container {
+		padding-left: .54em;
+		padding-right: .54em;
+	}
+}
+@media (min-width: 922px) {
+	.upd-container {
+		display: flex;
+		flex-direction: row;
+		max-width: 1240px;
+	}
+}
+body:has(.upd-home) .upd-container {
+	display: block;
+	max-width: 100%;
+	padding: 0;
+}
+/* A plain page: the primary band and the article padding of the separate
+ * container layout, so content sits where it did. */
+.upd-primary {
+	width: 100%;
+	padding: 4em 0;
+}
+.upd-page {
+	padding: 1.5em 1em;
+}
+@media (min-width: 545px) {
+	.upd-page { padding: 1.5em 2.14em; }
+}
+@media (min-width: 922px) {
+	.upd-page { padding: 3.34em 2.4em; }
+}
+@media (min-width: 1201px) {
+	.upd-page { padding: 5.34em 6.67em; }
+}
+
+
+/* ------------------------------------------------------------ not found
+ * Astra's 404 layout: a centred card on the palette's dark blue with the
+ * title, the sub line and a search box, padded like an article in the
+ * separate container layout; the primary band is tighter on phones. */
+body.error404 .upd-primary {
+	padding: 1.5em 0;
+}
+@media (min-width: 545px) {
+	body.error404 .upd-primary { padding: 4em 0; }
+}
+.upd-404 {
+	background-color: #1d394b;
+	text-align: center;
+	margin: 0;
+	padding: 1.5em 1em;
+}
+.upd-404__header {
+	margin-bottom: 1.5em;
+}
+@media (min-width: 545px) {
+	.upd-404 { padding: 1.5em 2.14em; }
+}
+@media (min-width: 922px) {
+	.upd-404 { padding: 3.34em 2.4em; }
+}
+@media (min-width: 1201px) {
+	.upd-404 { padding: 5.34em 6.67em; }
+}
+.upd-404__title {
+	margin-bottom: 0;
+	font-weight: 400;
+}
+.upd-404__sub {
+	font-size: 1.5rem;
+	font-weight: 700;
+}
+.upd-404__search {
+	margin-top: 1.5em;
+}
+.upd-search-widget {
+	max-width: 370px;
+	margin: 0 auto;
+	padding-top: .5em;
+}
+
+/* ---------------------------------------------------------- search form
+ * The field fills its box; the icon button sits inside it on the right, and
+ * the text submit stays over the icon, invisible, so Enter and a click both
+ * submit. */
+.search-form {
+	position: relative;
+	padding: 0;
+	background: initial;
+	color: inherit;
+}
+.search-form > label {
+	position: relative;
+}
+.search-form button.search-submit svg {
+	display: block;
+}
+.search-form .search-field,
+.search-form .search-field:focus {
+	width: 100%;
+	padding: 12px 45px 12px 15px;
+	background: #fafafa;
+	border-width: 1px;
+	border-color: rgba(0, 0, 0, .1);
+	border-radius: 2px;
+	outline: 0;
+}
+.search-form i {
+	color: #3a3a3a;
+}
+.search-form button.search-submit {
+	position: absolute;
+	top: 0;
+	right: 15px;
+	display: block;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+	background: 0 0;
+}
+.search-form input[type=submit].search-submit,
+.search-form input[type=submit].search-submit:focus,
+.search-form input[type=submit].search-submit:hover {
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 2;
+	max-width: 45px;
+	padding: 13px 20px;
+	border: none;
+	border-radius: 2px;
+	color: transparent;
+	background: 0 0;
+}

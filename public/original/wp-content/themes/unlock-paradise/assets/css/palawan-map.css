@@ -1,0 +1,475 @@
+/* ============================================================
+ * palawan-map.css: [palawan_map] shortcode (homepage hero map)
+ * Enqueued by the palawan_map shortcode in functions.php, alongside
+ * mapbox-gl, so it only loads where the shortcode renders.
+ * Extracted from the inline <style> block inside that shortcode.
+ * ============================================================ */
+
+.palawan-map-wrap {
+	width: 100%;
+	max-width: 100%;
+	/* Pull the map up under the hero so its faded top edge overlaps the photo,
+	 * then mask the satellite canvas to fade-in over the seam (below). Painted
+	 * above the hero (z-index) so the transparent top reveals the beach photo. */
+	position: relative;
+	z-index: 3;
+	/* Map barely overlaps the hero: it sits below the empty photo band (created
+	 * by the hero's bottom padding) rather than reaching up into it. The small
+	 * overlap + short fade just softens the top edge into the ocean. */
+	margin-top: -30px;
+}
+.palawan-map-wrap #palawan-map {
+	width: 100%;
+	/* Near-full-viewport. An 80dvh crop would only leave a "peek strip" of the
+	 * next section as a scroll handle; .upd-map-escape is the primary escape,
+	 * so the height stays up (a cropped map reads as too small). No min-height:
+	 * a 700px floor forces the map TALLER than a small phone's viewport, which
+	 * is the worst-case trap. The strip that still peeks below is kept as
+	 * redundancy if the pill ever fails to render, not as the mechanism.
+	 *
+	 * lvh, not dvh: a dvh box resizes every time the phone's toolbar hides or
+	 * shows, and Mapbox re-centres its imagery for each new size, which shows
+	 * as the map hopping inside its frame. lvh is the toolbar-hidden height,
+	 * the state a visitor is in when they scroll down to the map, so the box
+	 * keeps that size and never resizes. */
+	height: 90vh;
+	height: 90lvh;
+}
+/* Fade only the satellite imagery into the photo above; markers and zoom
+ * controls stay crisp because they're separate overlays, not the canvas. */
+.palawan-map-wrap .mapboxgl-canvas {
+	/* Long fade so the high northern landmass dissolves into ocean and the map
+	 * only reads as solid well below the "Explore the map" cue. The page bg is
+	 * #11202a (same navy as the map ocean), so the part of the fade past the
+	 * photo still reads as continuous ocean. */
+	-webkit-mask-image: linear-gradient(to bottom, transparent 0, var(--upd-c-ink-100) 150px);
+	        mask-image: linear-gradient(to bottom, transparent 0, var(--upd-c-ink-100) 150px);
+}
+/* Move the zoom controls out of the top-right: after the map is pulled up under
+ * the hero they collide with the sticky header when scrolled. Re-anchor to the
+ * bottom-right, stacked just above the attribution button. */
+.palawan-map-wrap .mapboxgl-ctrl-top-right {
+	z-index: 10;
+	top: auto;
+	bottom: 44px;
+}
+/* The theme's global button styles bloat Mapbox's compact attribution button
+ * (it renders ~64x36px with its info icon tiling, which looks like two icons).
+ * Force the proper single, centered, non-repeating icon. Attribution is kept
+ * (required by Mapbox ToS), just cleaned up. */
+.palawan-map-wrap .mapboxgl-ctrl-attrib-button {
+	width: 24px;
+	height: 24px;
+	min-width: 0;
+	min-height: 0;
+	padding: 0;
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: 16px 16px;
+}
+.palawan-map-wrap .mapboxgl-ctrl-attrib.mapboxgl-compact {
+	min-height: 24px;
+	padding: 0;
+}
+.palawan-map-wrap .mapboxgl-popup-content {
+	background: var(--upd-c-blue-85bb);
+	color: var(--upd-c-orange-20);
+	border-radius: var(--upd-r-8px);
+	padding: 12px 16px;
+	font-family: 'Georgia', serif;
+	box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+.palawan-map-wrap .mapboxgl-popup-tip {
+	border-top-color: var(--upd-c-blue-85bb);
+}
+.palawan-map-wrap .mapboxgl-popup-close-button {
+	color: var(--upd-c-teal-40);
+}
+.palawan-map-wrap .area-name {
+	font-size: var(--upd-fs-1rem);
+	font-weight: bold;
+	margin-bottom: 4px;
+}
+.palawan-map-wrap .area-desc {
+	font-size: 0.8rem;
+	color: var(--upd-c-teal-40);
+}
+.map-overlay {
+	/* Fixed, viewport-level modal. JS moves this node to <body> on load so it
+	 * escapes the .palawan-map-wrap (z-index:3) stacking context; otherwise its
+	 * z-index is trapped below the hero cue (z-4) and the sticky header (z-99).
+	 * At body level with z-index:9999 it sits above everything. */
+	position: fixed;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0,0,0,0);
+	pointer-events: none;
+	transition: background 600ms ease;
+	z-index: 9999;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+.map-overlay.active {
+	background: rgba(0,0,0,0.65);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	pointer-events: auto;
+}
+.category-panel {
+	opacity: 0;
+	transform: translateY(20px);
+	transition: opacity 400ms ease 300ms, transform 400ms ease 300ms;
+	text-align: center;
+}
+.map-overlay.active .category-panel {
+	opacity: 1;
+	transform: translateY(0);
+}
+.category-panel h2 {
+	color: var(--upd-c-orange-20);
+	font-family: system-ui, sans-serif;
+	font-size: 1.8rem;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+.category-panel .area-subtitle {
+	color: rgba(232,213,183,0.6);
+	font-family: system-ui, sans-serif;
+	font-size: 0.9rem;
+	margin-bottom: 30px;
+}
+.category-buttons {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+.category-btn {
+	background: rgba(232,213,183,0.08);
+	color: var(--upd-c-orange-20);
+	border: 1px solid rgba(232,213,183,0.25);
+	padding: 0;
+	border-radius: var(--upd-r-10px);
+	overflow: hidden;
+	width: 140px;
+	font-family: system-ui, sans-serif;
+	cursor: pointer;
+	transition: all 250ms ease;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+}
+.category-btn:hover {
+	background: rgba(232,213,183,0.15);
+	border-color: var(--upd-c-orange-20);
+	box-shadow: 0 0 20px rgba(232,213,183,0.25);
+	color: var(--upd-c-ink-00);
+	transform: translateY(-2px);
+}
+.category-btn:hover .category-thumb {
+	transform: scale(1.05);
+}
+.category-thumb {
+	display: block;
+	width: 100%;
+	aspect-ratio: 2 / 3; /* portrait on desktop */
+	object-fit: cover;
+	transition: transform 400ms ease;
+}
+/* Grab handle, only shown on the mobile bottom sheet (hidden on desktop). */
+.sheet-handle { display: none; }
+
+.category-label {
+	display: block;
+	padding: 10px 8px;
+	font-size: var(--upd-fs-0-85rem);
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	text-align: center;
+	color: inherit;
+}
+/* Categories with no places in the selected area are hidden entirely
+ * (was: greyed-out/disabled). JS still tags .is-empty per area on click. */
+.category-btn.is-empty {
+	display: none;
+}
+/* Pager wrappers (.category-page) exist only for the phone sheet's swipe
+ * pages; JS builds them on every open. On desktop they dissolve
+ * (display: contents) so the cards keep flowing in the flex row above,
+ * and the page dots never render. */
+.category-page { display: contents; }
+.category-dots { display: none; }
+.category-panel .back-btn {
+	margin-top: 24px;
+	background: transparent !important;
+	border: none !important;
+	color: rgba(232,213,183,0.5);
+	font-family: system-ui, sans-serif;
+	font-size: var(--upd-fs-0-85rem);
+	cursor: pointer;
+	transition: background 250ms ease, color 250ms ease;
+	padding: 8px 18px;
+	border-radius: var(--upd-r-6px);
+	text-decoration: none !important;
+	box-shadow: none !important;
+}
+.category-panel .back-btn:hover,
+.category-panel .back-btn:focus {
+	background: rgba(232,213,183,0.12) !important;
+	color: var(--upd-c-ink-00) !important;
+	text-decoration: none !important;
+	box-shadow: none !important;
+}
+
+/* ============================================================
+ * Mobile: turn the centered category overlay into a frosted bottom sheet.
+ * The dimmed, blurred map stays behind it (same premium look, docked to the
+ * bottom so it clears the browser address bar and lands in the thumb zone).
+ * Fixed to the viewport; verified no ancestor transform/filter breaks
+ * `position: fixed`. Kept at the END of the file so these overrides win the
+ * cascade over the base rules above (same specificity, later wins).
+ * ============================================================ */
+@media (max-width: 600px) {
+	.map-overlay {
+		/* dock the sheet to the bottom (position/z-index now come from the base) */
+		justify-content: flex-end;
+		align-items: stretch;
+	}
+	.category-panel {
+		opacity: 1;
+		width: 100%;
+		max-height: 94vh;
+		max-height: 94dvh;
+		display: flex;
+		flex-direction: column;
+		text-align: center;
+		padding: 0 16px calc(18px + env(safe-area-inset-bottom));
+		/* frosted glass: the blurred map ghosts faintly through the sheet */
+		background: rgba(18, 28, 38, 0.72);
+		-webkit-backdrop-filter: blur(22px) saturate(1.3);
+		        backdrop-filter: blur(22px) saturate(1.3);
+		border-top: 1px solid rgba(232, 213, 183, 0.18);
+		border-radius: 22px 22px 0 0;
+		box-shadow: 0 -14px 44px rgba(0, 0, 0, 0.5);
+		/* slide up from below; snaps back / closes via JS drag. ease-out (fast
+		 * to slow): quick off the mark, glides to a soft stop. */
+		transform: translateY(100%);
+		transition: transform 500ms cubic-bezier(0.33, 1, 0.68, 1);
+	}
+	.map-overlay.active .category-panel { transform: translateY(0); }
+	.sheet-handle {
+		display: block;
+		flex: none;
+		width: 42px; height: 4px;
+		margin: 10px auto 8px;
+		border-radius: var(--upd-r-999px);
+		background: rgba(232, 213, 183, 0.45);
+	}
+	.category-panel h2 { font-size: 1.3rem; margin: 2px 0; }
+	.category-panel .area-subtitle { font-size: 0.78rem; margin-bottom: 14px; }
+	/* The tile grid becomes a horizontal snap pager: each .category-page is a
+	 * full-width 2-col grid of up to 6 tiles (Food and Coffee live on page 2).
+	 * Vertical overflow scrolls INSIDE the page, so the rail itself only ever
+	 * moves sideways. */
+	.category-buttons {
+		display: flex;
+		flex-wrap: nowrap;
+		/* the base rule centers + gaps the desktop card row; on the pager both
+		 * break the scroll math (centered overflow hides the left edge) */
+		justify-content: flex-start;
+		gap: 0;
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scroll-snap-type: x mandatory;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	.category-buttons::-webkit-scrollbar { display: none; }
+	.category-page {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		/* The same number of equal rows on EVERY page, so tiles are the same
+		 * size on every page. Without this, a 2-tile page 2 renders its row at
+		 * natural square height while page 1's three rows get squeezed to fit,
+		 * and the tiles visibly grow between pages. --cat-rows is set by
+		 * updBuildCatPages() to the row count of the FULLEST page (6 tiles = 3,
+		 * 4 tiles = 2, 2 tiles = 1). A fixed 3 does not work: in an
+		 * indefinite-height grid every fr row takes the tallest row's height,
+		 * empty or not, so a 4-tile area shows a blank third row at full tile
+		 * height. Do NOT size these rows with % or height:100%: nothing above
+		 * is definite (the panel only has max-height) and they collapse to 0.
+		 * The thumbs' aspect-ratio is what inflates the sheet; these fr rows
+		 * then split whatever height that produced, equally, on both pages. */
+		grid-template-rows: repeat(var(--cat-rows, 3), minmax(0, 1fr));
+		gap: 12px;
+		align-content: start;
+		flex: 0 0 100%;
+		min-width: 100%;
+		scroll-snap-align: start;
+		scroll-snap-stop: always;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		padding: 2px;
+	}
+	/* Page dots, the "there's more" cue. 24px tap targets drawn as 6px sand
+	 * dots; hidden by JS (`hidden` attr) when the area fits on one page. */
+	.category-dots {
+		display: flex;
+		justify-content: center;
+		gap: 2px;
+		flex: none;
+		padding-top: 8px;
+	}
+	.category-dots[hidden] { display: none; }
+	.category-dot {
+		position: relative;
+		width: 24px;
+		height: 24px;
+		background: transparent;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+	}
+	/* Astra paints raw button hover/focus as a gold pill; pin every state. */
+	.category-dot:hover,
+	.category-dot:focus,
+	.category-dot:active {
+		background: transparent;
+		border: none;
+		box-shadow: none;
+	}
+	.category-dot::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		margin: auto;
+		width: 6px;
+		height: 6px;
+		border-radius: var(--upd-r-50);
+		background: rgba(232, 213, 183, 0.35);
+		transition: background-color 200ms ease;
+	}
+	.category-dot.is-active::after { background: var(--upd-c-orange-20); }
+	.category-dot:focus-visible::after { box-shadow: 0 0 0 3px rgba(232, 213, 183, 0.4); }
+	.category-btn { width: auto; position: relative; }
+	/* aspect-ratio keeps the tile's INTRINSIC size square; that intrinsic
+	 * height is what inflates the sheet toward its max-height, so it must stay.
+	 * flex 1 1 auto + min-height:0 then lets the photo grow or shrink to the
+	 * row the grid actually resolved (object-fit: cover crops it). */
+	.category-thumb { aspect-ratio: 1 / 1; flex: 1 1 auto; min-height: 0; }
+	/* Label is a caption OVERLAID on the photo (gradient scrim), not a row
+	 * below it, so it's always visible regardless of how iOS sizes the image. */
+	.category-label {
+		position: absolute;
+		left: 0; right: 0; bottom: 0;
+		padding: 22px 8px 10px;
+		font-size: 0.72rem;
+		letter-spacing: 0.5px;
+		color: #f3e7d2;
+		background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.4) 50%, rgba(0,0,0,0));
+	}
+	.category-panel .back-btn { flex: none; margin-top: 12px; }
+}
+
+/* ---- Scroll-escape pill ------------------------------------------------
+ * The map keeps one-finger pan/zoom (required behaviour), so a thumb
+ * landing on it pans the map instead of scrolling the page. This pill is the
+ * explicit way out, and it replaces the old height-crop "peek strip" as the
+ * primary escape, which is what lets #palawan-map sit at 90lvh.
+ *
+ * It is a separate element painted above the canvas, so taps land here and
+ * Mapbox never sees them: no gesture arbitration, no cooperativeGestures.
+ *
+ * Centred with margin:auto, NOT transform:translateX(-50%): updHeroBob animates
+ * `transform`, which replaces the whole property and would throw the centring
+ * away the moment the animation runs. Same reason the hero cue centres with
+ * left:0;right:0 (home.css:167).
+ *
+ * DOCKING (intentional): the pill is NOT fixed to the viewport. The dock
+ * is a zero-height sticky rail sitting as the last in-flow child of
+ * .palawan-map-wrap, so while the map extends past the bottom of the screen the
+ * pill pins to the viewport bottom, and the moment the map's bottom edge scrolls
+ * into view the pill is caught by it and rides away with the map. It is therefore
+ * structurally incapable of floating over the "Featured destinations" band below,
+ * which is what stops the pill's label duplicating that section's heading.
+ *
+ * Height 0 is what keeps the wrap exactly as tall as the map; an in-flow pill would
+ * add ~38px and push the next section down. The pill is absolutely positioned
+ * against the dock (sticky is a positioned element, so it is the containing block),
+ * which also leaves `transform` free for updHeroBob.
+ *
+ * Sticky needs no ancestor clipping: every ancestor up to <body> must stay
+ * overflow:visible with no transform and no contain. body's
+ * `overflow: hidden auto` propagates to the viewport rather than making body a
+ * scroll container, so the pill sticks against the page scroll.
+ *
+ * z-index:5 is scoped inside .palawan-map-wrap (z-index:3), enough to paint above
+ * the canvas, and .map-overlay (lifted to <body>, z-9999) still covers it, so the
+ * modal wins automatically.
+ */
+.upd-map-escape-dock {
+	position: sticky;
+	/* Offset applies only while stuck; once docked at the map's bottom the pill
+	 * rests at its static position. env() keeps it clear of the iOS home bar. */
+	bottom: env(safe-area-inset-bottom, 0px);
+	height: 0;
+	z-index: 5;
+	/* The dock spans the full width at zero height; never let it eat taps. */
+	pointer-events: none;
+}
+.upd-map-escape {
+	position: absolute;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	width: fit-content;
+	bottom: 18px;
+	pointer-events: auto;
+	/* Deliberately chrome-free: this is the hero cue .upd-hero-scroll
+	 * (home.css) repeated at the foot of the map, so it carries the hero's
+	 * exact colour, opacity, size and bob. No pill, no border, no blur, and the
+	 * arrow leads the label the same way "↓ Start exploring" does. Plain inline
+	 * flow, not inline-flex: the hero separates arrow and label with a real
+	 * word space, and a flex `gap` renders visibly wider than that.
+	 *
+	 * The hero sits on a controlled photo fade; this one floats over satellite
+	 * imagery that runs from dark ocean to bright reef, so the text-shadow does
+	 * the legibility work a background would. Drop the shadow and the label
+	 * disappears over sand. */
+	color: var(--upd-c-blue-10bb);
+	opacity: 0.85;
+	font-size: var(--upd-fs-0-85rem);
+	line-height: 1;
+	text-decoration: none;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9), 0 0 12px rgba(0, 0, 0, 0.6);
+	white-space: nowrap;
+	animation: updHeroBob 2s ease-in-out infinite;
+	transition: opacity 250ms ease, visibility 250ms ease;
+}
+.upd-map-escape:hover,
+.upd-map-escape:focus {
+	color: var(--upd-c-ink-00);
+	opacity: 1;
+}
+/* Keyboard-only ring. This is the one outline that stays: it is invisible to
+ * pointer users. There is intentionally no always-on border. */
+.upd-map-escape:focus-visible {
+	outline: 2px solid var(--upd-accent);
+	outline-offset: 3px;
+}
+/* Two independent flags: the scroll observer owns .is-hidden, the category-panel
+ * modal owns .is-suppressed. Never share one flag, or the observer firing
+ * mid-modal would un-hide the pill on top of the dialog. */
+.upd-map-escape.is-hidden,
+.upd-map-escape.is-suppressed {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.upd-map-escape { animation: none; }
+}

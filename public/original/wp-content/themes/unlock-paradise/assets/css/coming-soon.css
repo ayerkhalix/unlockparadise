@@ -1,0 +1,55 @@
+/* ============================================================
+ * coming-soon.css: "Coming Soon" page template (page-coming-soon.php)
+ * Enqueued by functions.php only on that page template
+ * (About, Get Paid, Merch, Acquire, Contact stubs).
+ * Extracted from the inline <style> block in page-coming-soon.php.
+ * ============================================================ */
+
+.upd-soon { position: relative; min-height: 70vh; display: flex; align-items: center; justify-content: center; background: var(--upd-c-blue-90bbbb); overflow: hidden; padding: 80px 20px; }
+.upd-soon__bg { position: absolute; inset: 0; background-repeat: no-repeat; background-position: center; background-size: contain; opacity: .07; filter: grayscale(1); pointer-events: none; }
+.upd-soon__inner { position: relative; z-index: 1; text-align: center; max-width: 640px; margin: 0 auto; }
+.upd-soon__badge { display: inline-block; margin-bottom: 20px; padding: 6px 14px; border-radius: var(--upd-r-999px); font-size: var(--upd-fs-12px); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--upd-c-blue-90bbbb); background: var(--upd-c-blue-05bbb); }
+.upd-soon__title { color: var(--upd-c-blue-05bbb); font-size: clamp(32px, 6vw, 56px); line-height: 1.1; margin: 0 0 18px; }
+.upd-soon__body { color: var(--upd-c-blue-20b); font-size: var(--upd-fs-18px); line-height: 1.6; }
+.upd-soon__body p { margin: 0 0 16px; }
+.upd-soon__cta { display: inline-block; margin-top: 28px; color: var(--upd-c-blue-05bbb); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(245,247,250,.4); padding-bottom: 2px; }
+.upd-soon__cta:hover { border-color: var(--upd-c-blue-05bbb); }
+/* SureForms (Contact) readability on dark bg */
+.upd-soon__body .srfm-form-container, .upd-soon__body .srfm-form-container label { color: var(--upd-c-ink-10); }
+
+/* ------------------------------------------------------------ /contact/
+ * Business contact details (the payment provider requires visible contact
+ * info). Sits BELOW the form. Minimalist: no rules, no boxes; hierarchy is
+ * carried by small tracked labels, quiet type sizes and whitespace alone.
+ * Mobile-first. */
+.upd-soon__body .srfm-form-container .uagb-heading-text { display: none; } /* page h1 already says "Contact Us" */
+.upd-contact { font-style: normal; text-align: left; margin: 64px 0 8px; }
+.upd-contact__eyebrow { font-family: "Outfit", "Quicksand", sans-serif; font-size: var(--upd-fs-11px); font-weight: 500; letter-spacing: .22em; text-transform: uppercase; color: var(--upd-accent); margin: 0 0 32px; }
+.upd-contact__list { margin: 0; display: grid; gap: 30px; }
+.upd-contact__row { display: grid; gap: 8px; }
+.upd-contact__row dt { font-size: var(--upd-fs-11px); font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: var(--upd-c-blue-50); }
+.upd-contact__row dd { margin: 0; font-size: var(--upd-fs-15px); line-height: 1.65; letter-spacing: .015em; color: var(--upd-c-ink-10); }
+.upd-contact__row dd a { color: var(--upd-c-ink-10); text-decoration: none; border-bottom: 1px solid rgba(134,216,200,.35); padding-bottom: 1px; transition: border-color .15s; }
+.upd-contact__row dd a:hover, .upd-contact__row dd a:focus-visible { border-color: var(--upd-accent); outline: none; }
+.upd-contact__sub { display: block; margin-top: 4px; font-size: var(--upd-fs-13px); line-height: 1.5; letter-spacing: .01em; color: var(--upd-c-blue-50); }
+@media (min-width: 600px) {
+    .upd-contact__list { grid-template-columns: 1fr 1fr; column-gap: 40px; row-gap: 36px; }
+    .upd-contact__row--wide { grid-column: 1 / -1; }
+}
+
+/* On /contact/ the section holds the form PLUS the contact details, so the
+ * section-wide silhouette would center in the gap between them. Anchor it to
+ * the form's own box instead (::before on the form container, slight bleed);
+ * other stubs on this template keep the section-centered bg. */
+.page-id-1834 .upd-soon__bg { display: none; }
+.page-id-1834 .upd-soon__body .srfm-form-container { position: relative; }
+.page-id-1834 .upd-soon__body .srfm-form-container::before {
+    content: "";
+    position: absolute;
+    inset: -6% -4%;
+    z-index: -1;
+    background: url(../img/palawan-3d.svg) center / contain no-repeat;
+    opacity: .07;
+    filter: grayscale(1);
+    pointer-events: none;
+}

@@ -1,0 +1,26 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src"],
+  "locale": "en-PH",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": [
+    "Select/Listbox",
+    "Date",
+    "Form",
+    "Scrollbar",
+    "Toast",
+    "CRUD"
+  ],
+  "ownership": { "Select/Listbox": "native", "Date": "native" },
+  "requiredCommands": ["types", "lint", "backend", "browser"],
+  "commands": {
+    "types": "npm run typecheck",
+    "lint": "npm run lint",
+    "backend": "npm run test:backend",
+    "browser": "node --env-file=.env.local node_modules/@playwright/test/cli.js test"
+  },
+  "evidence": {
+    "crudFullFlow": "tests/admin-studio.spec.ts",
+    "failurePaths": "tests/integration/admin-studio.test.mjs"
+  }
+}

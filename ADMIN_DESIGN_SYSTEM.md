@@ -1,0 +1,11 @@
+# Admin Studio design system
+
+Operate register for a small Palawan tourism business: navy navigation beside a sand worktable, restrained teal actions, clear tables and contextual editing. Outfit carries headings and the wordmark; self-hosted Open Sans carries controls and data. Photography is limited to useful Place/product thumbnails. No decorative charts or simulated business metrics.
+
+Runtime tokens are canonical in `src/app/admin/admin.css`: paper `#f7f4ed`, surface `#fffdf8`, ink `#183d42`, muted `#52696b`, navigation `#102a35`, teal `#14665f`, line `#cbd3cb`, gold focus `#906119`, danger `#a3352f`. DESIGN.md mirrors this admin-only variant. Primary actions use teal; selected navigation uses pale teal and current-page semantics. Controls have visible hover, focus, busy and disabled states.
+
+Desktop has a persistent, scrollable navigation rail. Phones use the existing accessible modal drawer. Tables remain semantic and stack into labeled records below 600px. Long forms scroll naturally. Native select/date popup geometry is intentionally platform-owned. The shared modal supplies Escape handling, initial focus, background inertness and focus restoration; destructive decisions use the existing confirmation owner.
+
+Lists, forms and dialogs use the same labels, pending feedback, inline failures, retry behavior and server-confirmed notices. Save returns to the owning list and preserves its query. Dirty editors warn before explicit back/module navigation and browser unloading. Runtime verification, rather than static appearance alone, establishes accessibility.
+
+The bounded Impeccable detector pass found three Open Sans warnings and 32 advisory color/radius literals. Open Sans is the established brand body face, explicitly preserved by the brief; the detector's generic font suggestion does not override it. The literal advisories include inherited admin/MFA rules and the documented operational palette/status shapes. Runtime CSS remains canonical. The premium static auditor still reports the 13 previously reviewed delegated-action/library-control false positives in public components; it reports no new admin violation. These tool exits are disclosed in ADMIN_TEST_RESULTS.md rather than represented as clean passes.
