@@ -27,7 +27,7 @@ for (const file of sources.filter(
 )) {
   const source = await readFile(file, "utf8");
   if (
-    /sb_secret_[A-Za-z0-9_-]{16,}|sk_live_[A-Za-z0-9]{16,}|\$P\$[A-Za-z0-9./]{25,}/.test(
+    /sb_secret_[A-Za-z0-9_-]{16,}|sk_live_[A-Za-z0-9]{16,}|sk\.ey[A-Za-z0-9._-]{30,}|\$P\$[A-Za-z0-9./]{25,}/.test(
       source,
     )
   )
