@@ -365,6 +365,8 @@ The profile subsequently removes its separate traveler glyph; review badges and 
 
 ## Task feedback and trip preparation — 24 October 2026
 
+Authentication additions retain the compact navy AuthForm, Outfit headings and existing field geometry. The explicit Google button follows its neutral white brand treatment with a multicolor G; email fields remain available beneath a quiet divider. A first-visit privacy banner uses the established panel, type and teal outline actions with equal weight for essential-only and analytics consent. It is portaled to the viewport and contributes measured clearance to the existing fixed dock, including safe-area spacing. Footer preferences reuse the canonical Modal. No ambient animation or new visual system is introduced for authentication or privacy.
+
 Shared StudioTable owns loading skeletons, loaded-empty and failed states via StudioDataState; stale request keys cannot paint an old result or clamp a new filter's page. Loading geometry reserves three rows without ambient animation. Readable activity verbs and entity names replace database identifiers in the studio.
 
 Saved-place pages retain their shared header and tabs but omit filters when there are no records. Phone headers use compact spacing and a 44px planner link. Daily itinerary timelines use the existing type, teal time labels and gold overlap warnings; no estimated journey time is invented. The browser print view is a plain, high-contrast, all-days document with saved notes and Palawan-local times, portaled beside the application so other chrome does not print.

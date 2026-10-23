@@ -36,7 +36,7 @@ export function TravelCompanion({ tier }: { tier: string }) {
     return () => document.removeEventListener("click", click);
   }, []);
   const hidden =
-    /^\/(admin|merch|login|join|forgot-password|reset-password|checkout|traveler-discovery)(\/|$)/.test(
+    /^\/(admin|auth|merch|login|join|forgot-password|reset-password|checkout|traveler-discovery)(\/|$)/.test(
       pathname,
     );
   return (

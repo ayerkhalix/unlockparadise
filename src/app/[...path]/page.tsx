@@ -16,6 +16,7 @@ import { MemberPage } from "@/components/member-page";
 import { ResetPassword } from "@/components/reset-password";
 import { Checkout } from "@/components/checkout";
 import { AreaNavigation } from "@/components/area-navigation";
+import { googleReturnPath } from "@/lib/auth/google";
 
 const titles: Record<string, string> = {
   about: "About",
@@ -46,6 +47,7 @@ export default async function PublicPage({ params, searchParams }: Props) {
   const { path } = await params;
   const key = path.join("/");
   if (key === "login" || key === "join") {
+    const query = await searchParams;
     if (await currentSession()) {
       const destination = safeRedirect((await searchParams).redirect_to);
       redirect(
@@ -54,7 +56,13 @@ export default async function PublicPage({ params, searchParams }: Props) {
           : destination,
       );
     }
-    return <AuthForm route={key} />;
+    return (
+      <AuthForm
+        route={key}
+        next={googleReturnPath(query.redirect_to)}
+        error={typeof query.error === "string" ? query.error : undefined}
+      />
+    );
   }
   if (key === "forgot-password") return <AuthForm route={key} />;
   if (["account", "bucketlist", "portfolio"].includes(key))

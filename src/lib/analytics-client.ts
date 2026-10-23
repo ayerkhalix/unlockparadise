@@ -1,3 +1,5 @@
+import { readConsentChoice } from "./privacy-consent";
+
 export type InterestEvent =
   | "place_viewed"
   | "place_saved"
@@ -20,7 +22,7 @@ export function captureInterest(
   )
     return;
   try {
-    if (localStorage.getItem("upd-analytics-consent") !== "allowed") return;
+    if (readConsentChoice() !== "allowed") return;
     let session = sessionStorage.getItem("upd-analytics-session");
     if (!session) {
       session = crypto.randomUUID();

@@ -4,6 +4,8 @@ Place editor additions: an empty traveler audience means category-based matching
 
 ## Product context
 
+Authentication and privacy: login/join share the branded AuthForm and explicit Google OAuth button. Google starts only on user action, uses server-side PKCE and signed browser flow state, and returns through traveler discovery to a safe original page. New OAuth accounts accept terms in the shared form before continuing; provider identities never grant roles or membership. Missing provider setup produces an inline recoverable error, preserving email login. AnalyticsPreferences owns both the first-visit cookie notice and the existing footer preferences, with equally prominent allow/essential-only choices. Its portal reserves clearance for the floating dock, honors stored decisions, and fails analytics off if storage cannot save. See [Auth setup](docs/backend/AUTH_SETUP.md).
+
 English interface for Palawan travelers in the Philippine market, with PHP catalog prices and Asia/Manila timestamps. Primary jobs: discover, save, plan and explore. Accessibility target: WCAG 2.2 AA. Visual identity and runtime token ownership are documented in [DESIGN.md](DESIGN.md).
 
 ## Business-context sources

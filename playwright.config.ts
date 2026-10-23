@@ -18,6 +18,7 @@ export default defineConfig({
         "**/member-identity-map.spec.ts",
         "**/floating-dock.spec.ts",
         "**/ui-polish.spec.ts",
+        "**/auth-privacy.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

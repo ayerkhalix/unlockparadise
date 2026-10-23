@@ -1,6 +1,47 @@
+import { GoogleSignIn } from "./google-sign-in";
 type AuthRoute = "login" | "join" | "forgot-password";
 
-export function AuthForm({ route }: { route: AuthRoute }) {
+export function AuthBrand() {
+  return (
+    <a className="p2-auth-brand" href="/" aria-label="Unlock Paradise home">
+      <img
+        src="/original/wp-content/uploads/2026/07/upd-mark-white-header-300x300.png"
+        width="48"
+        height="48"
+        alt=""
+      />
+      <span>Unlock Paradise</span>
+    </a>
+  );
+}
+export function TermsConsent() {
+  return (
+    <label className="p2-auth-consent">
+      <input name="terms" type="checkbox" value="1" required />
+      <span>
+        I agree to the{" "}
+        <a href="/terms/" target="_blank" rel="noopener noreferrer">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="/privacy-policy/" target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </a>
+        .
+      </span>
+    </label>
+  );
+}
+
+export function AuthForm({
+  route,
+  next = "/account/",
+  error,
+}: {
+  route: AuthRoute;
+  next?: string;
+  error?: string;
+}) {
   const joining = route === "join";
   const recovery = route === "forgot-password";
   const title = joining
@@ -11,15 +52,7 @@ export function AuthForm({ route }: { route: AuthRoute }) {
   return (
     <main id="upd-main" className="p2-auth-page" aria-labelledby="auth-title">
       <div className="p2-auth-card">
-        <a className="p2-auth-brand" href="/" aria-label="Unlock Paradise home">
-          <img
-            src="/original/wp-content/uploads/2026/07/upd-mark-white-header-300x300.png"
-            width="48"
-            height="48"
-            alt=""
-          />
-          <span>Unlock Paradise</span>
-        </a>
+        <AuthBrand />
         <h1 id="auth-title">{title}</h1>
         <p className="p2-muted">
           {joining
@@ -28,6 +61,14 @@ export function AuthForm({ route }: { route: AuthRoute }) {
               ? "We’ll email you a link to choose a new password."
               : "Welcome back. Your next adventure starts here."}
         </p>
+        {error && (
+          <p className="p2-auth-status" role="alert">
+            {error === "google"
+              ? "Google sign-in was canceled or could not be completed. Try again in this browser, or use email and password."
+              : "That confirmation link could not be verified. Use a fresh link or sign in."}
+          </p>
+        )}
+        {!recovery && <GoogleSignIn next={next} />}
         <form
           noValidate
           className="p2-auth-form"
@@ -35,6 +76,7 @@ export function AuthForm({ route }: { route: AuthRoute }) {
           method="post"
           data-endpoint={`/api/auth/${route}/`}
         >
+          <input type="hidden" name="redirect_to" value={next} />
           <label htmlFor="auth-email">Email</label>
           <input
             id="auth-email"
@@ -85,24 +127,7 @@ export function AuthForm({ route }: { route: AuthRoute }) {
             </>
           )}
           {joining ? (
-            <label className="p2-auth-consent">
-              <input name="terms" type="checkbox" value="1" required />
-              <span>
-                I agree to the{" "}
-                <a href="/terms/" target="_blank" rel="noopener noreferrer">
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href="/privacy-policy/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Privacy Policy
-                </a>
-                .
-              </span>
-            </label>
+            <TermsConsent />
           ) : (
             !recovery && (
               <a className="p2-auth-forgot" href="/forgot-password/">
@@ -132,13 +157,19 @@ export function AuthForm({ route }: { route: AuthRoute }) {
         <p className="p2-auth-alt">
           {joining ? (
             <>
-              Already have an account? <a href="/login/">Sign in</a>
+              Already have an account?{" "}
+              <a href={`/login/?redirect_to=${encodeURIComponent(next)}`}>
+                Sign in
+              </a>
             </>
           ) : recovery ? (
             <a href="/login/">Back to sign in</a>
           ) : (
             <>
-              New to Unlock Paradise? <a href="/join/">Register free</a>
+              New to Unlock Paradise?{" "}
+              <a href={`/join/?redirect_to=${encodeURIComponent(next)}`}>
+                Register free
+              </a>
             </>
           )}
         </p>
