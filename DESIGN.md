@@ -325,6 +325,8 @@ Not canonized: legacy decorative uppercase eyebrow treatments and any inherited 
 
 ## Member planning refinement — 22 October 2026
 
+Merchandise editing keeps Card highlight beside the product selections, with visible Details & care and optional Size guide sections. Native size choices and compact measurement rows use Studio tokens; measurements remain in inches. Collection taglines are optional muted body text directly below collection headings, editable through the existing inline catalog-choice owner. At phone widths, the planner uses compact 44px controls, horizontally scrollable day tabs, a smaller trip heading and a single aligned map-mode row. Selected-day and map-mode contrast remain unchanged.
+
 Preserve the existing public palette and fonts. Selected planner days use a filled teal button, dark text and an explicit Selected label. Optional visit times use native paired time fields, the shared validation/form owner and existing modal/disclosure patterns. Checkout places its introduction beside one payment panel with selected period rows and a live total; profile places membership and traveler preferences beside destination previews and settings. Both stack on mobile. Runtime ownership remains phase2.css; behavior and verification boundaries are recorded in UX-CONTRACT.md.
 
 ## Place discovery refinement — 22 October 2026

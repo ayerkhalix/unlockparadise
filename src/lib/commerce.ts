@@ -61,7 +61,7 @@ export const productInput = z
         sizeGuide: z
           .array(
             z.object({
-              size: text(30),
+              size: text(30).min(1, "Choose a size for each measurement row."),
               chest: text(30),
               length: text(30),
               shoulder: text(30),
@@ -91,6 +91,16 @@ export const productInput = z
   })
   .strict()
   .superRefine((p, ctx) => {
+    const measurements = p.content.sizeGuide || [];
+    if (
+      new Set(measurements.map((row) => row.size.toLowerCase())).size !==
+      measurements.length
+    )
+      ctx.addIssue({
+        code: "custom",
+        path: ["content", "sizeGuide"],
+        message: "Use one measurement row per size.",
+      });
     if (
       p.compare_at_centavos !== null &&
       p.compare_at_centavos < p.price_centavos

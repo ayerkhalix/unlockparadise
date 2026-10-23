@@ -9,6 +9,7 @@ test("merch collections have distinct names, default first and no repeated produ
     brandId: "brand-up",
     collectionId: "collection-up",
     collection: "Unlock Paradise Collection",
+    collectionTagline: "Find your way",
   };
   const future = {
     ...products[1],
@@ -30,6 +31,7 @@ test("merch collections have distinct names, default first and no repeated produ
     sameNameDifferentBrand,
   ]);
   assert.equal(sections[0].name, "Unlock Paradise Collection");
+  assert.equal(sections[0].tagline, "Find your way");
   assert.equal(sections.length, 3);
   assert.equal(
     sections.reduce((total, s) => total + s.products.length, 0),
@@ -37,6 +39,7 @@ test("merch collections have distinct names, default first and no repeated produ
   );
   assert.deepEqual(groupMerchCollections([]), []);
   assert.equal(groupMerchCollections([future])[0].name, "Coastal Essentials");
+  assert.equal(groupMerchCollections([future])[0].tagline, "");
   assert.equal(
     groupMerchCollections([
       {

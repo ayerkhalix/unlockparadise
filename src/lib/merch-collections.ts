@@ -2,7 +2,13 @@ import type { Product } from "./merch-products";
 export function groupMerchCollections(products: readonly Product[]) {
   const sections = new Map<
     string,
-    { id: string; name: string; brand: string; products: Product[] }
+    {
+      id: string;
+      name: string;
+      brand: string;
+      tagline: string;
+      products: Product[];
+    }
   >();
   for (const product of products) {
     const brand = product.brand || "Unlock Paradise";
@@ -14,7 +20,13 @@ export function groupMerchCollections(products: readonly Product[]) {
     const id = product.collectionId || `${product.brandId || brand}:${name}`;
     let section = sections.get(id);
     if (!section) {
-      section = { id, name, brand, products: [] };
+      section = {
+        id,
+        name,
+        brand,
+        tagline: product.collectionTagline?.trim() || "",
+        products: [],
+      };
       sections.set(id, section);
     }
     section.products.push(product);

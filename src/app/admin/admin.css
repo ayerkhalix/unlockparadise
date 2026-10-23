@@ -1390,6 +1390,49 @@ body [data-admin-theme].p2-modal button.p2-button:not(.p2-button--quiet):hover {
 .catalog-choice__new label {
   flex: 1 1 140px;
 }
+.catalog-choice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.catalog-choice__new .catalog-choice__tagline {
+  flex-basis: 100%;
+}
+.catalog-choice__hint {
+  display: block;
+  margin: 0;
+  color: var(--studio-muted);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.product-size-row {
+  min-width: 0;
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--studio-line);
+  border-radius: 8px;
+}
+.product-size-row legend {
+  padding-inline: 4px;
+  color: var(--studio-muted);
+  font-size: 13px;
+}
+.product-size-row__fields {
+  display: grid;
+  grid-template-columns: minmax(100px, 1.2fr) repeat(3, minmax(60px, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+}
+@media (max-width: 600px) {
+  .product-size-row__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .product-size-row__fields > button {
+    justify-self: start;
+  }
+}
 .product-photo-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

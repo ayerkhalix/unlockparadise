@@ -24,9 +24,17 @@ export function publicProduct(row: Record<string, unknown>): Product {
     priceCentavos: Number(row.price_centavos),
     category: String(row.category),
     brandId: String(row.brand_id || ""),
-    brand: String((row.merch_brands as { name?: string } | null)?.name || "Unlock Paradise"),
+    brand: String(
+      (row.merch_brands as { name?: string } | null)?.name || "Unlock Paradise",
+    ),
     collectionId: String(row.collection_id || ""),
-    collection: String((row.merch_collections as { name?: string } | null)?.name || "Unlock Paradise Collection"),
+    collection: String(
+      (row.merch_collections as { name?: string } | null)?.name ||
+        "Unlock Paradise Collection",
+    ),
+    collectionTagline: String(
+      (row.merch_collections as { tagline?: string } | null)?.tagline || "",
+    ),
     color: content.color || "",
     descriptor: content.descriptor || "",
     shortDescription: content.shortDescription || String(row.description),
@@ -47,7 +55,9 @@ export async function catalog() {
   const db = await serverSupabase();
   const result = await db
     .from("merch_products")
-    .select("*,merch_variants(*),merch_brands(name),merch_collections!merch_products_collection_id_fkey(name)")
+    .select(
+      "*,merch_variants(*),merch_brands(name),merch_collections!merch_products_collection_id_fkey(name,tagline)",
+    )
     .eq("status", "publish")
     .order("featured", { ascending: false })
     .order("id")

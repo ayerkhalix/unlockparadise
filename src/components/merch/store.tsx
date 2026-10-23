@@ -24,9 +24,9 @@ function ProductCard({ product: p }: { product: Product }) {
           <h3>{p.name}</h3>
           <strong>{peso(p.price)}</strong>
         </div>
-        <p>
-          {p.color} · {p.descriptor}
-        </p>
+        {(p.color || p.descriptor) && (
+          <p>{[p.color, p.descriptor].filter(Boolean).join(" · ")}</p>
+        )}
       </Link>
       <AddToBag product={p} compact image={p.displayImage} />
     </article>
@@ -102,7 +102,7 @@ function AddToBag({
               </label>
             ))}
           </fieldset>
-          {p.sizeGuide && (
+          {!!p.sizeGuide?.length && (
             <button type="button" className="p2-size-guide" onClick={onGuide}>
               View size guide ↗
             </button>
@@ -246,8 +246,13 @@ export function Store() {
             data-collection-id={section.id}
           >
             <header className="merch-collection-heading">
-              <h2 id={`merch-collection-${index}`}>{section.name}</h2>
-              <p>
+              <div className="merch-collection-title">
+                <h2 id={`merch-collection-${index}`}>{section.name}</h2>
+                {section.tagline && (
+                  <p className="merch-collection-tagline">{section.tagline}</p>
+                )}
+              </div>
+              <p className="merch-collection-meta">
                 {section.brand} · {section.products.length}{" "}
                 {section.products.length === 1 ? "piece" : "pieces"}
               </p>
@@ -337,22 +342,29 @@ export function ProductDetail({ product: p }: { product: Product }) {
             <summary>About this piece</summary>
             <p>{p.about}</p>
           </details>
-          <details className="p2-product-accordion">
-            <summary>Details & care</summary>
-            <ul>
-              {p.highlights.map((h) => (
-                <li key={h}>{h}</li>
-              ))}
-            </ul>
-            <dl>
-              {Object.entries(p.details).map(([key, value]) => (
-                <div key={key}>
-                  <dt>{key}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
-            </dl>
-          </details>
+          {(p.highlights.length > 0 ||
+            Object.values(p.details).some((value) => value.trim())) && (
+            <details className="p2-product-accordion">
+              <summary>Details & care</summary>
+              {p.highlights.length > 0 && (
+                <ul>
+                  {p.highlights.map((h) => (
+                    <li key={h}>{h}</li>
+                  ))}
+                </ul>
+              )}
+              <dl>
+                {Object.entries(p.details)
+                  .filter(([, value]) => value.trim())
+                  .map(([key, value]) => (
+                    <div key={key}>
+                      <dt>{key}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </details>
+          )}
           <details className="p2-product-accordion">
             <summary>Ordering & delivery</summary>
             <p>

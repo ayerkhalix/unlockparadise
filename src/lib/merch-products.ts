@@ -19,6 +19,7 @@ export type Product = {
   brand?: string;
   collectionId?: string;
   collection?: string;
+  collectionTagline?: string;
   seo?: { title: string; description: string };
   imageAlts?: string[];
   variants?: {

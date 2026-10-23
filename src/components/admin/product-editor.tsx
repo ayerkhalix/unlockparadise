@@ -21,6 +21,7 @@ import {
 } from "@/lib/catalog-options";
 import { notify } from "@/lib/client-api";
 import { ZodError } from "zod";
+import type { SizeGuideRow } from "@/lib/merch-products";
 
 type Variant = {
   id?: string;
@@ -55,6 +56,9 @@ export function ProductEditor({
   const fileInput = useRef<HTMLInputElement>(null),
     replaceIndex = useRef<number | null>(null);
   const content = (initial?.content || {}) as Row;
+  const [sizeGuide, setSizeGuide] = useState<SizeGuideRow[]>(
+    (content.sizeGuide as SizeGuideRow[]) || [],
+  );
   const [name, setName] = useState(String(initial?.name || "")),
     [slug, setSlug] = useState(String(initial?.slug || "")),
     [sku, setSku] = useState(String(initial?.sku || ""));
@@ -99,9 +103,14 @@ export function ProductEditor({
     ...created.filter((r) => r.kind === "brand"),
   ];
   const collections = [
-    ...list(options.data?.collections),
-    ...created.filter((r) => r.kind === "collection"),
+    ...new Map(
+      [
+        ...list(options.data?.collections),
+        ...created.filter((r) => r.kind === "collection"),
+      ].map((r) => [String(r.id), r]),
+    ).values(),
   ].filter((r) => r.brand_id === brand);
+  const selectedCollection = collections.find((r) => r.id === collection);
   const names = (kind: string, defaults: string[]) =>
     [
       ...new Set([
@@ -116,7 +125,7 @@ export function ProductEditor({
     setDirty(true);
     onDirty(true);
   };
-  const create = (kind: string) => async (value: string) => {
+  const create = (kind: string) => async (value: string, tagline?: string) => {
     setOptionBusy(true);
     onBusyChange?.(true);
     try {
@@ -126,7 +135,9 @@ export function ProductEditor({
         {
           kind,
           name: value,
-          ...(kind === "collection" ? { brand_id: brand } : {}),
+          ...(kind === "collection"
+            ? { brand_id: brand, tagline: tagline || "" }
+            : {}),
         },
       );
       setCreated((rows) => [...rows, { ...result.data, kind }]);
@@ -139,6 +150,29 @@ export function ProductEditor({
       else if (kind === "color") setColor(value);
       mark();
       notify(`${value} added.`);
+    } finally {
+      setOptionBusy(false);
+      onBusyChange?.(false);
+    }
+  };
+  const saveCollectionTagline = async (tagline: string) => {
+    setOptionBusy(true);
+    onBusyChange?.(true);
+    try {
+      const result = await adminRequest<{ data: Row }>(
+        "catalog-options",
+        "PATCH",
+        {
+          id: collection,
+          tagline,
+          expected_tagline: String(selectedCollection?.tagline || ""),
+        },
+      );
+      setCreated((rows) => [
+        ...rows.filter((r) => r.id !== collection),
+        { ...result.data, kind: "collection" },
+      ]);
+      notify("Collection tagline saved.");
     } finally {
       setOptionBusy(false);
       onBusyChange?.(false);
@@ -292,6 +326,27 @@ export function ProductEditor({
                 descriptor: String(f.get("descriptor") || ""),
                 shortDescription: String(f.get("shortDescription") || ""),
                 color,
+                details: {
+                  ...((content.details as Record<string, string>) || {}),
+                  ...Object.fromEntries(
+                    ["material", "fit", "weight", "care"].map((key) => [
+                      key,
+                      String(f.get(`detail_${key}`) || "").trim(),
+                    ]),
+                  ),
+                },
+                highlights: String(f.get("highlights") || "")
+                  .split(/\r?\n/)
+                  .map((v) => v.trim())
+                  .filter(Boolean),
+                sizeGuide: sizeGuide.map((row) =>
+                  Object.fromEntries(
+                    Object.entries(row).map(([key, value]) => [
+                      key,
+                      value.trim(),
+                    ]),
+                  ),
+                ),
                 seo: {
                   title: String(f.get("seo_title") || ""),
                   description: String(f.get("seo_description") || ""),
@@ -336,7 +391,10 @@ export function ProductEditor({
           }
         }}
       >
-        <fieldset disabled={locked} className="product-editor__fields">
+        <fieldset
+          disabled={locked || options.loading || !!options.error}
+          className="product-editor__fields"
+        >
           <section className="studio-form-section">
             <h2>Product details</h2>
             <label>
@@ -390,6 +448,8 @@ export function ProductEditor({
                   mark();
                 }}
                 onCreate={create("collection")}
+                tagline={String(selectedCollection?.tagline || "")}
+                onSaveTagline={saveCollectionTagline}
                 disabled={!brand}
               />
               <CatalogChoice
@@ -413,6 +473,19 @@ export function ProductEditor({
                 onCreate={create("color")}
               />
             </div>
+            <label>
+              Card highlight (optional)
+              <input
+                name="descriptor"
+                maxLength={200}
+                defaultValue={String(content.descriptor || "")}
+                placeholder="Front & Back Design"
+              />
+              <span className="catalog-choice__hint">
+                Shown beside the color on product cards. Add a feature,
+                material, or print.
+              </span>
+            </label>
             <label>
               Short description
               <input
@@ -649,6 +722,147 @@ export function ProductEditor({
               Add option
             </button>
           </section>
+          <section className="studio-form-section">
+            <h2>Details & care</h2>
+            <p className="catalog-choice__hint">
+              Optional information shown on the product page.
+            </p>
+            <div className="admin-fields">
+              {[
+                ["material", "Material", "100% cotton"],
+                ["fit", "Fit", "Relaxed fit"],
+                ["weight", "Fabric weight", "240 GSM"],
+              ].map(([key, label, placeholder]) => (
+                <label key={key}>
+                  {label}
+                  <input
+                    name={`detail_${key}`}
+                    maxLength={500}
+                    defaultValue={String((content.details as Row)?.[key] || "")}
+                    placeholder={placeholder}
+                  />
+                </label>
+              ))}
+            </div>
+            <label>
+              Care instructions
+              <textarea
+                name="detail_care"
+                rows={3}
+                maxLength={500}
+                defaultValue={String((content.details as Row)?.care || "")}
+                placeholder="Machine wash cold. Do not bleach. Hang to dry."
+              />
+            </label>
+            <label>
+              Product highlights
+              <textarea
+                name="highlights"
+                rows={3}
+                defaultValue={((content.highlights as string[]) || []).join(
+                  "\n",
+                )}
+                placeholder={
+                  "Soft cotton fabric\nScreen-printed front and back"
+                }
+              />
+              <span className="catalog-choice__hint">
+                One highlight per line. Up to 20, with 300 characters each.
+              </span>
+            </label>
+          </section>
+          <section className="studio-form-section">
+            <h2>Size guide</h2>
+            <p className="catalog-choice__hint">
+              Optional garment measurements in inches. Leave empty for products
+              that do not need a size guide.
+            </p>
+            {sizeGuide.map((row, i) => (
+              <fieldset className="product-size-row" key={i}>
+                <legend>Measurement row {i + 1}</legend>
+                <div className="product-size-row__fields">
+                  <label>
+                    Size
+                    <select
+                      required
+                      aria-label={`Size guide size ${i + 1}`}
+                      value={row.size}
+                      onChange={(e) => {
+                        setSizeGuide((rows) =>
+                          rows.map((r, n) =>
+                            n === i ? { ...r, size: e.target.value } : r,
+                          ),
+                        );
+                        mark();
+                      }}
+                    >
+                      <option value="">Choose size</option>
+                      {[
+                        ...new Set(
+                          [
+                            ...productSizes,
+                            ...names("size", []).map((s) => s.value),
+                            ...variants.map((v) => v.label).filter(Boolean),
+                            row.size,
+                          ].filter(Boolean),
+                        ),
+                      ].map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {(["chest", "length", "shoulder"] as const).map((key) => (
+                    <label key={key}>
+                      {key[0].toUpperCase() + key.slice(1)}
+                      <input
+                        aria-label={`Size guide ${key} ${i + 1}`}
+                        maxLength={30}
+                        value={row[key]}
+                        placeholder="—"
+                        onChange={(e) => {
+                          setSizeGuide((rows) =>
+                            rows.map((r, n) =>
+                              n === i ? { ...r, [key]: e.target.value } : r,
+                            ),
+                          );
+                          mark();
+                        }}
+                      />
+                    </label>
+                  ))}
+                  <button
+                    type="button"
+                    aria-label={`Remove measurement row ${i + 1}`}
+                    onClick={() => {
+                      setSizeGuide((rows) => rows.filter((_, n) => n !== i));
+                      mark();
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              </fieldset>
+            ))}
+            <button
+              type="button"
+              disabled={sizeGuide.length >= 20}
+              onClick={() => {
+                const next =
+                  [...variants.map((v) => v.label), ...productSizes].find(
+                    (size) => size && !sizeGuide.some((r) => r.size === size),
+                  ) || "";
+                setSizeGuide((rows) => [
+                  ...rows,
+                  { size: next, chest: "", length: "", shoulder: "" },
+                ]);
+                mark();
+              }}
+            >
+              Add measurement row
+            </button>
+          </section>
           <details className="studio-form-section">
             <summary>Advanced</summary>
             <div className="admin-fields">
@@ -690,14 +904,6 @@ export function ProductEditor({
                       ? moneyInput(Number(initial.compare_at_centavos))
                       : ""
                   }
-                />
-              </label>
-              <label>
-                Short descriptor
-                <input
-                  name="descriptor"
-                  maxLength={200}
-                  defaultValue={String(content.descriptor || "")}
                 />
               </label>
               <label>

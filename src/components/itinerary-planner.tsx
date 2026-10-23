@@ -615,7 +615,7 @@ export function ItineraryPlanner({
             </button>
           </div>
           <a className="p2-back" href="/#palawan-map">
-            Explore all destinations on the main map ↗
+            Open main map ↗
           </a>
           <button
             className="p2-button p2-map-add p2-mobile-only"
