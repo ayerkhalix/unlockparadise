@@ -16,6 +16,7 @@ export default defineConfig({
         "**/xendit.spec.ts",
         "**/planner-time-refinement.spec.ts",
         "**/member-identity-map.spec.ts",
+        "**/floating-dock.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

@@ -12,26 +12,34 @@ import { FeatureLock } from "./feature-lock";
 import { TravelerBadgePrivacy } from "./traveler-badge-privacy";
 import { TravelerIdentity } from "./traveler-identity";
 import { TravelerInvitation } from "./traveler-invitation";
+import { SavedPlacesPage } from "./bucketlist";
 
 export async function MemberPage({ kind }: { kind: string }) {
   const current = await currentSession();
   if (!current) redirect("/login/");
+  if (kind !== "account")
+    return (
+      <main id="upd-main" className="upd-main">
+        <div className="p2-shell">
+          {current.premium ? (
+            <SavedPlacesPage
+              key={kind}
+              kind={kind === "portfolio" ? "portfolio" : "bucketlist"}
+            />
+          ) : (
+            <FeatureLock
+              feature={kind === "portfolio" ? "Portfolio" : "Bucketlist"}
+            />
+          )}
+        </div>
+      </main>
+    );
   const profile = await current.db
     .from("profiles")
     .select("*,profile_media(media!profile_media_media_id_fkey(id,status))")
     .eq("id", current.user.id)
     .single();
   databaseError(profile.error);
-  if (kind !== "account" && !current.premium)
-    return (
-      <main id="upd-main" className="upd-main">
-        <div className="upd-container">
-          <FeatureLock
-            feature={kind === "portfolio" ? "Portfolio" : "Bucketlist"}
-          />
-        </div>
-      </main>
-    );
   const records = await current.db
     .from("member_places")
     .select(
@@ -83,45 +91,6 @@ export async function MemberPage({ kind }: { kind: string }) {
       </a>
     </div>
   );
-  if (kind !== "account")
-    return (
-      <main className="upd-main" id="upd-main">
-        <div className="upd-container">
-          <div className="upd-feed">
-            <header className="upd-feed__header">
-              <h1 className="upd-feed__title">
-                <span className="upd-feed__title-pre">My</span>
-                <span className="upd-feed__title-main">
-                  {kind === "portfolio" ? "Portfolio" : "Bucketlist"}
-                </span>
-              </h1>
-            </header>
-            <nav className="upd-member-tabs">
-              <a href="/bucketlist/">Bucketlist</a>
-              <a href="/portfolio/">Portfolio</a>
-              <a href="/itineraries/">Itinerary Planner</a>
-            </nav>
-            {current.premium ? (
-              <>
-                {(kind === "portfolio" ? visited : saved).length ? (
-                  <OriginalMarkup
-                    html={`<div class="upd-grid">${render(kind === "portfolio" ? visited : saved)}</div>`}
-                  />
-                ) : (
-                  <p className="upd-bucketlist-empty">
-                    {kind === "portfolio"
-                      ? "Your portfolio is empty — use Add to Portfolio on a destination you’ve visited."
-                      : "Your bucketlist is empty — tap the bucket on any place to save it."}
-                  </p>
-                )}
-              </>
-            ) : (
-              upsell
-            )}
-          </div>
-        </div>
-      </main>
-    );
   const data = profile.data;
   const preferences = await travelPreferences(current.db, current.user.id);
   const areas = new Set(
@@ -235,7 +204,6 @@ export async function MemberPage({ kind }: { kind: string }) {
                 )}
                 <nav
                   className="p3-profile-links"
-                  data-dock-clearance
                   aria-label="Profile shortcuts"
                 >
                   <a href="/bucketlist/">My Bucketlist</a>

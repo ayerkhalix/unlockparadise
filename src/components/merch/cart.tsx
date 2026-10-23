@@ -1,6 +1,6 @@
 "use client";
 import { useDecision } from "../ui/decision";
-import { createContext, useContext, useRef, useSyncExternalStore } from "react";
+import { createContext, useContext, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { type Product } from "@/lib/merch-products";
 import { php } from "@/lib/commerce";
@@ -8,7 +8,7 @@ import { notify } from "@/lib/client-api";
 import { Icon } from "../icon";
 import { captureInterest } from "@/lib/analytics-client";
 import { FlightCount } from "../ui/flight-count";
-import { useFloatingClearance } from "../ui/use-floating-clearance";
+import { FloatingDock } from "../ui/floating-dock";
 type Entry = {
   productId: number;
   size: string;
@@ -234,21 +234,20 @@ export function useCart() {
 export const peso = (value: number) => php(Math.round(value * 100));
 export function FloatingCart() {
   const cart = useCart();
-  const dock = useRef<HTMLAnchorElement>(null);
-  useFloatingClearance(dock);
   return (
-    <Link
-      ref={dock}
-      href="/merch/cart/"
-      className="p2-floating"
-      data-flight-target="bag"
-      data-tooltip="Open shopping cart"
-      aria-label={`Open shopping cart${cart.loaded ? ` ${cart.count} ${cart.count === 1 ? "item" : "items"}` : ""}`}
-    >
-      <Icon name="Cart" size={22} />
-      <span>Shopping cart</span>{" "}
-      <FlightCount value={cart.loaded ? cart.count : "…"} />
-    </Link>
+    <FloatingDock>
+      <Link
+        href="/merch/cart/"
+        className="p2-floating"
+        data-flight-target="bag"
+        data-tooltip="Open shopping cart"
+        aria-label={`Open shopping cart${cart.loaded ? ` ${cart.count} ${cart.count === 1 ? "item" : "items"}` : ""}`}
+      >
+        <Icon name="Cart" size={22} />
+        <span>Shopping cart</span>{" "}
+        <FlightCount value={cart.loaded ? cart.count : "…"} />
+      </Link>
+    </FloatingDock>
   );
 }
 export function MerchNav() {

@@ -150,6 +150,37 @@ export function AdminConsole({
     setEdit(null);
     setRevision((v) => v + 1);
   };
+  const sidebarUtilities = (
+    <div className="studio-sidebar-foot">
+      <div className="studio-access-status">
+        <Icon name="Lock" size={18} />
+        <span>
+          {mfaVerified ? "MFA verified" : "Client review access"}
+          <small>
+            {administrator
+              ? "Owner"
+              : content
+                ? "Content editor"
+                : "Order manager"}
+          </small>
+        </span>
+      </div>
+      <div
+        className="studio-utilities"
+        aria-label="Studio preferences and account"
+      >
+        <AdminThemeToggle />
+        <a href="/account/">
+          <Icon name="Person" size={18} />
+          My account
+        </a>
+        <a href="/">
+          <Icon name="Location" size={18} />
+          View website
+        </a>
+      </div>
+    </div>
+  );
   return (
     <div className="studio">
       {dialog}
@@ -165,32 +196,21 @@ export function AdminConsole({
           <AdminBrand />
         </a>
         {nav}
-        <div className="studio-sidebar-foot">
-          <Icon name="Lock" size={18} />
-          <span>
-            {mfaVerified ? "MFA verified" : "Client review access"}
-            <br />
-            <small>
-              {administrator
-                ? "Owner"
-                : content
-                  ? "Content editor"
-                  : "Order manager"}
-            </small>
-          </span>
-          <a href="/">View website</a>
-        </div>
+        {sidebarUtilities}
       </aside>
       <div className="studio-main">
         <header className="studio-topbar">
-          <a className="studio-header-brand" href="/admin/">
-            <AdminBrand />
-          </a>
-          <button className="studio-menu" onClick={() => setMobile(true)}>
-            Open studio menu
+          <strong>{allowed.find((m) => m.id === section)?.label}</strong>
+          <button
+            className="studio-menu"
+            aria-label="Open studio menu"
+            aria-haspopup="dialog"
+            aria-expanded={mobile}
+            onClick={() => setMobile(true)}
+          >
+            <Icon name="Menu" size={20} />
+            Menu
           </button>
-          <AdminThemeToggle />
-          <a href="/account/">My account</a>
         </header>
         <div className="studio-content">
           {error && (
@@ -258,11 +278,13 @@ export function AdminConsole({
       </div>
       {mobile && (
         <Modal title="Admin Studio" onClose={() => setMobile(false)} drawer>
-          <div className="studio-drawer-brand">
-            <AdminBrand />
+          <div className="studio-navigation-panel">
+            <div className="studio-drawer-brand">
+              <AdminBrand />
+            </div>
+            {nav}
+            {sidebarUtilities}
           </div>
-          {nav}
-          <a href="/">View website</a>
         </Modal>
       )}
     </div>

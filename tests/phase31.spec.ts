@@ -12,7 +12,7 @@ async function savedCount(page: Page) {
   const count = page.locator('[data-flight-target="bucketlist"] b');
   await expect(count).toHaveText(/^\d+$/);
   await page.evaluate(() => document.fonts.ready);
-  // Let the dock's measured clearance settle after its loading count changes.
+  // Wait for fonts and the count's first animation frame before reading it.
   await page.evaluate(
     () =>
       new Promise<void>((resolve) =>
@@ -404,103 +404,10 @@ test("Bucketlist rapid clicks deduplicate, hidden target flourishes locally and 
   }
 });
 
-test("floating dock clears forms and footer links; MFA stays narrow and phone shortcuts appear first", async ({
+test("MFA stays narrow and phone shortcuts appear first", async ({
   page,
   context,
 }, info) => {
-  await page.goto("/merch/");
-  await ready(page);
-  const search = page.getByRole("searchbox", { name: "Search merch" });
-  await search.evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    scrollBy(0, r.top - innerHeight + 65);
-  });
-  await expect
-    .poll(async () =>
-      page.locator('[data-flight-target="bag"]').evaluate((dock) => {
-        const target = document.querySelector('input[type="search"]')!;
-        const a = dock.getBoundingClientRect(),
-          b = target.getBoundingClientRect();
-        return (
-          getComputedStyle(dock).visibility === "hidden" ||
-          a.bottom <= b.top ||
-          a.top >= b.bottom ||
-          a.right <= b.left ||
-          a.left >= b.right
-        );
-      }),
-    )
-    .toBe(true);
-  await page.locator(".p2-product-grid").scrollIntoViewIfNeeded();
-  await expect
-    .poll(async () =>
-      page.locator('[data-flight-target="bag"]').evaluate((dock) => {
-        if (getComputedStyle(dock).visibility === "hidden") return true;
-        const a = dock.getBoundingClientRect();
-        return [
-          ...document.querySelectorAll(
-            ".p2-product-card__info,.p2-product-card__link > p",
-          ),
-        ].every((copy) => {
-          const b = copy.getBoundingClientRect();
-          return (
-            !b.width ||
-            !b.height ||
-            a.bottom <= b.top ||
-            a.top >= b.bottom ||
-            a.right <= b.left ||
-            a.left >= b.right
-          );
-        });
-      }),
-    )
-    .toBe(true);
-  await page.goto("/contact/");
-  await ready(page);
-  const topic = page.getByRole("combobox");
-  await topic.evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    scrollBy(0, r.top - innerHeight + 65);
-  });
-  await expect
-    .poll(async () =>
-      page.locator('[data-flight-target="bucketlist"]').evaluate((dock) => {
-        const target = document.querySelector("select")!;
-        const a = dock.getBoundingClientRect(),
-          b = target.getBoundingClientRect();
-        return (
-          getComputedStyle(dock).visibility === "hidden" ||
-          a.bottom <= b.top ||
-          a.top >= b.bottom ||
-          a.right <= b.left ||
-          a.left >= b.right
-        );
-      }),
-    )
-    .toBe(true);
-  await page.goto("/");
-  await ready(page);
-  expect(await page.locator("footer a").count()).toBeGreaterThan(0);
-  await page.locator("footer").scrollIntoViewIfNeeded();
-  await expect
-    .poll(async () =>
-      page.locator('[data-flight-target="bucketlist"]').evaluate((dock) => {
-        if (getComputedStyle(dock).visibility === "hidden") return true;
-        const a = dock.getBoundingClientRect();
-        return [...document.querySelectorAll("footer a")].every((link) => {
-          const b = link.getBoundingClientRect();
-          return (
-            !b.width ||
-            !b.height ||
-            a.bottom <= b.top ||
-            a.top >= b.bottom ||
-            a.right <= b.left ||
-            a.left >= b.right
-          );
-        });
-      }),
-    )
-    .toBe(true);
   await stagingIdentity(context, "admin", false);
   await page.goto("/admin/mfa/");
   await ready(page);

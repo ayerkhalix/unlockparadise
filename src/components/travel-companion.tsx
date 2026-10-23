@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Modal } from "./ui/modal";
 import { SavedPlaces, useSavedPlaces } from "./bucketlist";
 import { ItineraryPicker } from "./itinerary-picker";
 import { Icon } from "./icon";
 import { FlightCount } from "./ui/flight-count";
-import { useFloatingClearance } from "./ui/use-floating-clearance";
+import { FloatingDock } from "./ui/floating-dock";
 export function TravelCompanion({ tier }: { tier: string }) {
   const [drawer, setDrawer] = useState(false),
     [place, setPlace] = useState<string | null>(null);
@@ -39,24 +39,23 @@ export function TravelCompanion({ tier }: { tier: string }) {
     /^\/(admin|merch|login|join|forgot-password|reset-password|checkout|traveler-discovery)(\/|$)/.test(
       pathname,
     );
-  const dock = useRef<HTMLButtonElement>(null);
-  useFloatingClearance(dock, !hidden);
   return (
     <>
       {!hidden && (
-        <button
-          ref={dock}
-          className="p2-floating"
-          data-flight-target="bucketlist"
-          data-tooltip="Open Bucketlist"
-          type="button"
-          aria-label={`Open Bucketlist ${loading ? "loading" : error ? "unavailable" : `${rows.length} saved Places`}`}
-          onClick={() => setDrawer(true)}
-        >
-          <Icon name="Bucket" size={22} />
-          <span>Bucketlist</span>{" "}
-          <FlightCount value={loading ? "…" : error ? "—" : rows.length} />
-        </button>
+        <FloatingDock>
+          <button
+            className="p2-floating"
+            data-flight-target="bucketlist"
+            data-tooltip="Open Bucketlist"
+            type="button"
+            aria-label={`Open Bucketlist ${loading ? "loading" : error ? "unavailable" : `${rows.length} saved Places`}`}
+            onClick={() => setDrawer(true)}
+          >
+            <Icon name="Bucket" size={22} />
+            <span>Bucketlist</span>{" "}
+            <FlightCount value={loading ? "…" : error ? "—" : rows.length} />
+          </button>
+        </FloatingDock>
       )}
       {drawer && (
         <Modal title="My Bucketlist" onClose={() => setDrawer(false)} drawer>

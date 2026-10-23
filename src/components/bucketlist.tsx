@@ -42,9 +42,11 @@ export function useSavedPlaces(enabled: boolean, kind = "bucketlist") {
 export function SavedPlaces({
   rows,
   compact = false,
+  kind = "bucketlist",
 }: {
   rows: SavedRecord[];
   compact?: boolean;
+  kind?: "bucketlist" | "portfolio";
 }) {
   return (
     <div className={compact ? "p2-saved-list" : "p2-place-grid"}>
@@ -91,11 +93,19 @@ export function SavedPlaces({
               <button
                 type="button"
                 className="p2-icon"
-                data-member-op="unsave"
+                data-member-op={kind === "portfolio" ? "unvisit" : "unsave"}
                 data-place-uuid={row.place_id}
                 aria-pressed="true"
-                aria-label="Remove from Bucketlist"
-                data-tooltip="Remove from Bucketlist"
+                aria-label={
+                  kind === "portfolio"
+                    ? "Remove from Portfolio"
+                    : "Remove from Bucketlist"
+                }
+                data-tooltip={
+                  kind === "portfolio"
+                    ? "Remove from Portfolio"
+                    : "Remove from Bucketlist"
+                }
               >
                 ×
               </button>
@@ -106,8 +116,16 @@ export function SavedPlaces({
     </div>
   );
 }
-export function BucketlistPage() {
-  const { rows, loading, error, reload } = useSavedPlaces(true);
+export function SavedPlacesPage({
+  kind = "bucketlist",
+}: {
+  kind?: "bucketlist" | "portfolio";
+}) {
+  const portfolio = kind === "portfolio";
+  const searchLabel = portfolio
+    ? "Search visited Places"
+    : "Search saved Places";
+  const { rows, loading, error, reload } = useSavedPlaces(true, kind);
   const [search, setSearch] = useState(""),
     [area, setArea] = useState(""),
     [category, setCategory] = useState("");
@@ -124,9 +142,11 @@ export function BucketlistPage() {
       <div className="p2-section-head">
         <div>
           <span className="p2-eyebrow">Discover · save · plan</span>
-          <h1>My Bucketlist</h1>
+          <h1>{portfolio ? "My Portfolio" : "My Bucketlist"}</h1>
           <p className="p2-muted">
-            A little inspiration for your next escape. Turn saved Places into a trip.
+            {portfolio
+              ? "The Places you’ve visited, all in one place."
+              : "A little inspiration for your next escape. Turn saved Places into a trip."}
           </p>
         </div>
         <a href="/itineraries/" className="p2-button">
@@ -134,16 +154,18 @@ export function BucketlistPage() {
         </a>
       </div>
       <nav className="p2-tabs" aria-label="Your places">
-        <a href="/bucketlist/" aria-current="page">
+        <a href="/bucketlist/" aria-current={!portfolio ? "page" : undefined}>
           Bucketlist
         </a>
-        <a href="/portfolio/">Portfolio</a>
+        <a href="/portfolio/" aria-current={portfolio ? "page" : undefined}>
+          Portfolio
+        </a>
       </nav>
       <div className="p2-filters">
         <label>
-          Search saved Places
+          {searchLabel}
           <SearchInput
-            label="Search saved Places"
+            label={searchLabel}
             value={search}
             onValueChange={setSearch}
             placeholder="Find a destination"
@@ -189,19 +211,23 @@ export function BucketlistPage() {
           <p className="p2-muted" role="status">
             {filtered.length} {filtered.length === 1 ? "Place" : "Places"}
           </p>
-          <SavedPlaces rows={filtered} />
+          <SavedPlaces rows={filtered} kind={kind} />
         </>
       ) : (
         <div className="p2-empty">
           <h2>
             {rows.length
               ? "No matching Places"
-              : "Your next adventure starts here"}
+              : portfolio
+                ? "Your portfolio is empty"
+                : "Your next adventure starts here"}
           </h2>
           <p>
             {rows.length
               ? "Try a different name, area or category."
-              : "Save a destination while exploring Palawan, then add it to an itinerary."}
+              : portfolio
+                ? "Use Add to Portfolio on a destination you’ve visited to keep it here."
+                : "Save a destination while exploring Palawan, then add it to an itinerary."}
           </p>
           {rows.length ? (
             <button

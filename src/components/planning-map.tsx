@@ -207,7 +207,6 @@ export function PlanningMap({
       </div>
       <div
         className="p2-map-browser"
-        data-dock-clearance
         aria-label={numbered ? "Route stops" : "Category destinations"}
       >
         {browseHeader}

@@ -37,7 +37,7 @@ export async function NearbyPlaces({ placeId }: { placeId: string }) {
       </div>
       <ul className="nearby-places__list">
         {places.map(({ place, google }) => (
-          <li key={place.id} data-dock-clearance>
+          <li key={place.id}>
             {google?.photo && (
               <figure>
                 <a

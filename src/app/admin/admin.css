@@ -608,27 +608,60 @@ body .upd-admin .studio-sidebar nav a[aria-current="page"] {
 }
 .studio-sidebar-foot {
   margin-top: auto;
-  padding: 32px 12px 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  flex-wrap: wrap;
+  padding: 20px 0 0;
+  display: grid;
+  gap: 16px;
   font-size: 13px;
 }
+.studio-access-status {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  padding: 16px 12px 0;
+  border-top: 1px solid
+    color-mix(in srgb, var(--studio-nav-text) 20%, transparent);
+}
 .studio-sidebar-foot small {
+  display: block;
   color: #bcd2cf;
 }
-body .upd-admin .studio-sidebar-foot a {
-  display: block;
+.studio-utilities {
+  display: grid;
+  gap: 4px;
+}
+body
+  :is(.studio-sidebar, .studio-navigation-panel)
+  .studio-utilities
+  :is(a, button) {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 12px;
+  min-height: 44px;
   width: 100%;
-  margin-top: 18px;
+  padding: 10px 12px;
+  margin: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
   color: var(--studio-nav-text);
+  text-decoration: none;
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+body
+  :is(.studio-sidebar, .studio-navigation-panel)
+  .studio-utilities
+  :is(a, button):hover {
+  background: color-mix(in srgb, var(--studio-nav-text) 10%, transparent);
 }
 .studio-main {
   min-width: 0;
 }
 .studio-topbar {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
@@ -1240,22 +1273,6 @@ body:has(.studio-auth) .upd-site {
 body .upd-admin .studio .studio-brand {
   padding: 0 6px 30px;
 }
-body .upd-admin .studio .studio-header-brand {
-  color: var(--studio-ink);
-  text-decoration: none;
-  margin-right: auto;
-}
-.studio-header-brand .studio-brand-content > img {
-  background: var(--studio-nav);
-  border-radius: 8px;
-  padding: 5px;
-}
-.studio-header-brand .studio-brand-content > span {
-  font-size: 16px;
-}
-.studio-header-brand .studio-brand-content small {
-  font-size: 11px;
-}
 .studio-theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -1349,21 +1366,87 @@ body [data-admin-theme].p2-modal button.p2-button:not(.p2-button--quiet):hover {
 }
 @media (max-width: 800px) {
   .studio-topbar {
-    flex-wrap: wrap;
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: var(--studio-paper);
     gap: 12px;
-    padding: 16px 20px;
-  }
-  .studio-header-brand {
-    flex-basis: 100%;
-  }
-  .studio-topbar > a:last-child {
-    margin-left: auto;
+    padding: 10px 16px;
   }
   .studio-auth-header {
     flex-wrap: wrap;
   }
   .studio-auth-content {
     padding-top: 40px;
+  }
+}
+
+.studio-navigation-panel {
+  background: var(--studio-nav);
+  color: var(--studio-nav-text);
+  padding: 20px 12px;
+  border-radius: 12px;
+}
+.studio-navigation-panel .studio-drawer-brand {
+  padding: 0 12px;
+  margin-bottom: 20px;
+}
+body .p2-modal .studio-navigation-panel nav[aria-label="Admin Studio"] a {
+  color: var(--studio-nav-text);
+  text-decoration: none;
+}
+body
+  .p2-modal
+  .studio-navigation-panel
+  nav[aria-label="Admin Studio"]
+  a[aria-current="page"] {
+  background: #d9e9de;
+  color: var(--studio-nav);
+}
+.studio .studio-content {
+  padding: 32px clamp(20px, 3vw, 40px) 64px;
+}
+.studio-content .studio-heading {
+  align-items: center;
+  margin-bottom: 24px;
+}
+.studio-heading .admin-actions:empty {
+  display: none;
+}
+.studio .studio-filters {
+  padding-bottom: 20px;
+  margin-block: 20px;
+  border-bottom: 1px solid var(--studio-line);
+}
+.studio .admin-table tbody tr:hover {
+  background: var(--studio-hover);
+}
+@media (max-width: 800px) {
+  .studio .studio-content {
+    padding: 24px 16px 48px;
+  }
+  body .upd-admin .studio-content h1 {
+    font-size: 28px;
+  }
+  .studio-content .studio-heading {
+    align-items: stretch;
+    gap: 12px;
+  }
+  .studio .studio-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .studio-filters > label:first-child {
+    grid-column: 1 / -1;
+  }
+  .studio-pagination {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .studio-pagination > span {
+    flex-basis: 100%;
   }
 }
 

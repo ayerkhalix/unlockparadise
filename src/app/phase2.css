@@ -16,6 +16,12 @@
   --p2-dock-surface: #133842;
   --p2-dock-text: var(--p2-text);
   --p2-dock-accent: var(--p2-teal);
+  --p2-dock-inset: 24px;
+  --p2-dock-height: 56px;
+  --p2-dock-clearance: calc(
+    var(--p2-dock-height) + 2 * var(--p2-dock-inset) +
+      env(safe-area-inset-bottom, 0px)
+  );
 }
 .p2-privacy-preferences {
   padding: 12px 28px 24px;
@@ -422,8 +428,10 @@ body [data-tooltip]::after {
 }
 .p2-floating {
   position: fixed;
-  right: max(24px, env(safe-area-inset-right));
-  bottom: calc(24px + env(safe-area-inset-bottom) + var(--p2-dock-lift, 0px));
+  right: max(var(--p2-dock-inset), env(safe-area-inset-right, 0px));
+  bottom: calc(var(--p2-dock-inset) + env(safe-area-inset-bottom, 0px));
+  top: auto;
+  left: auto;
   z-index: 90;
   display: flex;
   align-items: center;
@@ -434,7 +442,11 @@ body [data-tooltip]::after {
   background: var(--p2-dock-surface);
   color: var(--p2-text);
   box-shadow: 0 8px 32px #0006;
-  min-height: 52px;
+  min-height: var(--p2-dock-height);
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--p2-dock-inset));
+  white-space: nowrap;
+  transform-origin: bottom right;
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -446,6 +458,14 @@ body [data-tooltip]::after {
     background-color 0.18s,
     border-color 0.18s,
     box-shadow 0.18s;
+}
+html:has(.p2-floating) {
+  scroll-padding-bottom: var(--p2-dock-clearance);
+}
+body:has(.p2-floating)::after {
+  content: "";
+  display: block;
+  height: var(--p2-dock-clearance);
 }
 .p2-floating:hover {
   background: #24515a;
@@ -1553,9 +1573,8 @@ body.glightbox-open .p2-floating {
   .p2-modal__body {
     padding: 20px 20px calc(24px + env(safe-area-inset-bottom));
   }
-  .p2-floating {
-    right: 16px;
-    bottom: calc(16px + env(safe-area-inset-bottom) + var(--p2-dock-lift, 0px));
+  :root {
+    --p2-dock-inset: 16px;
   }
   .p2-modal__head {
     padding: 16px 20px;
@@ -3136,10 +3155,6 @@ body a.p2-floating {
 }
 .p2-floating b {
   font-variant-numeric: tabular-nums;
-}
-.p2-floating[data-obstructed="true"] {
-  visibility: hidden;
-  pointer-events: none;
 }
 body.upd-surface--navy
   form[data-endpoint="/api/v1/contact/"]

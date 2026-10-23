@@ -66,7 +66,6 @@ export function travelFlight({
   photo?: HTMLElement | null;
   key?: string;
 }) {
-  window.dispatchEvent(new Event("upd:before-flight"));
   if (!visible(control)) return;
   if (key) cancelFlights(key);
   const target = document.querySelector<HTMLElement>(

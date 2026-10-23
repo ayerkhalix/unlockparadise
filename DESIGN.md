@@ -225,7 +225,7 @@ Merchandise uses real product photography and an unframed split hero that stacks
 
 Studio uses a rail beside a generous worktable: rail width (224px), content maximum (1580px), desktop content gutters (36px). At (1100px) the rail narrows to (192px); below (800px) navigation moves to the shared drawer and content uses phone gutters. Above (1700px) the rail is (240px) and content gutters (54px). Overview puts shortcuts ahead of attention items in DOM and visual order. Table records own wide-content overflow and stack with explicit labels below (600px). Editor forms stay in normal document flow. MFA content is capped at (560px) with internal gutters (24px).
 
-**The Measured Clearance Rule.** Floating Bucketlist/cart controls reserve space around actual fields, actions, product titles and metadata, and footer links at their current viewport edge. Content blocks such as nearby-place notes and photo attribution opt in through `data-dock-clearance` on the existing shared owner. Maintain the measured control gap (8px), remain below the header, and hide when no clear position exists. Settle clearance before measuring a flight endpoint; a moved dock cancels old flights. Existing focus and open-dialog visibility rules remain in force.
+**The Fixed Dock Rule — 23 October 2026.** Bucketlist/cart controls stay at the bottom-right viewport edge: 24px on desktop, 16px below 800px, with safe-area allowances. FloatingDock portals both controls to the body so page transforms cannot change their containing block. They never move or disappear in response to nearby page content. Shared CSS reserves a final page clearance and scroll padding for reachable end-of-page controls. Existing mobile field-focus and open-dialog visibility rules remain; completing an action returns the dock to the same corner. Flights measure the actual dock, with a bottom-right transform origin for its brief confirmation pulse.
 
 ## Elevation & Depth
 
@@ -324,6 +324,8 @@ Use Place, Bucketlist, Portfolio and Itinerary consistently. Portfolio is the si
 Not canonized: legacy decorative uppercase eyebrow treatments and any inherited glyph placeholders remain pre-existing craft-floor drift outside this documentation-only boundary. Their presence in source does not authorize copying them into new surfaces; no runtime repair is made here.
 
 ## Member planning refinement — 22 October 2026
+
+The 23 October shell refinement consolidates Admin Studio branding, theme, account and website access in its left navigation. The main desktop workspace starts with its task heading; mobile uses a compact section/menu bar and the same utilities inside its navigation drawer. Shared headings, filters, pagination and row hover states use the existing Studio tokens. Portfolio and Bucketlist share the saved-Places page layout, selected tabs, search/filter controls and empty-result panel. Portfolio reads visited records and its removal action only clears visited status.
 
 Merchandise editing keeps Card highlight beside the product selections, with visible Details & care and optional Size guide sections. Native size choices and compact measurement rows use Studio tokens; measurements remain in inches. Collection taglines are optional muted body text directly below collection headings, editable through the existing inline catalog-choice owner. At phone widths, the planner uses compact 44px controls, horizontally scrollable day tabs, a smaller trip heading and a single aligned map-mode row. Selected-day and map-mode contrast remain unchanged.
 
