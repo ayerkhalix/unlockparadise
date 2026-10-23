@@ -21,12 +21,12 @@ test("PostgreSQL RLS and RPC enforce the complete access matrix", async (t) => {
  insert into public.user_roles(user_id,role) values('${ids.admin}','admin');
  insert into public.entitlements(user_id,source,starts_at,expires_at,reason) values('${ids.premium}','manual',now()-interval '2 days',now()+interval '1 day','Synthetic test grant'),('${ids.expired}','manual',now()-interval '2 days',now()-interval '1 day','Expired synthetic grant');`);
   await t.test(
-    "anonymous gets published summaries but no details",
+    "anonymous reads ordinary published rows without premium identities or details",
     async () => {
       assert.equal(
         (await asUser(db, null, "select * from public.places", "aal1", "anon"))
           .rows.length,
-        2,
+        1,
       );
       assert.equal(
         (
@@ -102,7 +102,7 @@ test("PostgreSQL RLS and RPC enforce the complete access matrix", async (t) => {
   await t.test("admin needs MFA for content and mutation access", async () => {
     assert.equal(
       (await asUser(db, ids.admin, "select * from public.places")).rows.length,
-      2,
+      1,
     );
     assert.equal(
       (await asUser(db, ids.admin, "select * from public.places", "aal2")).rows

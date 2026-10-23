@@ -51,6 +51,12 @@ test("admin CRUD is transactional, MFA-protected, audited and safeguards deletio
   );
   assert.equal(
     (await asUser(db, explorer, "select * from public.places")).rows.length,
+    0,
+  );
+  // Publishing a premium Place preserves the member gate; authorized staff can see it.
+  assert.equal(
+    (await asUser(db, admin, "select * from public.places", "aal2")).rows
+      .length,
     1,
   );
   assert.equal(
