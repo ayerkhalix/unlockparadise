@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { currentSession } from "@/lib/auth/session";
 import "./admin.css";
+import "./studio-design.css";
 export default async function AdminLayout({
   children,
 }: {

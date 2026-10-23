@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-20T14:25:33.678Z",
+  "generatedAt": "2026-10-23T21:03:18.413Z",
   "title": "Design System: Unlock Paradise",
   "extensions": {
     "colorMeta": {
@@ -363,6 +363,261 @@
           "oklch(0.8357 0.0622 191.70)",
           "oklch(0.9500 0.0622 191.70)"
         ]
+      },
+      "studio-nav-muted": {
+        "role": "neutral",
+        "displayName": "Studio rail supporting text",
+        "canonical": "#bcd2cf",
+        "tonalRamp": [
+          "oklch(0.1500 0.0240 186.83)",
+          "oklch(0.2643 0.0240 186.83)",
+          "oklch(0.3786 0.0240 186.83)",
+          "oklch(0.4929 0.0240 186.83)",
+          "oklch(0.6071 0.0240 186.83)",
+          "oklch(0.7214 0.0240 186.83)",
+          "oklch(0.8357 0.0240 186.83)",
+          "oklch(0.9500 0.0240 186.83)"
+        ]
+      },
+      "studio-nav-hover": {
+        "role": "neutral",
+        "displayName": "Studio rail hover",
+        "canonical": "#203e48",
+        "tonalRamp": [
+          "oklch(0.1500 0.0398 221.65)",
+          "oklch(0.2643 0.0398 221.65)",
+          "oklch(0.3786 0.0398 221.65)",
+          "oklch(0.4929 0.0398 221.65)",
+          "oklch(0.6071 0.0398 221.65)",
+          "oklch(0.7214 0.0398 221.65)",
+          "oklch(0.8357 0.0398 221.65)",
+          "oklch(0.9500 0.0398 221.65)"
+        ]
+      },
+      "studio-nav-current": {
+        "role": "primary",
+        "displayName": "Studio selected navigation field",
+        "canonical": "#83d9c61a",
+        "tonalRamp": [
+          "oklch(0.1500 0.0883 178.26 / 0.1020)",
+          "oklch(0.2643 0.0883 178.26 / 0.1020)",
+          "oklch(0.3786 0.0883 178.26 / 0.1020)",
+          "oklch(0.4929 0.0883 178.26 / 0.1020)",
+          "oklch(0.6071 0.0883 178.26 / 0.1020)",
+          "oklch(0.7214 0.0883 178.26 / 0.1020)",
+          "oklch(0.8357 0.0883 178.26 / 0.1020)",
+          "oklch(0.9500 0.0883 178.26 / 0.1020)"
+        ]
+      },
+      "studio-nav-current-line": {
+        "role": "primary",
+        "displayName": "Studio selected navigation boundary",
+        "canonical": "#83d9c62e",
+        "tonalRamp": [
+          "oklch(0.1500 0.0883 178.26 / 0.1804)",
+          "oklch(0.2643 0.0883 178.26 / 0.1804)",
+          "oklch(0.3786 0.0883 178.26 / 0.1804)",
+          "oklch(0.4929 0.0883 178.26 / 0.1804)",
+          "oklch(0.6071 0.0883 178.26 / 0.1804)",
+          "oklch(0.7214 0.0883 178.26 / 0.1804)",
+          "oklch(0.8357 0.0883 178.26 / 0.1804)",
+          "oklch(0.9500 0.0883 178.26 / 0.1804)"
+        ]
+      },
+      "studio-nav-current-text": {
+        "role": "primary",
+        "displayName": "Studio selected navigation text",
+        "canonical": "#b5f0e1",
+        "tonalRamp": [
+          "oklch(0.1500 0.0632 177.43)",
+          "oklch(0.2643 0.0632 177.43)",
+          "oklch(0.3786 0.0632 177.43)",
+          "oklch(0.4929 0.0632 177.43)",
+          "oklch(0.6071 0.0632 177.43)",
+          "oklch(0.7214 0.0632 177.43)",
+          "oklch(0.8357 0.0632 177.43)",
+          "oklch(0.9500 0.0632 177.43)"
+        ]
+      },
+      "studio-dark-success-ink": {
+        "role": "neutral",
+        "displayName": "Dark Studio success ink",
+        "canonical": "#a3e8d8",
+        "tonalRamp": [
+          "oklch(0.1500 0.0726 178.47)",
+          "oklch(0.2643 0.0726 178.47)",
+          "oklch(0.3786 0.0726 178.47)",
+          "oklch(0.4929 0.0726 178.47)",
+          "oklch(0.6071 0.0726 178.47)",
+          "oklch(0.7214 0.0726 178.47)",
+          "oklch(0.8357 0.0726 178.47)",
+          "oklch(0.9500 0.0726 178.47)"
+        ]
+      },
+      "studio-dark-success-bg": {
+        "role": "neutral",
+        "displayName": "Dark Studio success field",
+        "canonical": "#183d3b",
+        "tonalRamp": [
+          "oklch(0.1500 0.0424 190.56)",
+          "oklch(0.2643 0.0424 190.56)",
+          "oklch(0.3786 0.0424 190.56)",
+          "oklch(0.4929 0.0424 190.56)",
+          "oklch(0.6071 0.0424 190.56)",
+          "oklch(0.7214 0.0424 190.56)",
+          "oklch(0.8357 0.0424 190.56)",
+          "oklch(0.9500 0.0424 190.56)"
+        ]
+      },
+      "studio-dark-success-line": {
+        "role": "neutral",
+        "displayName": "Dark Studio success boundary",
+        "canonical": "#45766c",
+        "tonalRamp": [
+          "oklch(0.1500 0.0559 179.51)",
+          "oklch(0.2643 0.0559 179.51)",
+          "oklch(0.3786 0.0559 179.51)",
+          "oklch(0.4929 0.0559 179.51)",
+          "oklch(0.6071 0.0559 179.51)",
+          "oklch(0.7214 0.0559 179.51)",
+          "oklch(0.8357 0.0559 179.51)",
+          "oklch(0.9500 0.0559 179.51)"
+        ]
+      },
+      "studio-dark-warning-ink": {
+        "role": "secondary",
+        "displayName": "Dark Studio warning ink",
+        "canonical": "#f3d79f",
+        "tonalRamp": [
+          "oklch(0.1500 0.0784 84.31)",
+          "oklch(0.2643 0.0784 84.31)",
+          "oklch(0.3786 0.0784 84.31)",
+          "oklch(0.4929 0.0784 84.31)",
+          "oklch(0.6071 0.0784 84.31)",
+          "oklch(0.7214 0.0784 84.31)",
+          "oklch(0.8357 0.0784 84.31)",
+          "oklch(0.9500 0.0784 84.31)"
+        ]
+      },
+      "studio-dark-warning-bg": {
+        "role": "neutral",
+        "displayName": "Dark Studio warning field",
+        "canonical": "#3d3423",
+        "tonalRamp": [
+          "oklch(0.1500 0.0307 83.00)",
+          "oklch(0.2643 0.0307 83.00)",
+          "oklch(0.3786 0.0307 83.00)",
+          "oklch(0.4929 0.0307 83.00)",
+          "oklch(0.6071 0.0307 83.00)",
+          "oklch(0.7214 0.0307 83.00)",
+          "oklch(0.8357 0.0307 83.00)",
+          "oklch(0.9500 0.0307 83.00)"
+        ]
+      },
+      "studio-dark-warning-line": {
+        "role": "neutral",
+        "displayName": "Dark Studio warning boundary",
+        "canonical": "#806a3f",
+        "tonalRamp": [
+          "oklch(0.1500 0.0662 83.19)",
+          "oklch(0.2643 0.0662 83.19)",
+          "oklch(0.3786 0.0662 83.19)",
+          "oklch(0.4929 0.0662 83.19)",
+          "oklch(0.6071 0.0662 83.19)",
+          "oklch(0.7214 0.0662 83.19)",
+          "oklch(0.8357 0.0662 83.19)",
+          "oklch(0.9500 0.0662 83.19)"
+        ]
+      },
+      "studio-light-success-ink": {
+        "role": "neutral",
+        "displayName": "Light Studio success ink",
+        "canonical": "#185346",
+        "tonalRamp": [
+          "oklch(0.1500 0.0641 175.32)",
+          "oklch(0.2643 0.0641 175.32)",
+          "oklch(0.3786 0.0641 175.32)",
+          "oklch(0.4929 0.0641 175.32)",
+          "oklch(0.6071 0.0641 175.32)",
+          "oklch(0.7214 0.0641 175.32)",
+          "oklch(0.8357 0.0641 175.32)",
+          "oklch(0.9500 0.0641 175.32)"
+        ]
+      },
+      "studio-light-success-bg": {
+        "role": "neutral",
+        "displayName": "Light Studio success field",
+        "canonical": "#e0eee1",
+        "tonalRamp": [
+          "oklch(0.1500 0.0228 147.44)",
+          "oklch(0.2643 0.0228 147.44)",
+          "oklch(0.3786 0.0228 147.44)",
+          "oklch(0.4929 0.0228 147.44)",
+          "oklch(0.6071 0.0228 147.44)",
+          "oklch(0.7214 0.0228 147.44)",
+          "oklch(0.8357 0.0228 147.44)",
+          "oklch(0.9500 0.0228 147.44)"
+        ]
+      },
+      "studio-light-success-line": {
+        "role": "neutral",
+        "displayName": "Light Studio success boundary",
+        "canonical": "#a6c1af",
+        "tonalRamp": [
+          "oklch(0.1500 0.0387 156.22)",
+          "oklch(0.2643 0.0387 156.22)",
+          "oklch(0.3786 0.0387 156.22)",
+          "oklch(0.4929 0.0387 156.22)",
+          "oklch(0.6071 0.0387 156.22)",
+          "oklch(0.7214 0.0387 156.22)",
+          "oklch(0.8357 0.0387 156.22)",
+          "oklch(0.9500 0.0387 156.22)"
+        ]
+      },
+      "studio-light-warning-ink": {
+        "role": "secondary",
+        "displayName": "Light Studio warning ink",
+        "canonical": "#71511b",
+        "tonalRamp": [
+          "oklch(0.1500 0.0813 76.90)",
+          "oklch(0.2643 0.0813 76.90)",
+          "oklch(0.3786 0.0813 76.90)",
+          "oklch(0.4929 0.0813 76.90)",
+          "oklch(0.6071 0.0813 76.90)",
+          "oklch(0.7214 0.0813 76.90)",
+          "oklch(0.8357 0.0813 76.90)",
+          "oklch(0.9500 0.0813 76.90)"
+        ]
+      },
+      "studio-light-warning-bg": {
+        "role": "neutral",
+        "displayName": "Light Studio warning field",
+        "canonical": "#f5ebd4",
+        "tonalRamp": [
+          "oklch(0.1500 0.0322 87.29)",
+          "oklch(0.2643 0.0322 87.29)",
+          "oklch(0.3786 0.0322 87.29)",
+          "oklch(0.4929 0.0322 87.29)",
+          "oklch(0.6071 0.0322 87.29)",
+          "oklch(0.7214 0.0322 87.29)",
+          "oklch(0.8357 0.0322 87.29)",
+          "oklch(0.9500 0.0322 87.29)"
+        ]
+      },
+      "studio-light-warning-line": {
+        "role": "neutral",
+        "displayName": "Light Studio warning boundary",
+        "canonical": "#d7c292",
+        "tonalRamp": [
+          "oklch(0.1500 0.0676 87.08)",
+          "oklch(0.2643 0.0676 87.08)",
+          "oklch(0.3786 0.0676 87.08)",
+          "oklch(0.4929 0.0676 87.08)",
+          "oklch(0.6071 0.0676 87.08)",
+          "oklch(0.7214 0.0676 87.08)",
+          "oklch(0.8357 0.0676 87.08)",
+          "oklch(0.9500 0.0676 87.08)"
+        ]
       }
     },
     "typographyMeta": {
@@ -404,11 +659,39 @@
       },
       "studio-heading": {
         "displayName": "Studio heading",
-        "purpose": "Admin title; MFA instead uses clamp(28px, 4vw, 36px)."
+        "purpose": "Scoped Studio module/editor title at 30–40px/500, 30px at 800px and below; MFA keeps its separate 28–36px/600 heading."
       },
       "studio-body": {
         "displayName": "Studio body",
-        "purpose": "Compact admin data and controls."
+        "purpose": "Inherited 14px/1.6 Studio base. Controls and record text have separate 13px roles."
+      },
+      "studio-section": {
+        "displayName": "Studio section heading",
+        "purpose": "22px/500 Outfit section hierarchy; overview library/journal headings are 20px at 600px and below."
+      },
+      "studio-control": {
+        "displayName": "Studio control",
+        "purpose": "13px/500 task actions; 44px primary targets and authored compact variants."
+      },
+      "studio-field": {
+        "displayName": "Studio field",
+        "purpose": "13px desktop inputs/selects/textareas; 16px at 800px and below. Native popup behavior remains platform-owned."
+      },
+      "studio-data": {
+        "displayName": "Studio record text",
+        "purpose": "13px table records, navigation and activity titles; strong record labels use weight 600."
+      },
+      "studio-meta": {
+        "displayName": "Studio metadata",
+        "purpose": "11px table headings, statuses, counts, activity actions/dates and rail group labels. Phone journal dates reflow and stay 11px."
+      },
+      "studio-support": {
+        "displayName": "Studio supporting text",
+        "purpose": "12px photograph areas, section subtitles, breadcrumbs and utility labels."
+      },
+      "studio-photo-title": {
+        "displayName": "Studio photograph title",
+        "purpose": "17px/500 Outfit Place titles; 16px at 600px and below."
       }
     },
     "shadows": [
@@ -461,8 +744,8 @@
       },
       {
         "name": "studio-button",
-        "value": "160ms ease-out",
-        "purpose": "Admin button background transition; reduced motion removes it."
+        "value": "150ms ease-out",
+        "purpose": "Studio foreground, background and border transitions; reduced motion makes these immediate."
       },
       {
         "name": "product-hover",
@@ -473,6 +756,26 @@
         "name": "reduced-motion-confirmation",
         "value": "700ms",
         "purpose": "Static outline lifetime; no traveling node. Flights are capped at six and cancelled on navigation, resize, hiding or unmount."
+      },
+      {
+        "name": "studio-arrival",
+        "value": "240ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Once per module/editor key: visible-default content opacity 0.7 to 1; heading settles from translateY(6px). Filtering does not replay. Reduced motion removes arrival."
+      },
+      {
+        "name": "studio-photo-hover",
+        "value": "500ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Interactive Place photo scales to 1.045 on hover/focus; reduced motion changes the state immediately."
+      },
+      {
+        "name": "studio-photo-arrow",
+        "value": "250ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Photo editor arrow moves 2px; section and ledger arrows move 3px over 150–160ms. Reduced motion makes transitions immediate."
+      },
+      {
+        "name": "studio-navigation",
+        "value": "160ms ease-out",
+        "purpose": "Grouped rail background and boundary state changes; no repeated or ambient animation."
       }
     ],
     "breakpoints": [
@@ -502,11 +805,15 @@
       },
       {
         "name": "studio-compact-rail",
-        "value": "1100px"
+        "value": "1200px"
       },
       {
         "name": "studio-wide",
-        "value": "1700px"
+        "value": "1750px"
+      },
+      {
+        "name": "studio-overview-stack",
+        "value": "1000px"
       }
     ]
   },
@@ -562,32 +869,40 @@
       "name": "Studio dark primary action",
       "kind": "button",
       "refersTo": "studio-button-dark",
-      "description": "Default navy Studio primary action with gold focus.",
+      "description": "Navy-theme safe action, compact Outfit/Open Sans Studio hierarchy and gold keyboard focus.",
       "html": "<button class=\"ds-studio-dark\">Save changes</button>",
-      "css": ".ds-studio-dark{min-height:44px;border:1px solid;border-radius:7px;padding:9px 14px;font:600 14px/1.4 \"Open Sans\",sans-serif;cursor:pointer;transition:background-color .16s ease-out;background:#83d9c6;color:#08252b;border-color:#83d9c6}.ds-studio-dark:hover:not(:disabled){background:#a3e8d8}.ds-studio-dark:focus-visible{outline:3px solid #dfc18a;outline-offset:3px}.ds-studio-dark:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-studio-dark{transition:none}}"
+      "css": ".ds-studio-dark{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid var(--studio-teal,#83d9c6);border-radius:8px;padding:9px 14px;font:500 13px/1.4 \"Open Sans\",sans-serif;cursor:pointer;background:var(--studio-teal,#83d9c6);color:var(--studio-on-accent,#08252b);transition:color 150ms ease-out,background-color 150ms ease-out,border-color 150ms ease-out}.ds-studio-dark:hover:not(:disabled),.ds-studio-dark:active:not(:disabled){background:var(--studio-strong,#a3e8d8)}.ds-studio-dark:focus-visible{outline:3px solid var(--studio-focus,#dfc18a);outline-offset:3px}.ds-studio-dark:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-studio-dark{transition:none}}"
     },
     {
       "name": "Studio light primary action",
       "kind": "button",
       "refersTo": "studio-button-light",
-      "description": "Warm-light Studio action preserves the same geometry with the light theme contrast pair.",
+      "description": "Warm-light Studio safe action uses the same 8px control geometry and 13px/500 task label.",
       "html": "<button class=\"ds-studio-light\">Save changes</button>",
-      "css": ".ds-studio-light{min-height:44px;border:1px solid;border-radius:7px;padding:9px 14px;font:600 14px/1.4 \"Open Sans\",sans-serif;cursor:pointer;transition:background-color .16s ease-out;background:#14665f;color:#fffdf8;border-color:#14665f}.ds-studio-light:hover:not(:disabled){background:#074c4a}.ds-studio-light:focus-visible{outline:3px solid #906119;outline-offset:3px}.ds-studio-light:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-studio-light{transition:none}}"
+      "css": ".ds-studio-light{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid #14665f;border-radius:8px;padding:9px 14px;font:500 13px/1.4 \"Open Sans\",sans-serif;cursor:pointer;background:#14665f;color:#fffdf8;transition:color 150ms ease-out,background-color 150ms ease-out,border-color 150ms ease-out}.ds-studio-light:hover:not(:disabled),.ds-studio-light:active:not(:disabled){background:#074c4a}.ds-studio-light:focus-visible{outline:3px solid #906119;outline-offset:3px}.ds-studio-light:disabled{opacity:.55;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-studio-light{transition:none}}"
     },
     {
       "name": "Studio light text field",
       "kind": "input",
       "refersTo": "studio-input-light",
-      "description": "Scoped warm surface with ocean ink; the native color-scheme follows the admin preference.",
+      "description": "Warm-paper Studio field with ocean ink, 7px input corners and native light color scheme; phone field text is 16px.",
       "html": "<label class=\"ds-studio-field\">Place name<input class=\"ds-studio-input\" type=\"text\" placeholder=\"Place name\"></label>",
-      "css": ".ds-studio-field{display:flex;flex-direction:column;gap:6px;color:#183d42;font:400 14px/1.6 \"Open Sans\",sans-serif}.ds-studio-input{min-width:0;min-height:44px;border:1px solid #cbd3cb;border-radius:7px;padding:10px 12px;color:#183d42;background:#fffdf8;font:400 14px/1.6 \"Open Sans\",sans-serif;color-scheme:light}.ds-studio-input::placeholder{color:#52696b;opacity:1}.ds-studio-input:focus-visible{outline:3px solid #906119;outline-offset:3px}"
+      "css": ".ds-studio-field{display:flex;flex-direction:column;gap:6px;color:#183d42;font:400 14px/1.6 \"Open Sans\",sans-serif}.ds-studio-input{min-width:0;min-height:44px;border:1px solid #cbd3cb;border-radius:7px;padding:11px 12px;color:#183d42;background:#f7f4ed;font:400 13px/1.6 \"Open Sans\",sans-serif;color-scheme:light}.ds-studio-input::placeholder{color:#52696b;opacity:1}.ds-studio-input:focus-visible{outline:3px solid #906119;outline-offset:3px}@media(max-width:800px){.ds-studio-input{font-size:16px}}"
     },
     {
       "name": "Studio status pair",
       "kind": "chip",
-      "description": "Read-only published status shown in both authored admin theme pairs.",
+      "description": "Read-only published status with the authored theme contrast pairs, 11px/500 text and no default border.",
       "html": "<div class=\"ds-status-pair\"><span class=\"ds-status ds-status-dark\">Published</span><span class=\"ds-status ds-status-light\">Published</span></div>",
-      "css": ".ds-status-pair{display:flex;flex-wrap:wrap;gap:12px}.ds-status{display:inline-flex;padding:3px 8px;border:1px solid;border-radius:5px;font:600 12px/1.6 \"Open Sans\",sans-serif;white-space:nowrap;text-transform:capitalize}.ds-status-dark{color:#a3e8d8;background:#183d3b;border-color:#45766c}.ds-status-light{color:#185346;background:#e0eee1;border-color:#a6c1af}@media(forced-colors:active){.ds-status{border:1px solid CanvasText}}"
+      "css": ".ds-status-pair{display:flex;flex-wrap:wrap;gap:12px}.ds-status{display:inline-flex;padding:2px 7px;border:0;border-radius:5px;font:500 11px/1.6 \"Open Sans\",sans-serif;white-space:nowrap;text-transform:capitalize}.ds-status-dark{color:#a3e8d8;background:#183d3b}.ds-status-light{color:#185346;background:#e0eee1}@media(forced-colors:active){.ds-status{border:1px solid CanvasText}}"
+    },
+    {
+      "name": "Studio grouped navigation",
+      "kind": "nav",
+      "refersTo": "studio-nav-item",
+      "description": "The same navy grouped rail in both themes; current page uses teal field, readable text, a border and a gold marker. Actual links remain role-filtered.",
+      "html": "<nav class=\"ds-studio-nav\" aria-label=\"Admin Studio\"><a href=\"#\" aria-current=\"page\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z\"/></svg><span>Overview</span><i aria-hidden=\"true\"></i></a><span class=\"ds-studio-nav-group\">Content</span><a href=\"#\"><svg width=\"19\" height=\"19\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.3\"/></svg><span>Places</span></a></nav>",
+      "css": ".ds-studio-nav{display:grid;gap:3px;padding:18px;background:var(--studio-nav,#102a35);color:var(--studio-nav-text,#e8f1eb);font:400 13px/1.6 \"Open Sans\",sans-serif;border-radius:12px}.ds-studio-nav a{display:flex;align-items:center;gap:12px;min-height:43px;padding:10px 12px;border:1px solid transparent;border-radius:8px;color:var(--studio-nav-text,#e8f1eb);text-decoration:none;transition:background-color 160ms ease-out,border-color 160ms ease-out}.ds-studio-nav a>svg{flex:none;opacity:.8}.ds-studio-nav a:hover{background:#203e48}.ds-studio-nav a[aria-current=\"page\"]{background:#83d9c61a;border-color:#83d9c62e;color:#b5f0e1;font-weight:600}.ds-studio-nav a[aria-current=\"page\"] i{width:5px;height:5px;border-radius:50%;margin-left:auto;background:#dfc18a}.ds-studio-nav a:focus-visible{outline:3px solid #dfc18a;outline-offset:2px}.ds-studio-nav-group{padding:19px 12px 7px;color:#bcd2cf;font-size:11px;font-weight:500}@media(prefers-reduced-motion:reduce){.ds-studio-nav a{transition:none}}@media(forced-colors:active){.ds-studio-nav a[aria-current=\"page\"]{outline:1px solid Highlight}.ds-studio-nav a[aria-current=\"page\"] i{background:Highlight}}"
     }
   ],
   "narrative": {

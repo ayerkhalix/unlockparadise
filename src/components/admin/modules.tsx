@@ -19,13 +19,10 @@ import {
   list,
   LoadState,
   Pagination,
-  Stats,
   Status,
   str,
   StudioTable,
   StudioDataState,
-  activityRecord,
-  activityAction,
   useAdminData,
   type Row,
   type Column,
@@ -33,6 +30,8 @@ import {
 import { php } from "@/lib/commerce";
 import { notify } from "@/lib/client-api";
 import { TravelerDiscoveryPanel } from "./traveler-discovery";
+import { StudioOverview } from "./overview";
+import { ContentImage } from "../ui/content-image";
 type Props = {
   section: string;
   administrator: boolean;
@@ -169,7 +168,7 @@ export function StudioModule({
         return (
           <div className="studio-place-cell">
             {cover && (
-              <img
+              <ContentImage
                 src={`/api/media/${cover.media_id}/`}
                 alt=""
                 loading="lazy"
@@ -237,7 +236,11 @@ export function StudioModule({
       label: "Product",
       render: (r) => (
         <div className="studio-place-cell">
-          <img src={String(list(r.images)[0]?.src)} alt="" loading="lazy" />
+          <ContentImage
+            src={String(list(r.images)[0]?.src || "")}
+            alt=""
+            loading="lazy"
+          />
           <div>
             <strong>{str(r.name)}</strong>
             <small>{str(r.sku)}</small>
@@ -293,130 +296,14 @@ export function StudioModule({
         </p>
       )}
       {section === "overview" && (
-        <>
-          <Stats
-            items={
-              content
-                ? [
-                    ["Published Places", str(data?.published)],
-                    ["Draft Places", str(data?.drafts)],
-                    ["Pending reviews", str(data?.pending_reviews)],
-                    ...(administrator
-                      ? [
-                          [
-                            "Active Explorer+",
-                            str(data?.active_memberships),
-                          ] as [string, string],
-                        ]
-                      : []),
-                  ]
-                : [
-                    ["Paid orders", str(data?.paid_orders)],
-                    ["Pending orders", str(data?.pending_orders)],
-                  ]
-            }
-          />
-          <div className="studio-overview-grid">
-            <section>
-              <h2>Studio shortcuts</h2>
-              <div className="studio-quick-actions">
-                {content && (
-                  <button
-                    className="admin-primary"
-                    onClick={() => openEditor("place", null)}
-                  >
-                    Add Place
-                  </button>
-                )}
-                {administrator && (
-                  <>
-                    <button onClick={() => openEditor("product", null)}>
-                      Add product
-                    </button>
-                    <button onClick={() => navigate("places")}>
-                      Manage Places
-                    </button>
-                  </>
-                )}
-                {content && (
-                  <button
-                    onClick={() => navigate("reviews", { status: "pending" })}
-                  >
-                    Review submissions
-                  </button>
-                )}
-                {orders && (
-                  <button onClick={() => navigate("orders")}>
-                    View Orders
-                  </button>
-                )}
-              </div>
-            </section>
-            <section>
-              <h2>Ready for your attention</h2>
-              <div className="studio-action-list">
-                {content && (
-                  <>
-                    <button
-                      onClick={() => navigate("places", { status: "draft" })}
-                    >
-                      <span>
-                        Draft Places
-                        <small>Check details and publish when ready.</small>
-                      </span>
-                      <strong>{str(data?.drafts)}</strong>
-                    </button>
-                    <button
-                      onClick={() => navigate("reviews", { status: "pending" })}
-                    >
-                      <span>
-                        Reviews awaiting moderation
-                        <small>
-                          Read submissions before they appear publicly.
-                        </small>
-                      </span>
-                      <strong>{str(data?.pending_reviews)}</strong>
-                    </button>
-                  </>
-                )}
-                {orders && (
-                  <button onClick={() => navigate("orders")}>
-                    <span>
-                      Orders & Sales
-                      <small>Review recorded payments and fulfillment.</small>
-                    </span>
-                    <span>Open</span>
-                  </button>
-                )}
-              </div>
-              <p className="studio-note">
-                Merchandise checkout is closed. Cart additions are never counted
-                as sales.
-              </p>
-            </section>
-          </div>
-          <h2>Recent activity</h2>
-          <StudioTable
-            caption="Recent studio activity"
-            rows={list(data?.recent).slice(0, 5)}
-            empty="No recent changes to show."
-            columns={[
-              { label: "When", render: (r) => date(r.at) },
-              {
-                label: "Action",
-                render: (r) => activityAction(r.action),
-              },
-              {
-                label: "Record",
-                render: (r) => activityRecord(r.table_name),
-              },
-              {
-                label: "Item",
-                render: (r) => <span>{str(r.label || r.record_id)}</span>,
-              },
-            ]}
-          />
-        </>
+        <StudioOverview
+          data={data}
+          content={content}
+          administrator={administrator}
+          orders={orders}
+          navigate={navigate}
+          openEditor={openEditor}
+        />
       )}
       {section === "places" && (
         <>

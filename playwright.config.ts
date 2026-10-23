@@ -19,6 +19,7 @@ export default defineConfig({
         "**/floating-dock.spec.ts",
         "**/ui-polish.spec.ts",
         "**/auth-privacy.spec.ts",
+        "**/admin-redesign.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

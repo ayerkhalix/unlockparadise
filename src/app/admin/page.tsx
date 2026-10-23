@@ -14,6 +14,13 @@ export default async function AdminPage() {
           content={current.staff}
           orders={current.orders}
           mfaVerified={assurance.data?.currentLevel === "aal2"}
+          today={new Intl.DateTimeFormat("en-PH", {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            timeZone: "Asia/Manila",
+          }).format(new Date())}
         />
       </div>
     </main>

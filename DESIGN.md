@@ -16,8 +16,19 @@ colors:
   membership-plus: "#d4a344"
   studio-nav: "#102a35"
   studio-nav-text: "#e8f1eb"
+  studio-nav-muted: "#bcd2cf"
+  studio-nav-hover: "#203e48"
+  studio-nav-current: "#83d9c61a"
+  studio-nav-current-line: "#83d9c62e"
+  studio-nav-current-text: "#b5f0e1"
   studio-dark-strong: "#a3e8d8"
   studio-dark-danger: "#ffb4a9"
+  studio-dark-success-ink: "#a3e8d8"
+  studio-dark-success-bg: "#183d3b"
+  studio-dark-success-line: "#45766c"
+  studio-dark-warning-ink: "#f3d79f"
+  studio-dark-warning-bg: "#3d3423"
+  studio-dark-warning-line: "#806a3f"
   studio-light-paper: "#f7f4ed"
   studio-light-surface: "#fffdf8"
   studio-light-ink: "#183d42"
@@ -28,6 +39,12 @@ colors:
   studio-light-focus: "#906119"
   studio-light-danger: "#a3352f"
   studio-light-strong: "#074c4a"
+  studio-light-success-ink: "#185346"
+  studio-light-success-bg: "#e0eee1"
+  studio-light-success-line: "#a6c1af"
+  studio-light-warning-ink: "#71511b"
+  studio-light-warning-bg: "#f5ebd4"
+  studio-light-warning-line: "#d7c292"
 typography:
   sans:
     fontFamily: "Open Sans, sans-serif"
@@ -72,19 +89,53 @@ typography:
     lineHeight: 1.2
   studio-heading:
     fontFamily: "Outfit, sans-serif"
-    fontSize: "34px"
-    fontWeight: 600
+    fontSize: "clamp(30px, 3vw, 40px)"
+    fontWeight: 500
     lineHeight: 1.15
-    letterSpacing: "-0.02em"
+    letterSpacing: "-0.035em"
+  studio-section:
+    fontFamily: "Outfit, sans-serif"
+    fontSize: "22px"
+    fontWeight: 500
+    letterSpacing: "-0.025em"
   studio-body:
     fontFamily: "Open Sans, sans-serif"
     fontSize: "14px"
     lineHeight: 1.6
+  studio-control:
+    fontFamily: "Open Sans, sans-serif"
+    fontSize: "13px"
+    fontWeight: 500
+    lineHeight: 1.4
+  studio-field:
+    fontFamily: "Open Sans, sans-serif"
+    fontSize: "13px"
+    lineHeight: 1.6
+  studio-data:
+    fontFamily: "Open Sans, sans-serif"
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.6
+  studio-meta:
+    fontFamily: "Open Sans, sans-serif"
+    fontSize: "11px"
+    lineHeight: 1.6
+  studio-support:
+    fontFamily: "Open Sans, sans-serif"
+    fontSize: "12px"
+    lineHeight: 1.6
+  studio-photo-title:
+    fontFamily: "Outfit, sans-serif"
+    fontSize: "17px"
+    fontWeight: 500
+    lineHeight: 1.35
 rounded:
   DEFAULT: "16px"
   control: "8px"
   button: "10px"
-  studio-control: "7px"
+  studio-control: "8px"
+  studio-input: "7px"
+  studio-plane: "14px"
   media: "12px"
   modal: "20px"
 spacing:
@@ -95,6 +146,8 @@ spacing:
   card-inset: "20px"
   card-compact: "16px"
   card-gap: "12px"
+  studio-section-gap: "36px"
+  studio-content-max: "1630px"
 components:
   button-primary:
     backgroundColor: "{colors.primary}"
@@ -124,16 +177,30 @@ components:
   studio-button-dark:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.on-primary}"
+    typography: "{typography.studio-control}"
     rounded: "{rounded.studio-control}"
     padding: "9px 14px"
   studio-button-light:
     backgroundColor: "{colors.studio-light-teal}"
     textColor: "{colors.studio-light-surface}"
+    typography: "{typography.studio-control}"
     rounded: "{rounded.studio-control}"
     padding: "9px 14px"
   studio-input-light:
-    backgroundColor: "{colors.studio-light-surface}"
+    backgroundColor: "{colors.studio-light-paper}"
     textColor: "{colors.studio-light-ink}"
+    typography: "{typography.studio-field}"
+    rounded: "{rounded.studio-input}"
+    padding: "11px 12px"
+  studio-nav-item:
+    backgroundColor: "transparent"
+    textColor: "{colors.studio-nav-text}"
+    typography: "{typography.studio-data}"
+    rounded: "{rounded.studio-control}"
+    padding: "10px 12px"
+  studio-nav-current:
+    backgroundColor: "{colors.studio-nav-current}"
+    textColor: "{colors.studio-nav-current-text}"
     rounded: "{rounded.studio-control}"
     padding: "10px 12px"
 ---
@@ -159,7 +226,7 @@ Photography and maps carry expression. Home and merchandise support discovery; d
 
 The audience is travelers discovering and planning Palawan trips. The supplied brief establishes Philippine destination content, English UI, Explorer/Explorer+ memberships, and a discover → save → plan → explore journey. Store prices use PHP; dates use English Philippine formatting and Asia/Manila where a timestamp is displayed. There is no Japanese market or locale requirement. Preserve original content and legal copy. Avoid a generic analytics dashboard, unrelated rebrand, invented travel facts or simulated purchasing.
 
-Runtime CSS remains canonical (Model B). `src/app/phase2.css` owns `--p2-*`; `public/original/wp-content/themes/unlock-paradise/assets/css/tokens.css` owns retained `--upd-*`; `src/app/admin/admin.css` owns `--studio-*` and its scoped shared-component adapter. This file mirrors accepted source values rather than generating runtime styles. The sidecar adds preview snippets, motion, depth and breakpoint metadata; its generated tonal ramps are preview aids, not additional runtime palette tokens.
+Runtime CSS remains canonical (Model B). `src/app/phase2.css` owns `--p2-*`; `public/original/wp-content/themes/unlock-paradise/assets/css/tokens.css` owns retained `--upd-*`; `src/app/admin/admin.css` owns `--studio-*` and its scoped shared-component adapter. `src/app/admin/studio-design.css` owns the accepted Studio layout, compact type, navigation states and motion overrides. This file mirrors accepted source values rather than generating runtime styles. The sidecar adds preview snippets, motion, depth and breakpoint metadata; its generated tonal ramps are preview aids, not additional runtime palette tokens.
 
 ## Colors
 
@@ -179,7 +246,7 @@ Navy anchors the travel interface, teal identifies safe actions and focus, and g
 
 - **Deep navy, panel and raised** (`background`, `panel`, `raised`): page, contained layer and hover hierarchy.
 - **Off-white, blue-gray and slate boundary** (`text`, `muted`, `line`): foreground hierarchy and thin divisions on navy.
-- **Studio rail and rail text** (`studio-nav`, `studio-nav-text`): the same navy identity frame in both admin themes.
+- **Studio rail and rail text** (`studio-nav`, `studio-nav-text`): the same navy identity frame in both admin themes. `studio-nav-muted` carries group labels and supporting rail text; `studio-nav-hover` is the retained rail hover. Selected entries use the translucent teal `studio-nav-current` / `studio-nav-current-line` pair, `studio-nav-current-text`, a heavier label and a small gold marker. The phone's white official mark has a navy support surface in both themes.
 - **Sand worktable and warm white** (`studio-light-paper`, `studio-light-surface`): optional light admin page and contained surfaces, with ocean ink, muted copy and separators from the corresponding light tokens.
 
 Danger uses the theme-specific danger token. Admin success and warning badges use paired ink, background and border values from `--studio-success-*` and `--studio-warning-*`; archived/rejected status uses the muted/hover treatment. Preserve each pair together rather than borrowing a text color across themes.
@@ -204,7 +271,7 @@ The original base typography remains the brand baseline. Quicksand draws the ret
 - **Headline / Title:** shared page titles use the headline ramp; section titles use the title role; shared third-level headings use (21px / 1.35). Below (520px), ordinary shared page titles use (34px); the later merchandise display rule keeps its own scale.
 - **Body:** inherited public copy is (15px) below the retained desktop breakpoint and uses the frontmatter body role above it. Shared shell paragraphs use (1.65) line height; guide copy uses (17px / 1.9) within a bounded reading column.
 - **Label / Input:** labels and buttons use the label role; shared form inputs remain (16px / 1.5). Keep visible labels and readable native controls at phone widths.
-- **Admin:** Studio uses its heading and body roles. Section headings are (22px); third-level headings (18px); table labels and supporting text (13px). Supporting data does not inherit the public display scale.
+- **Admin:** Studio titles use the heading ramp at weight (500), fixed to (30px) at (800px) and below. Section headings use the section role; the overview's library/journal headings become (20px) below (600px). Third-level headings remain (18px). The inherited body base stays (14px); buttons and record text use their (13px) roles. Table headings, status labels, journal actions/dates and compact facts use (11px); photo areas, section descriptions and utility labels use (12px). Place photograph titles use the photo-title role and become (16px) below (600px). Fields use the compact field role on desktop and (16px) below (800px). Phone journal dates keep the metadata size and reflow below the action. MFA entry retains its separate (28–36px / 600) heading.
 - **Editorial:** destination editorial headings use the editorial role; quoted prose uses Georgia (20px / 1.6).
 
 Use tabular numerals for amounts and record counts. Preserve existing contextual metadata without adopting decorative uppercase eyebrows as a reusable typography role.
@@ -223,7 +290,11 @@ Traveler discovery keeps one question and its native choices in the main column,
 
 Merchandise uses real product photography and an unframed split hero that stacks below (650px). Its collection grid changes from four columns to two below (1000px). This composition belongs to the merchandise surface brief; it does not prescribe other public heroes.
 
-Studio uses a rail beside a generous worktable: rail width (224px), content maximum (1580px), desktop content gutters (36px). At (1100px) the rail narrows to (192px); below (800px) navigation moves to the shared drawer and content uses phone gutters. Above (1700px) the rail is (240px) and content gutters (54px). Overview puts shortcuts ahead of attention items in DOM and visual order. Table records own wide-content overflow and stack with explicit labels below (600px). Editor forms stay in normal document flow. MFA content is capped at (560px) with internal gutters (24px).
+Studio uses a grouped rail beside a generous worktable: rail width (228px), narrowing to (204px) at (1200px) and below and widening to (248px) at (1750px) and above. Content uses its frontmatter maximum, desktop inline gutters (`clamp(24px, 3.3vw, 52px)`) and top/bottom padding (38px / 52px). A sticky contextual breadcrumb/date strip has minimum height (56px); brand, theme, account and website utilities remain in the rail. This strip is location context, not a second branding/account bar. At (800px) and below, the rail becomes the canonical modal drawer, the strip becomes (60px) with a supported official mark and Menu action, the date is hidden, and content padding becomes (28px 20px 40px). At (600px) and below content padding is (24px 16px 36px).
+
+The overview's source and focus order is Place library, task ledger/Create, then recent activity. Its desktop named grid places the ledger beside the library and journal; at (1000px) and below the groups stack in that reading order. The (801–1000px) layout keeps the ledger and Create beside each other. Real published photographs form a contact sheet, while published/draft facts remain inline. These collection-desk choices belong to Admin Studio's surface brief; they do not redefine the public identity.
+
+Shared tables own scrolling with layout/paint containment, a reserved scrollbar gutter, sticky desktop headers and maximum height (`min(68svh, 760px)`). Below (600px), labeled records retain a bounded (70svh) scroller and reserve at least (180px); desktop tables reserve at least (160px). Long Place and product editors stay in natural document flow, capped at (1120px), with section links/dividers and a sticky action bar. The table bound never becomes an editor-height constraint. MFA content remains capped at (560px) with internal gutters (24px).
 
 **The Fixed Dock Rule — 23 October 2026.** Bucketlist/cart controls stay at the bottom-right viewport edge: 24px on desktop, 16px below 800px, with safe-area allowances. FloatingDock portals both controls to the body so page transforms cannot change their containing block. They never move or disappear in response to nearby page content. Shared CSS reserves a final page clearance and scroll padding for reachable end-of-page controls. Existing mobile field-focus and open-dialog visibility rules remain; completing an action returns the dock to the same corner. Flights measure the actual dock, with a bottom-right transform origin for its brief confirmation pulse.
 
@@ -241,7 +312,7 @@ The native dialog backdrop uses a navy tint and blur (5px). These properties, un
 
 ## Shapes
 
-Shared containers retain the default rounded shape; form controls, buttons, merchandise media and dialogs use their distinct frontmatter radii. Studio controls use their compact radius rather than inheriting the public button shape. The Bucketlist count, avatar and map stop marker are deliberate circular or capsule exceptions. Preserve original destination card and gallery silhouettes. The official palm-lock mark is an existing image asset, not a new icon construction.
+Shared containers retain the default rounded shape; form controls, buttons, merchandise media and dialogs use their distinct frontmatter radii. Studio buttons/navigation use the compact control radius, fields use the separate input radius, and filter/table planes use the plane radius. Overview photographs use the media radius. These compact working shapes do not change public controls. The Bucketlist count, avatar and map stop marker are deliberate circular or capsule exceptions. Preserve original destination card and gallery silhouettes. The official palm-lock mark is an existing image asset, not a new icon construction.
 
 ## Components
 
@@ -251,7 +322,7 @@ Enabled controls expose hover and visible keyboard focus. Public focus uses a te
 
 ### Buttons and actions
 
-Teal is the primary safe action; outline is secondary. Public buttons use the frontmatter primary/quiet variants with minimum height (44px). Studio buttons use their scoped variants and the same minimum target. Destructive actions are separated and require an app-owned confirmation with the affected object. Icons use the existing SVG system, with accessible labels and delegated tooltips. Avoid placing floating controls over an active form.
+Teal is the primary safe action; outline is secondary. Public buttons use the frontmatter primary/quiet variants with minimum height (44px). Studio's main actions use their scoped variants and the same minimum target; compact table actions, pagination and sidebar utilities use (38px), navigation entries (43px), and section links/the phone Menu (40px). Destructive actions are separated and require an app-owned confirmation with the affected object. Icons use the existing SVG system, with accessible labels and delegated tooltips; Studio navigation adds a local (1.6px) stroked SVG vocabulary with visible text labels. Avoid placing floating controls over an active form.
 
 ### Cards / Containers
 
@@ -261,7 +332,7 @@ Featured Destination cards have no itinerary action; destination photo galleries
 
 The public brand header orders About, Membership, Merch, Contact Us, Itinerary Planner and Profile. Profile is a native disclosure with sign-in/register links for guests and the account menu for members. Native disclosure supports click, keyboard, Escape and outside dismissal. Mobile navigation uses the shared drawer. Real destination cards link to Places; save, visited and itinerary controls are separate actions. On merchandise routes, the shared floating control opens the cart and reflects its browser-local count.
 
-Admin uses the existing official palm-lock image in the rail, mobile header/drawer and MFA entry, with Outfit identity text. Both themes retain the navy rail. Studio shortcuts and actionable rows precede attention details; real counts and recent events support work without invented sales or charts. Tables retain semantic headers, labeled phone records and an accessible scroller.
+Admin uses the existing official palm-lock image in the rail, mobile contextual strip/drawer and MFA entry, with Outfit identity text. Both themes retain the navy rail. Overview is separate from the Content, Business and Workspace navigation groups, and module visibility follows existing roles. The active module has current-page semantics, a teal field and gold marker. Underlined module tabs use pressed semantics and retain their labels. Real photographs open their Place editor; task rows and Create precede recent activity in source order. Real counts and recent events support work without invented sales or charts. Tables retain semantic headers, labeled phone records and an accessible scroller. Loading, failed and loaded-empty states stay distinct with inline retry and image fallbacks.
 
 ### Forms and overlays
 
@@ -274,6 +345,8 @@ Admin uses the existing official palm-lock image in the rail, mobile header/draw
 `travelFlight` owns both paths. The custom SVG plane uses the existing teal, off-white and gold; product travel uses the actual selected image and a visible photograph as its origin, falling back to the clicked control. Both follow a measured cubic Bézier over (800ms), sampled in (41) keyframes, with linear timing along the samples and shrinking scale. Plane rotation follows the curve tangent. The actual visible Bucketlist/cart control supplies the endpoint; the visible portion of a clipped source supplies its origin.
 
 When a target is absent, hidden, offscreen or outside the active native dialog, use a local flourish (300ms). Reduced motion creates no traveling node and preserves real state, count and static receiving feedback. Decorative nodes are inaccessible, pointer-free and outside layout. There are at most (6) concurrent flights; completion, cancellation, navigation, viewport resize, page hiding and lifecycle unmount clean them up. A receiving pulse preserves the control's original transform; count feedback animates only the real displayed value (200ms). Avoid continuous animation in member/admin work and disable selection transitions under reduced motion.
+
+Studio's module/editor wrapper arrives once over (240ms) with visible-default opacity (0.7 → 1); its heading settles vertically by (6px) using `cubic-bezier(0.16, 1, 0.3, 1)`. Filter changes do not remount this wrapper. Hover/focus expands only a Place photograph to (1.045) over (500ms) and moves its arrow (2px) over (250ms); section and ledger arrows move (3px) over (150–160ms). Buttons transition foreground, background and border over (150ms); rail states use (160ms). Reduced motion removes both arrivals and makes Studio/drawer transitions immediate. Content remains readable before animation starts, and long editors retain normal scrolling.
 
 ### Traveler preferences and identity
 
@@ -325,7 +398,7 @@ Not canonized: legacy decorative uppercase eyebrow treatments and any inherited 
 
 ## Member planning refinement — 22 October 2026
 
-The 23 October shell refinement consolidates Admin Studio branding, theme, account and website access in its left navigation. The main desktop workspace starts with its task heading; mobile uses a compact section/menu bar and the same utilities inside its navigation drawer. Shared headings, filters, pagination and row hover states use the existing Studio tokens. Portfolio and Bucketlist share the saved-Places page layout, selected tabs, search/filter controls and empty-result panel. Portfolio reads visited records and its removal action only clears visited status.
+The 24 October Studio redesign retains the 23 October consolidation of branding, theme, account and website access in its left navigation. A contextual breadcrumb/date strip precedes the task heading; it contains no second desktop brand or account utility row. Mobile uses its supported official mark, location and Menu action, with full utilities inside the navigation drawer. Shared headings, filters, pagination and row hover states use the existing Studio tokens and scoped layout owner. Portfolio and Bucketlist share the saved-Places page layout, selected tabs, search/filter controls and empty-result panel. Portfolio reads visited records and its removal action only clears visited status.
 
 Merchandise editing keeps Card highlight beside the product selections, with visible Details & care and optional Size guide sections. Native size choices and compact measurement rows use Studio tokens; measurements remain in inches. Collection taglines are optional muted body text directly below collection headings, editable through the existing inline catalog-choice owner. At phone widths, the planner uses compact 44px controls, horizontally scrollable day tabs, a smaller trip heading and a single aligned map-mode row. Selected-day and map-mode contrast remain unchanged.
 

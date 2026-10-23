@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PlaceEditor } from "./place-editor";
 import { ProductEditor } from "./admin/product-editor";
@@ -9,15 +9,16 @@ import { useDecision } from "./ui/decision";
 import { Icon } from "./icon";
 import { adminRequest, type Row } from "./admin/shared";
 import { AdminBrand, AdminThemeToggle } from "./admin-theme";
+import { StudioIcon } from "./admin/studio-icon";
 const modules = [
-  { id: "overview", label: "Overview", icon: "Location" },
-  { id: "places", label: "Places", icon: "Location" },
-  { id: "merchandise", label: "Merchandise", icon: "Cart" },
-  { id: "orders", label: "Orders & Sales", icon: "Cart" },
-  { id: "analytics", label: "Analytics", icon: "Clock" },
-  { id: "members", label: "Members", icon: "People" },
-  { id: "reviews", label: "Reviews", icon: "Star" },
-  { id: "settings", label: "Settings", icon: "Lock" },
+  { id: "overview", label: "Overview", group: "" },
+  { id: "places", label: "Places", group: "Content" },
+  { id: "merchandise", label: "Merchandise", group: "Content" },
+  { id: "reviews", label: "Reviews", group: "Content" },
+  { id: "orders", label: "Orders & Sales", group: "Business" },
+  { id: "members", label: "Members", group: "Business" },
+  { id: "analytics", label: "Analytics", group: "Business" },
+  { id: "settings", label: "Settings", group: "Workspace" },
 ];
 const descriptions: Record<string, string> = {
   overview: "Publishing, orders and recent activity.",
@@ -38,14 +39,18 @@ export function AdminConsole({
   content,
   orders,
   mfaVerified,
+  today,
 }: {
   administrator: boolean;
   content: boolean;
   orders: boolean;
   mfaVerified: boolean;
+  today: string;
 }) {
   const params = useSearchParams();
   const [saving, setSaving] = useState(false);
+  const editorRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => editorRequest.current?.abort(), []);
   const { ask, dialog } = useDecision();
   const allowed = modules.filter(
     (m) =>
@@ -91,6 +96,9 @@ export function AdminConsole({
     )
       return;
     setDirty(false);
+    editorRequest.current?.abort();
+    editorRequest.current = null;
+    setOpening(false);
     setEdit(null);
     setMobile(false);
     setError("");
@@ -100,6 +108,7 @@ export function AdminConsole({
       status: "",
       area: "",
       category: "",
+      collection: "",
       access: "",
       sort: "",
       payment: "",
@@ -110,39 +119,65 @@ export function AdminConsole({
     });
   }
   async function openEditor(kind: "place" | "product", row: Row | null) {
+    editorRequest.current?.abort();
     if (kind === "product" || !row) {
       setEdit({ kind, row });
       return;
     }
     setOpening(true);
     setError("");
+    const controller = new AbortController();
+    editorRequest.current = controller;
     try {
-      const result = await adminRequest(`places/${row.id}`);
+      const result = await adminRequest(
+        `places/${row.id}`,
+        "GET",
+        undefined,
+        controller.signal,
+      );
+      if (controller.signal.aborted) return;
       if (!result.data?.[0])
         throw new Error("This Place is no longer available.");
       setEdit({ kind, row: result.data[0] });
     } catch (e) {
+      if (controller.signal.aborted) return;
       setError(e instanceof Error ? e.message : "Could not open Place.");
     } finally {
-      setOpening(false);
+      if (editorRequest.current === controller) {
+        editorRequest.current = null;
+        setOpening(false);
+      }
     }
   }
   const nav = (
     <nav aria-label="Admin Studio">
-      {allowed.map((m) => (
-        <a
-          key={m.id}
-          href={`/admin/?section=${m.id}`}
-          aria-current={section === m.id ? "page" : undefined}
-          onClick={(e) => {
-            e.preventDefault();
-            void navigate(m.id);
-          }}
-        >
-          <Icon name={m.icon} size={20} />
-          <span>{m.label}</span>
-        </a>
-      ))}
+      {["", "Content", "Business", "Workspace"].map(
+        (group) =>
+          allowed.some((m) => m.group === group) && (
+            <div className="studio-nav-group" key={group}>
+              {group && <span className="studio-nav-group-label">{group}</span>}
+              {allowed
+                .filter((m) => m.group === group)
+                .map((m) => (
+                  <a
+                    key={m.id}
+                    href={`/admin/?section=${m.id}`}
+                    aria-current={section === m.id ? "page" : undefined}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      void navigate(m.id);
+                    }}
+                  >
+                    <StudioIcon name={m.id} size={19} />
+                    <span>{m.label}</span>
+                    {section === m.id && (
+                      <span className="studio-nav-current" aria-hidden="true" />
+                    )}
+                  </a>
+                ))}
+            </div>
+          ),
+      )}
     </nav>
   );
   const done = () => {
@@ -182,7 +217,7 @@ export function AdminConsole({
     </div>
   );
   return (
-    <div className="studio">
+    <div className="studio studio--catalog" data-studio-section={section}>
       {dialog}
       <aside className="studio-sidebar">
         <a
@@ -195,12 +230,34 @@ export function AdminConsole({
         >
           <AdminBrand />
         </a>
+        <span className="studio-workspace-label">
+          <span aria-hidden="true" />
+          Palawan workspace
+        </span>
         {nav}
         {sidebarUtilities}
       </aside>
       <div className="studio-main">
         <header className="studio-topbar">
-          <strong>{allowed.find((m) => m.id === section)?.label}</strong>
+          <div className="studio-breadcrumb">
+            <img
+              className="studio-mobile-mark"
+              src="/original/wp-content/uploads/2026/07/upd-mark-white-header-300x300.png"
+              alt=""
+              width="18"
+              height="24"
+            />
+            <span>Studio</span>
+            <span aria-hidden="true">/</span>
+            <strong>{allowed.find((m) => m.id === section)?.label}</strong>
+            {edit && (
+              <>
+                <span aria-hidden="true">/</span>
+                <span>{edit.row ? "Edit" : "New"}</span>
+              </>
+            )}
+          </div>
+          <span className="studio-today">{today}</span>
           <button
             className="studio-menu"
             aria-label="Open studio menu"
@@ -212,7 +269,10 @@ export function AdminConsole({
             Menu
           </button>
         </header>
-        <div className="studio-content">
+        <div
+          className="studio-content"
+          key={edit ? `editor-${edit.kind}` : section}
+        >
           {error && (
             <p role="alert" className="studio-error">
               {error}
@@ -239,7 +299,11 @@ export function AdminConsole({
             <>
               <div className="studio-heading">
                 <div>
-                  <h1>{allowed.find((m) => m.id === section)?.label}</h1>
+                  <h1>
+                    {section === "overview"
+                      ? "Your studio"
+                      : allowed.find((m) => m.id === section)?.label}
+                  </h1>
                   <p>{descriptions[section]}</p>
                 </div>
                 <div className="admin-actions">
@@ -248,6 +312,7 @@ export function AdminConsole({
                       className="admin-primary"
                       onClick={() => openEditor("place", null)}
                     >
+                      <StudioIcon name="plus" size={18} />
                       Add Place
                     </button>
                   )}
@@ -256,6 +321,7 @@ export function AdminConsole({
                       className="admin-primary"
                       onClick={() => openEditor("product", null)}
                     >
+                      <StudioIcon name="plus" size={18} />
                       Add product
                     </button>
                   )}
