@@ -335,7 +335,6 @@ Preserve the existing public palette and fonts. Selected planner days use a fill
 
 Place editing uses a normal-flow worktable with direct section links, searchable native traveler checkboxes and ordered nearby rows. Section spacing and thin dividers replace nested cards; existing Studio tokens own both themes. Public nearby recommendations use compact photo-and-text rows, visible Google attribution and a Maps action. Text-only rows remain complete without photography. Touched admin, checkout and destination guidance uses direct task language, with redundant promotional eyebrows removed. The existing palette, type families and shared interaction owners remain unchanged.
 
-
 ## Approved member identity and map system — 22 October 2026
 
 This refinement supersedes the earlier profile-header, planner preview placement and free itinerary rules. Runtime CSS remains canonical in phase2.css. Membership Explorer uses --membership-explorer (#78b5f5); Explorer+ uses --membership-plus, an alias of the existing membership-plan --upd-vip-gold (#d4a344). Tier text and the label overlapping the avatar use those same tokens, separate from the teal traveler identity.
@@ -363,3 +362,11 @@ The title nameplate itself also idles over 10 seconds: a 2px vertical drift and 
 Nameplates are compact labels: 20–24px display lettering on desktop, 20px on phones, 40px/36px minimum heights, 6px 12px 8px / 5px 10px 7px padding, 8px corners and 28px static glyphs. They wrap long names naturally rather than imposing a fixed height. Existing colors, type families and ambient motion remain.
 
 The profile subsequently removes its separate traveler glyph; review badges and survey results keep their existing icons. The header's View map action links to /#palawan-map, sits at the right edge on desktop, and remains full width on phones. Itinerary stop times sit at the right of the destination heading in the same 18px heading face, with smaller duration text and the existing inline time editor. At phone widths the right-aligned time follows the destination above the move controls. Stop notes use an always-visible textarea and Save note action, with the existing persistence and unsaved-change guards.
+
+## Task feedback and trip preparation — 24 October 2026
+
+Shared StudioTable owns loading skeletons, loaded-empty and failed states via StudioDataState; stale request keys cannot paint an old result or clamp a new filter's page. Loading geometry reserves three rows without ambient animation. Readable activity verbs and entity names replace database identifiers in the studio.
+
+Saved-place pages retain their shared header and tabs but omit filters when there are no records. Phone headers use compact spacing and a 44px planner link. Daily itinerary timelines use the existing type, teal time labels and gold overlap warnings; no estimated journey time is invented. The browser print view is a plain, high-contrast, all-days document with saved notes and Palawan-local times, portaled beside the application so other chrome does not print.
+
+Merchandise calls its local selection a cart throughout. Product editor previews reuse the actual collection-card and detail components with purchase actions, navigation and analytics disabled. The readiness checklist is advisory, with inventory uncertainty explicitly stated; publishing and ordering permissions are unchanged. MapFeedback owns bounded loading, failure and retry feedback in both area and destination maps, and the selected destination pin has a persistent gold/teal state. ContentImage provides a reserved, readable fallback when a cover or destination photo cannot load.

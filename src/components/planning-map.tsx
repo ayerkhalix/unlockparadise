@@ -5,6 +5,8 @@ import type { TravelPlace } from "@/lib/planning";
 import { MAPBOX_TOKEN } from "./palawan-map";
 import { labelMapControls } from "@/lib/map-accessibility";
 import { accessMarker } from "@/lib/access-markers";
+import { MapFeedback } from "./map-feedback";
+import { ContentImage } from "./ui/content-image";
 export type PlanningMapProps = {
   places: TravelPlace[];
   onSelect: (place: TravelPlace) => void;
@@ -28,6 +30,14 @@ export function PlanningMap({
   const [ready, setReady] = useState(false),
     [error, setError] = useState(false);
   const [selected, setSelected] = useState<TravelPlace | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const markerButtons = useRef(new Map<string, HTMLButtonElement>());
+  const selectedId = useRef<string | null>(null);
+  const retry = () => {
+    setReady(false);
+    setError(false);
+    setAttempt((n) => n + 1);
+  };
   const located = places.filter((p) => p.coordinates);
   useEffect(() => {
     let disposed = false;
@@ -88,11 +98,12 @@ export function PlanningMap({
       instance?.remove();
       map.current = null;
     };
-  }, [numbered]);
+  }, [numbered, attempt]);
   useEffect(() => {
     if (!ready || !map.current) return;
     let disposed = false;
     const markers: { remove: () => void }[] = [];
+    const buttons = markerButtons.current;
     void import("mapbox-gl").then(({ default: mb }) => {
       if (disposed || !map.current) return;
       places.forEach((p, index) => {
@@ -101,6 +112,11 @@ export function PlanningMap({
         button.type = "button";
         button.setAttribute("role", "button");
         button.className = "p2-map-marker";
+        button.setAttribute(
+          "aria-pressed",
+          String(selectedId.current === p.id),
+        );
+        buttons.set(p.id, button);
         button.textContent = numbered ? String(index + 1) : "●";
         button.setAttribute(
           "aria-label",
@@ -134,8 +150,18 @@ export function PlanningMap({
     return () => {
       disposed = true;
       markers.forEach((m) => m.remove());
+      buttons.clear();
     };
   }, [places, ready, numbered]);
+  useEffect(() => {
+    selectedId.current = selected?.id || null;
+    markerButtons.current.forEach((button, id) =>
+      button.setAttribute(
+        "aria-pressed",
+        String(selected?.id === id && places.some((p) => p.id === id)),
+      ),
+    );
+  }, [selected, places]);
   useEffect(() => {
     if (
       !ready ||
@@ -191,16 +217,7 @@ export function PlanningMap({
         role="region"
         aria-label={numbered ? "Itinerary map" : "Destination map"}
       />
-      {!ready && !error && (
-        <p className="p2-map-notice" role="status">
-          Loading map… Destination choices remain available in this card.
-        </p>
-      )}
-      {error && (
-        <p className="p2-map-notice" role="status">
-          Map tiles are unavailable. Use the destination choices in this card.
-        </p>
-      )}
+      <MapFeedback loading={!ready && !error} error={error} retry={retry} />
       <div className="p2-map-caption">
         {located.length} mapped {located.length === 1 ? "place" : "places"} ·
         Locations, not navigation routes
@@ -220,7 +237,7 @@ export function PlanningMap({
               ← Back to destinations
             </button>
             {selected.image && (
-              <img
+              <ContentImage
                 className="p2-map-preview__photo"
                 src={selected.image}
                 alt=""
@@ -296,7 +313,7 @@ export function PlanningMap({
                   }}
                 >
                   {p.image && !numbered && (
-                    <img src={p.image} alt="" loading="lazy" />
+                    <ContentImage src={p.image} alt="" loading="lazy" />
                   )}
                   <span>
                     {numbered ? `${i + 1}. ` : ""}

@@ -12,6 +12,8 @@ import {
   str,
   StudioTable,
   useAdminData,
+  activityRecord,
+  activityAction,
   type Row,
   type AdminData,
 } from "./shared";
@@ -525,10 +527,10 @@ export function SettingsTools({
                 </span>
               ),
             },
-            { label: "Action", render: (r) => str(r.action).toLowerCase() },
+            { label: "Action", render: (r) => activityAction(r.action) },
             {
               label: "Entity",
-              render: (r) => str(r.table_name).replaceAll("_", " "),
+              render: (r) => activityRecord(r.table_name),
             },
             {
               label: "Reference",

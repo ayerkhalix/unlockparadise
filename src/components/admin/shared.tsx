@@ -1,5 +1,11 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { SearchInput } from "../ui/search-input";
 export type Row = Record<string, unknown>;
 export type AdminData = Record<string, unknown> & {
@@ -9,6 +15,29 @@ export type AdminData = Record<string, unknown> & {
 export const str = (value: unknown) => (value == null ? "—" : String(value));
 export const list = (value: unknown) =>
   Array.isArray(value) ? (value as Row[]) : [];
+export const activityRecord = (value: unknown) =>
+  ({
+    merch_products: "Product",
+    merch_variants: "Product size",
+    merch_collections: "Collection",
+    merch_brands: "Brand",
+    places: "Destination",
+    profiles: "Member profile",
+    user_roles: "Studio access",
+    entitlements: "Membership access",
+    reviews: "Review",
+    orders: "Order",
+    site_settings: "Site settings",
+    media: "Image",
+  })[String(value)] || str(value).replaceAll("_", " ");
+export const activityAction = (value: unknown) =>
+  ({
+    insert: "Created",
+    update: "Updated",
+    delete: "Deleted",
+    publish: "Published",
+    archive: "Archived",
+  })[String(value).toLowerCase()] || str(value).replaceAll("_", " ");
 export const date = (value: unknown) =>
   value
     ? new Intl.DateTimeFormat("en-PH", {
@@ -45,11 +74,13 @@ export async function adminRequest<T = AdminData>(
 }
 export function useAdminData(path: string | null) {
   const [state, setState] = useState<{
+    key: string;
     data: AdminData | null;
     loading: boolean;
     error: string;
-  }>({ data: null, loading: true, error: "" });
+  }>({ key: "", data: null, loading: true, error: "" });
   const [revision, setRevision] = useState(0);
+  const key = `${path}:${revision}`;
   const reload = useCallback(() => setRevision((v) => v + 1), []);
   useEffect(() => {
     if (!path) return;
@@ -57,14 +88,14 @@ export function useAdminData(path: string | null) {
     let active = true;
     const timer = setTimeout(
       () => {
-        setState((s) => ({ ...s, loading: true, error: "" }));
+        setState({ key, data: null, loading: true, error: "" });
         void adminRequest(path, "GET", undefined, controller.signal)
           .then((data) => {
-            if (active) setState({ data, loading: false, error: "" });
+            if (active) setState({ key, data, loading: false, error: "" });
           })
           .catch((e) => {
             if (active && e.name !== "AbortError")
-              setState((s) => ({ ...s, loading: false, error: e.message }));
+              setState({ key, data: null, loading: false, error: e.message });
           });
       },
       path.includes("search=") ? 300 : 0,
@@ -74,9 +105,16 @@ export function useAdminData(path: string | null) {
       controller.abort();
       clearTimeout(timer);
     };
-  }, [path, revision]);
-  return { ...state, reload };
+  }, [path, key]);
+  const current = state.key === key;
+  return {
+    data: current ? state.data : null,
+    loading: !!path && (!current || state.loading),
+    error: current ? state.error : "",
+    reload,
+  };
 }
+export const StudioDataState = createContext({ loading: false, error: "" });
 export function LoadState({
   loading,
   error,
@@ -133,9 +171,11 @@ export function StudioTable({
   empty?: string;
   caption: string;
 }) {
+  const { loading, error } = useContext(StudioDataState);
   return (
     <div
       className="admin-table"
+      aria-busy={loading}
       role="region"
       aria-label={caption}
       tabIndex={0}
@@ -152,21 +192,42 @@ export function StudioTable({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => (
-            <tr key={str(row.id || row.key || row.user_id || i)}>
-              {columns.map((c) => (
-                <td key={c.label} data-label={c.label}>
-                  {c.render(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {!loading &&
+            !error &&
+            rows.map((row, i) => (
+              <tr key={str(row.id || row.key || row.user_id || i)}>
+                {columns.map((c) => (
+                  <td key={c.label} data-label={c.label}>
+                    {c.render(row)}
+                  </td>
+                ))}
+              </tr>
+            ))}
         </tbody>
       </table>
-      {!rows.length && (
-        <div className="studio-empty">
-          <p>{empty}</p>
+      {loading ? (
+        <div className="studio-table-loading" role="status">
+          <span>Loading {caption.toLowerCase()}…</span>
+          <div className="studio-table-skeleton" aria-hidden="true">
+            {[0, 1, 2].map((row) => (
+              <div key={row}>
+                {columns.map((c) => (
+                  <span key={c.label} />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
+      ) : error ? (
+        <div className="studio-empty">
+          <p>Records couldn’t be loaded. Use Try again below.</p>
+        </div>
+      ) : (
+        !rows.length && (
+          <div className="studio-empty">
+            <p>{empty}</p>
+          </div>
+        )
       )}
     </div>
   );
@@ -187,7 +248,9 @@ export function Pagination({
       <span>
         {count
           ? `${(page - 1) * 25 + 1}–${Math.min(page * 25, count)} of ${count}`
-          : "0 records"}
+          : busy
+            ? "Loading records…"
+            : "0 records"}
       </span>
       <button disabled={page <= 1 || busy} onClick={() => onPage(page - 1)}>
         Previous

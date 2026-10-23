@@ -119,13 +119,13 @@ test("cart count, product addition and store navigation keep one anchored dock",
     .locator(".p2-product-card")
     .filter({
       has: page.getByRole("button", {
-        name: /^Add to bag:/,
+        name: /^Add to cart:/,
         disabled: false,
       }),
     })
     .first();
   await card.locator("select").selectOption({ index: 1 });
-  await card.getByRole("button", { name: /^Add to bag:/ }).click();
+  await card.getByRole("button", { name: /^Add to cart:/ }).click();
   await expect(page.locator(".p2-floating b")).toHaveText("1");
   await expectAnchored(page);
   await page.waitForFunction(() => !document.querySelector(".p2-flight"));

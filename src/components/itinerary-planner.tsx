@@ -21,14 +21,18 @@ import { PalawanMap } from "./palawan-map";
 import { PlannerDiscoveryMap } from "./planner-discovery-map";
 import { usePlanningCatalog } from "./use-planning-catalog";
 import { StopTimeFields } from "./stop-time-fields";
+import { DaySchedule, PrintableItinerary } from "./itinerary-schedule";
+import { overlappingStops } from "@/lib/itinerary-schedule";
 function StopTiming({
   item,
   onSave,
   onDirtyChange,
+  conflicts = [],
 }: {
   item: TripItem;
   onSave: (time: StopTime) => Promise<boolean>;
   onDirtyChange: (dirty: boolean) => void;
+  conflicts?: TripItem[];
 }) {
   const initial = {
     start_time: item.start_time?.slice(0, 5) || null,
@@ -68,6 +72,14 @@ function StopTiming({
             );
           }}
         />
+        {overlappingStops([{ ...item, ...time }, ...conflicts]).has(
+          item.id,
+        ) && (
+          <p className="p2-schedule-warning" role="status">
+            This time overlaps another stop on this day. You can still save it
+            or choose another time.
+          </p>
+        )}
         <button className="p2-button p2-button--quiet" disabled={!dirty}>
           Save time
         </button>
@@ -286,6 +298,19 @@ export function ItineraryPlanner({
         <div className="p2-actions">
           <button
             className="p2-button p2-button--quiet"
+            disabled={busy}
+            onClick={() => {
+              if (dirtyNotes.current.size) {
+                notify("Save your stop notes and times before printing.", true);
+                return;
+              }
+              window.print();
+            }}
+          >
+            Print itinerary
+          </button>
+          <button
+            className="p2-button p2-button--quiet"
             onClick={() => setEdit(true)}
             disabled={busy}
           >
@@ -403,6 +428,14 @@ export function ItineraryPlanner({
               Drag a stop’s numbered handle, or use the up and down buttons.
             </p>
           )}
+          <DaySchedule
+            stops={stops}
+            onStop={(id) => {
+              const el = document.getElementById(`stop-${id}`);
+              el?.scrollIntoView({ block: "center" });
+              el?.focus({ preventScroll: true });
+            }}
+          />
           <fieldset disabled={busy} className="p2-fieldset" aria-busy={busy}>
             <ol className="p2-stops">
               {stops.map((item, index) => (
@@ -494,6 +527,7 @@ export function ItineraryPlanner({
                     </div>
                     <StopTiming
                       item={item}
+                      conflicts={stops.filter((s) => s.id !== item.id)}
                       onSave={(time) =>
                         mutate("schedule", { item_id: item.id, ...time })
                       }
@@ -711,6 +745,15 @@ export function ItineraryPlanner({
           >
             <fieldset disabled={busy} className="p2-fieldset">
               <StopTimeFields value={visitTime} onChange={setVisitTime} />
+              {overlappingStops([
+                ...stops,
+                { id: "new-stop", ...visitTime },
+              ]).has("new-stop") && (
+                <p className="p2-schedule-warning" role="status">
+                  This visit overlaps another stop on this day. You can still
+                  add it or choose another time.
+                </p>
+              )}
             </fieldset>
             {error && (
               <p className="p2-error" role="alert">
@@ -747,6 +790,7 @@ export function ItineraryPlanner({
           />
         </Modal>
       )}
+      <PrintableItinerary trip={trip} />
     </>
   );
 }

@@ -268,7 +268,7 @@ export function CartPage() {
           <span className="p2-eyebrow">Wear the adventure</span>
           <h1>Shopping cart</h1>
           <p className="p2-muted">
-            Keep your favorites ready. Ordering opens soon.
+            Save your selection here. Merchandise ordering is not open yet.
           </p>
         </div>
         {cart.items.length > 0 && (
@@ -418,6 +418,13 @@ export function MerchCheckout() {
         Online orders and payments are not available yet. Your selection stays
         in this browser when storage is available.
       </p>
+      <p className="p2-muted">
+        Explorer+ membership is separate. Approved demo accounts can try its
+        Xendit test checkout.
+      </p>
+      <Link className="p2-back" href="/membership/">
+        View membership plans ↗
+      </Link>
       <Link className="p2-button" href="/merch/cart/">
         Return to your cart
       </Link>

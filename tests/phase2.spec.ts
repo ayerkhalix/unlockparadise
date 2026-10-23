@@ -149,7 +149,7 @@ test("merch preserves variants, quantities and cart on reload with honest checko
   await ready(page);
   await page.getByRole("radio", { name: "M", exact: true }).check();
   await page.getByLabel("Quantity", { exact: true }).fill("2");
-  await page.getByRole("button", { name: "Add to bag", exact: true }).click();
+  await page.getByRole("button", { name: "Add to cart", exact: true }).click();
   await expect(
     page.getByRole("status").or(page.locator(".p2-notices")),
   ).toContainText("added to your cart");

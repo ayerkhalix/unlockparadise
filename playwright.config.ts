@@ -17,6 +17,7 @@ export default defineConfig({
         "**/planner-time-refinement.spec.ts",
         "**/member-identity-map.spec.ts",
         "**/floating-dock.spec.ts",
+        "**/ui-polish.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

@@ -4728,8 +4728,8 @@ body .p2-shell .p2-tabs button.p2-map-mode[aria-pressed="true"]:hover {
   }
   .p2-workspace .p2-trip-header {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     gap: 12px;
     margin-bottom: 18px;
   }
@@ -4837,5 +4837,212 @@ body .p2-shell .p2-tabs button.p2-map-mode[aria-pressed="true"]:hover {
   }
   .p2-workspace .p2-planning-map .p2-map-canvas {
     height: 100%;
+  }
+}
+
+/* Saved places, scheduling and map feedback share the existing public scale. */
+.p2-day-schedule {
+  margin: 20px 0 24px;
+  padding: 18px 0;
+  border-block: 1px solid var(--p2-line);
+}
+.p2-schedule-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.p2-schedule-heading h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.p2-schedule-heading > span {
+  color: var(--p2-muted);
+  font-size: 12px;
+}
+.p2-day-schedule > p {
+  margin: 6px 0 12px;
+}
+.p2-day-schedule ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.p2-day-schedule li + li {
+  border-top: 1px solid var(--p2-line);
+}
+.p2-day-schedule li button {
+  display: grid;
+  grid-template-columns: minmax(150px, auto) 1fr;
+  gap: 3px 16px;
+  width: 100%;
+  padding: 12px 8px;
+  text-align: left;
+  color: var(--p2-text);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  min-height: 44px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-size: 14px;
+}
+.p2-day-schedule li button:hover {
+  background: var(--p2-raised);
+}
+.p2-day-schedule li button > span {
+  color: var(--p2-teal);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.p2-day-schedule li small {
+  color: var(--p2-gold);
+  grid-column: 2;
+}
+.p2-schedule-warning {
+  color: var(--p2-gold);
+  font-size: 13px;
+}
+.p2-print-itinerary {
+  display: none;
+}
+.p2-map-feedback {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding: 12px 14px;
+}
+.p2-map-feedback > span {
+  flex: 1 1 180px;
+}
+body .p2-map-feedback .p2-button {
+  font-size: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
+body .p2-map-marker[aria-pressed="true"] {
+  background: var(--p2-gold);
+  color: var(--p2-navy);
+  outline: 3px solid var(--p2-teal);
+  outline-offset: 3px;
+}
+.p2-photo-fallback {
+  display: grid;
+  place-items: center;
+  background: var(--p2-panel);
+  color: var(--p2-muted);
+  font-size: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.p2-product-card__photo > .p2-photo-fallback {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 5;
+  position: static;
+}
+.p2-map-preview__photo.p2-photo-fallback {
+  min-height: 140px;
+}
+.p2-map-list button > .p2-photo-fallback {
+  width: 50px;
+  height: 50px;
+  padding: 4px;
+  font-size: 9px;
+  flex: 0 0 50px;
+}
+.p2-saved-card > a > .p2-photo-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+}
+@media (max-width: 800px) {
+  .p2-saved-heading {
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: flex-start;
+  }
+  .p2-saved-heading h1 {
+    margin-bottom: 10px;
+  }
+  .p2-saved-heading p {
+    margin: 0;
+  }
+  .p2-saved-heading > .p2-button {
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+  .p2-saved-heading + .p2-tabs {
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  .p2-day-schedule {
+    margin-block: 16px;
+    padding-block: 14px;
+  }
+}
+@media (max-width: 520px) {
+  .p2-day-schedule li button {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .p2-day-schedule li small {
+    grid-column: 1;
+  }
+}
+@media print {
+  @page {
+    margin: 16mm;
+  }
+  body:has(> .p2-print-itinerary) {
+    background: white !important;
+    color: black !important;
+  }
+  body:has(> .p2-print-itinerary) > :not(.p2-print-itinerary),
+  body:has(> .p2-print-itinerary)::after {
+    display: none !important;
+  }
+  .p2-print-itinerary {
+    display: block;
+    font:
+      11pt/1.5 Arial,
+      sans-serif;
+    color: black;
+    background: white;
+  }
+  .p2-print-itinerary :is(h1, h2, h3, p) {
+    color: black !important;
+  }
+  .p2-print-itinerary h1 {
+    font-size: 24pt;
+    margin: 8px 0;
+  }
+  .p2-print-itinerary h2 {
+    font-size: 16pt;
+    border-bottom: 1px solid #888;
+    margin: 24px 0 12px;
+  }
+  .p2-print-itinerary h3 {
+    font-size: 12pt;
+    margin: 0;
+  }
+  .p2-print-itinerary p {
+    margin: 4px 0;
+  }
+  .p2-print-itinerary li {
+    break-inside: avoid;
+    margin-bottom: 14px;
+  }
+  .p2-print-itinerary .p2-print-notes {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .p2-print-itinerary footer {
+    margin-top: 24px;
+    border-top: 1px solid #888;
+    padding-top: 12px;
   }
 }

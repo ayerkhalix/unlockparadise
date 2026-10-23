@@ -162,14 +162,14 @@ test("catalog and detail bag flights retain variants, rapid quantities and local
   await ready(page);
   const card = page.locator(".p2-product-card").first();
   await card.getByRole("combobox").selectOption("M");
-  await card.getByRole("button", { name: /^Add to bag:/ }).click();
+  await card.getByRole("button", { name: /^Add to cart:/ }).click();
   await inspectFlight(page, "bag", info.project.name);
   await expect(page.locator('[data-flight-target="bag"] b')).toHaveText("1");
   await page.goto("/merch/products/whats-it-gonna-be-tee/");
   await ready(page);
   await page.getByRole("radio", { name: "M", exact: true }).check();
   await page.getByLabel("Quantity", { exact: true }).fill("2");
-  const add = page.getByRole("button", { name: "Add to bag", exact: true });
+  const add = page.getByRole("button", { name: "Add to cart", exact: true });
   await add.evaluate((el) => {
     el.scrollIntoView({ block: "center" });
     (el as HTMLButtonElement).click();
@@ -204,7 +204,7 @@ test("hidden flight target stays local; reduced motion skips travel and still ad
   await page
     .locator('[data-flight-target="bag"]')
     .evaluate((el) => ((el as HTMLElement).style.display = "none"));
-  await page.getByRole("button", { name: "Add to bag", exact: true }).click();
+  await page.getByRole("button", { name: "Add to cart", exact: true }).click();
   await expect(page.locator(".p2-flight")).toHaveAttribute(
     "data-flight-mode",
     "local",
@@ -217,7 +217,7 @@ test("hidden flight target stays local; reduced motion skips travel and still ad
   await page
     .locator('[data-flight-target="bag"]')
     .evaluate((el) => ((el as HTMLElement).style.display = ""));
-  await page.getByRole("button", { name: "Add to bag", exact: true }).click();
+  await page.getByRole("button", { name: "Add to cart", exact: true }).click();
   await expect(page.locator(".p2-flight")).toHaveCount(0);
   await expect(page.locator('[data-flight-target="bag"] b')).toHaveText("2");
 });

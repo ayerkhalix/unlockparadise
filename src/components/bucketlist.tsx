@@ -3,6 +3,7 @@ import { SearchInput } from "./ui/search-input";
 import { useCallback, useEffect, useState } from "react";
 import { requestJSON } from "@/lib/client-api";
 import type { TravelPlace } from "@/lib/planning";
+import { ContentImage } from "./ui/content-image";
 export type SavedRecord = {
   place_id: string;
   saved_at: string | null;
@@ -58,7 +59,7 @@ export function SavedPlaces({
               tabIndex={-1}
               aria-hidden="true"
             >
-              <img src={row.place.image} alt="" loading="lazy" />
+              <ContentImage src={row.place.image} alt="" loading="lazy" />
             </a>
           ) : (
             <div className="p2-image-placeholder" aria-hidden="true">
@@ -139,7 +140,7 @@ export function SavedPlacesPage({
   );
   return (
     <>
-      <div className="p2-section-head">
+      <div className="p2-section-head p2-saved-heading">
         <div>
           <span className="p2-eyebrow">Discover · save · plan</span>
           <h1>{portfolio ? "My Portfolio" : "My Bucketlist"}</h1>
@@ -161,42 +162,44 @@ export function SavedPlacesPage({
           Portfolio
         </a>
       </nav>
-      <div className="p2-filters">
-        <label>
-          {searchLabel}
-          <SearchInput
-            label={searchLabel}
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Find a destination"
-          />
-        </label>
-        <label>
-          Area
-          <select value={area} onChange={(e) => setArea(e.target.value)}>
-            <option value="">All areas</option>
-            {[...new Set(rows.map((r) => r.place?.area).filter(Boolean))].map(
-              (a) => (
-                <option key={a}>{a}</option>
-              ),
-            )}
-          </select>
-        </label>
-        <label>
-          Category
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">All categories</option>
-            {[
-              ...new Set(rows.map((r) => r.place?.category).filter(Boolean)),
-            ].map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {rows.length > 0 && (
+        <div className="p2-filters">
+          <label>
+            {searchLabel}
+            <SearchInput
+              label={searchLabel}
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Find a destination"
+            />
+          </label>
+          <label>
+            Area
+            <select value={area} onChange={(e) => setArea(e.target.value)}>
+              <option value="">All areas</option>
+              {[...new Set(rows.map((r) => r.place?.area).filter(Boolean))].map(
+                (a) => (
+                  <option key={a}>{a}</option>
+                ),
+              )}
+            </select>
+          </label>
+          <label>
+            Category
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="">All categories</option>
+              {[
+                ...new Set(rows.map((r) => r.place?.category).filter(Boolean)),
+              ].map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
       {loading ? (
         <p role="status">Loading your Places…</p>
       ) : error ? (

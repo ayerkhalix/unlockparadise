@@ -21,7 +21,9 @@ import {
 } from "@/lib/catalog-options";
 import { notify } from "@/lib/client-api";
 import { ZodError } from "zod";
-import type { SizeGuideRow } from "@/lib/merch-products";
+import type { Product, SizeGuideRow } from "@/lib/merch-products";
+import { ProductCard, ProductDetail } from "../merch/store";
+import { Modal } from "../ui/modal";
 
 type Variant = {
   id?: string;
@@ -56,6 +58,20 @@ export function ProductEditor({
   const fileInput = useRef<HTMLInputElement>(null),
     replaceIndex = useRef<number | null>(null);
   const content = (initial?.content || {}) as Row;
+  const form = useRef<HTMLFormElement>(null);
+  const [preview, setPreview] = useState<Product | null>(null);
+  const [draftText, setDraftText] = useState<Record<string, string>>({
+    description: String(initial?.description || ""),
+    descriptor: String(content.descriptor || ""),
+    shortDescription: String(content.shortDescription || ""),
+    detail_material: String((content.details as Row)?.material || ""),
+    detail_fit: String((content.details as Row)?.fit || ""),
+    detail_weight: String((content.details as Row)?.weight || ""),
+    detail_care: String((content.details as Row)?.care || ""),
+    highlights: Array.isArray(content.highlights)
+      ? content.highlights.join("\n")
+      : "",
+  });
   const [sizeGuide, setSizeGuide] = useState<SizeGuideRow[]>(
     (content.sizeGuide as SizeGuideRow[]) || [],
   );
@@ -188,6 +204,57 @@ export function ProductEditor({
     return () => window.removeEventListener("beforeunload", warn);
   }, [dirty]);
   const locked = busy || uploading || optionBusy;
+  const readyChecks = [
+    ["Product name", !!name.trim()],
+    ["Cover photo", images.length > 0],
+    ["Price", /^[0-9]+(\.[0-9]{1,2})?$/.test(price) && Number(price) > 0],
+    ["Active sizes", variants.some((v) => v.active && v.label.trim())],
+    ["Description", !!draftText.description.trim()],
+    [
+      "Material & care",
+      !!draftText.detail_material.trim() && !!draftText.detail_care.trim(),
+    ],
+  ] as const;
+  function openPreview() {
+    const active = variants.filter((v) => v.active);
+    const value = Number(price);
+    setPreview({
+      id: Number(initial?.id || 0),
+      name: name.trim() || "Untitled product",
+      slug,
+      price: Number.isFinite(value) ? value : 0,
+      category,
+      color,
+      descriptor: draftText.descriptor,
+      shortDescription: draftText.shortDescription || draftText.description,
+      about: draftText.description,
+      images: images.map((i) => i.src),
+      displayImage: images[0]?.src || "",
+      sizes: active.map((v) => v.label),
+      inStock: active.some((v) => v.stock === "" || Number(v.stock) > 0),
+      details: {
+        material: draftText.detail_material,
+        fit: draftText.detail_fit,
+        weight: draftText.detail_weight,
+        care: draftText.detail_care,
+      },
+      highlights: draftText.highlights
+        .split(/\r?\n/)
+        .map((s) => s.trim())
+        .filter(Boolean),
+      sizeGuide,
+      related: [],
+      rating: { value: 0, count: 0 },
+      variants: active.map((v, i) => ({
+        id: v.id || String(i),
+        label: v.label,
+        sku: v.sku,
+        price_centavos: Math.round((Number(v.price) || 0) * 100),
+        stock: v.stock === "" ? null : Number(v.stock),
+        active: true,
+      })),
+    });
+  }
   const changeVariant = (
     i: number,
     key: keyof Variant,
@@ -281,8 +348,20 @@ export function ProductEditor({
         retry={options.reload}
       />
       <ValidatedForm
+        ref={form}
         data-backend="true"
-        onChange={mark}
+        onChange={(e) => {
+          mark();
+          const data = new FormData(e.currentTarget);
+          setDraftText(
+            Object.fromEntries(
+              Object.keys(draftText).map((key) => [
+                key,
+                String(data.get(key) || ""),
+              ]),
+            ),
+          );
+        }}
         onSubmit={async (e) => {
           e.preventDefault();
           if (locked) return;
@@ -748,6 +827,7 @@ export function ProductEditor({
               Care instructions
               <textarea
                 name="detail_care"
+                className="resize-none"
                 rows={3}
                 maxLength={500}
                 defaultValue={String((content.details as Row)?.care || "")}
@@ -758,6 +838,7 @@ export function ProductEditor({
               Product highlights
               <textarea
                 name="highlights"
+                className="resize-none"
                 rows={3}
                 defaultValue={((content.highlights as string[]) || []).join(
                   "\n",
@@ -927,6 +1008,35 @@ export function ProductEditor({
           </details>
           <section className="studio-form-section">
             <h2>Publish</h2>
+            <div
+              className="studio-publish-checklist"
+              aria-label="Product readiness"
+            >
+              <h3>Before you publish</h3>
+              <p>
+                {readyChecks.filter(([, ready]) => ready).length} of{" "}
+                {readyChecks.length} content checks ready. Suggestions help
+                complete the listing; they don’t prevent saving.
+              </p>
+              <dl>
+                {readyChecks.map(([label, ready]) => (
+                  <div key={label}>
+                    <dt>{label}</dt>
+                    <dd data-ready={ready}>{ready ? "Ready" : "Add this"}</dd>
+                  </div>
+                ))}
+              </dl>
+              {!sizeGuide.length &&
+                ["tees", "hoodies"].includes(category.toLowerCase()) && (
+                  <p>Consider adding a size guide for this apparel item.</p>
+                )}
+              {variants.some((v) => v.active && v.stock === "") && (
+                <p>
+                  Some stock counts are unconfirmed. Merchandise ordering
+                  remains closed.
+                </p>
+              )}
+            </div>
             <label>
               Publication status
               <select
@@ -964,6 +1074,13 @@ export function ProductEditor({
                   : "Ready"}
           </span>
           <button
+            type="button"
+            onClick={openPreview}
+            disabled={locked || !images.length}
+          >
+            Preview product
+          </button>
+          <button
             type="submit"
             value="draft"
             disabled={locked || options.loading}
@@ -983,6 +1100,21 @@ export function ProductEditor({
           </button>
         </div>
       </ValidatedForm>
+      {preview && (
+        <Modal title="Product preview" onClose={() => setPreview(null)}>
+          <div className="studio-product-preview p2-shell">
+            <p className="p2-muted">
+              Your current edits · Nothing is saved or published by opening this
+              preview.
+            </p>
+            <details className="studio-preview-card">
+              <summary>Collection card preview</summary>
+              <ProductCard product={preview} preview />
+            </details>
+            <ProductDetail product={preview} preview />
+          </div>
+        </Modal>
+      )}
     </section>
   );
 }

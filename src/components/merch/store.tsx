@@ -9,26 +9,48 @@ import { Modal } from "../ui/modal";
 import { InterestView } from "../analytics-preferences";
 import { animateCartAddition } from "@/lib/cart-animation";
 import { groupMerchCollections } from "@/lib/merch-collections";
-function ProductCard({ product: p }: { product: Product }) {
+import { ContentImage } from "../ui/content-image";
+export function ProductCard({
+  product: p,
+  preview = false,
+}: {
+  product: Product;
+  preview?: boolean;
+}) {
+  const presentation = (
+    <>
+      <div className="p2-product-card__photo">
+        <ContentImage src={p.displayImage} alt={p.name} loading="lazy" />
+        <span>{p.category}</span>
+      </div>
+      <div className="p2-product-card__info">
+        <h3>{p.name}</h3>
+        <strong>{peso(p.price)}</strong>
+      </div>
+      {(p.color || p.descriptor) && (
+        <p>{[p.color, p.descriptor].filter(Boolean).join(" · ")}</p>
+      )}
+    </>
+  );
   return (
     <article className="p2-product-card">
-      <Link
-        className="p2-product-card__link"
-        href={`/merch/products/${p.slug}/`}
-      >
-        <div className="p2-product-card__photo">
-          <img src={p.displayImage} alt={p.name} loading="lazy" />
-          <span>{p.category}</span>
-        </div>
-        <div className="p2-product-card__info">
-          <h3>{p.name}</h3>
-          <strong>{peso(p.price)}</strong>
-        </div>
-        {(p.color || p.descriptor) && (
-          <p>{[p.color, p.descriptor].filter(Boolean).join(" · ")}</p>
-        )}
-      </Link>
-      <AddToBag product={p} compact image={p.displayImage} />
+      {preview ? (
+        <div className="p2-product-card__link">{presentation}</div>
+      ) : (
+        <Link
+          className="p2-product-card__link"
+          href={`/merch/products/${p.slug}/`}
+        >
+          {presentation}
+        </Link>
+      )}
+      {preview ? (
+        <p className="p2-muted">
+          {p.sizes.join(" · ") || "Add sizes in the editor"}
+        </p>
+      ) : (
+        <AddToBag product={p} compact image={p.displayImage} />
+      )}
     </article>
   );
 }
@@ -125,11 +147,11 @@ function AddToBag({
         disabled={!cart.loaded || !p.inStock}
         aria-label={
           compact
-            ? `${p.inStock ? "Add to bag" : "Currently unavailable"}: ${p.name}`
+            ? `${p.inStock ? "Add to cart" : "Currently unavailable"}: ${p.name}`
             : undefined
         }
       >
-        {p.inStock ? "Add to bag" : "Currently unavailable"}
+        {p.inStock ? "Add to cart" : "Currently unavailable"}
       </button>
     </ValidatedForm>
   );
@@ -282,7 +304,13 @@ export function Store() {
     </>
   );
 }
-export function ProductDetail({ product: p }: { product: Product }) {
+export function ProductDetail({
+  product: p,
+  preview = false,
+}: {
+  product: Product;
+  preview?: boolean;
+}) {
   const products = useCatalog();
   const [size, setSize] = useState(p.sizes.length === 1 ? p.sizes[0] : ""),
     [photo, setPhoto] = useState(0),
@@ -290,10 +318,12 @@ export function ProductDetail({ product: p }: { product: Product }) {
     [guide, setGuide] = useState(false);
   return (
     <>
-      <InterestView productId={p.id} />
-      <Link className="p2-back" href="/merch/">
-        ← The collection
-      </Link>
+      {!preview && <InterestView productId={p.id} />}
+      {!preview && (
+        <Link className="p2-back" href="/merch/">
+          ← The collection
+        </Link>
+      )}
       <div className="p2-product-detail">
         <section aria-label="Product photographs">
           <button
@@ -332,12 +362,38 @@ export function ProductDetail({ product: p }: { product: Product }) {
           <p className="p2-preview-label">
             Collection preview · Ordering opens soon
           </p>
-          <AddToBag
-            product={p}
-            image={p.images[photo]}
-            onSize={setSize}
-            onGuide={() => setGuide(true)}
-          />
+          {preview ? (
+            <div className="p2-form">
+              <label>
+                Size
+                <select value={size} onChange={(e) => setSize(e.target.value)}>
+                  <option value="">Select size</option>
+                  {p.sizes.map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              </label>
+              {!!p.sizeGuide?.length && (
+                <button
+                  type="button"
+                  className="p2-size-guide"
+                  onClick={() => setGuide(true)}
+                >
+                  View size guide ↗
+                </button>
+              )}
+              <p className="p2-muted">
+                Preview only · Cart actions are disabled.
+              </p>
+            </div>
+          ) : (
+            <AddToBag
+              product={p}
+              image={p.images[photo]}
+              onSize={setSize}
+              onGuide={() => setGuide(true)}
+            />
+          )}
           <details className="p2-product-accordion" open>
             <summary>About this piece</summary>
             <p>{p.about}</p>
@@ -374,21 +430,23 @@ export function ProductDetail({ product: p }: { product: Product }) {
           </details>
         </section>
       </div>
-      <section className="p2-related-products">
-        <h2>You might also like</h2>
-        <div className="p2-product-grid">
-          {products
-            .filter(
-              (product) =>
-                product.id !== p.id &&
-                (!p.related.length || p.related.includes(product.slug)),
-            )
-            .slice(0, 3)
-            .map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-        </div>
-      </section>
+      {!preview && (
+        <section className="p2-related-products">
+          <h2>You might also like</h2>
+          <div className="p2-product-grid">
+            {products
+              .filter(
+                (product) =>
+                  product.id !== p.id &&
+                  (!p.related.length || p.related.includes(product.slug)),
+              )
+              .slice(0, 3)
+              .map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+          </div>
+        </section>
+      )}
       {zoom && (
         <Modal title={p.name} onClose={() => setZoom(false)}>
           <img

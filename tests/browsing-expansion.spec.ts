@@ -215,7 +215,7 @@ test("merch has one cart, working filters and persistent additions", async ({
   await card
     .getByRole("combobox", { name: /^Size for/ })
     .selectOption({ index: 1 });
-  await card.getByRole("button", { name: /^Add to bag:/ }).click();
+  await card.getByRole("button", { name: /^Add to cart:/ }).click();
   await expect(
     page.getByRole("link", { name: /Open shopping cart 1 item/ }),
   ).toBeVisible();

@@ -294,7 +294,7 @@ export function AnalyticsPanel({
             columns={[
               { label: "Product", render: (r) => str(r.name) },
               { label: "Views", render: (r) => str(r.views) },
-              { label: "Bag additions", render: (r) => str(r.bag_additions) },
+              { label: "Cart additions", render: (r) => str(r.bag_additions) },
             ]}
           />
         </section>

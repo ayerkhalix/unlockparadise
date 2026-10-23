@@ -6,6 +6,7 @@ import type { Map as MapboxMap, LngLat, LngLatBounds } from "mapbox-gl";
 import staticMapData from "@/data/map.json";
 import { PlanningMap, type PlanningMapProps } from "./planning-map";
 import { labelMapControls } from "@/lib/map-accessibility";
+import { MapFeedback } from "./map-feedback";
 
 export interface MapConfiguration {
   areas: { name: string; slug: string; coords: number[]; desc: string }[];
@@ -56,10 +57,15 @@ export function AreaMap({
   const [selected, setSelected] = useState<Area | null>(initialArea || null);
   const [page, setPage] = useState(0);
   const [unavailable, setUnavailable] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   const drag = useRef({ x: 0, y: 0, dy: 0, axis: "", active: false });
 
   useEffect(() => {
     let disposed = false;
+    const timeout = setTimeout(() => {
+      if (!disposed) setUnavailable(true);
+    }, 20000);
     let map: MapboxMap | undefined;
     let glowFrame = 0;
     let overlayTimer: ReturnType<typeof setTimeout>;
@@ -162,6 +168,9 @@ export function AreaMap({
       });
       map.on("load", () => {
         if (!map || disposed) return;
+        clearTimeout(timeout);
+        setReady(true);
+        setUnavailable(false);
         container.current?.setAttribute("data-map-ready", "true");
         map.addSource("areas", {
           type: "geojson",
@@ -394,6 +403,7 @@ export function AreaMap({
     });
     return () => {
       disposed = true;
+      clearTimeout(timeout);
       clearTimeout(overlayTimer);
       clearTimeout(resizeTimer);
       cancelAnimationFrame(glowFrame);
@@ -404,7 +414,7 @@ export function AreaMap({
       mapRef.current = null;
       selectAreaRef.current = null;
     };
-  }, [mapData, compact]);
+  }, [mapData, compact, attempt]);
 
   function close() {
     setSelected(null);
@@ -509,7 +519,10 @@ export function AreaMap({
     </button>
   );
   return (
-    <div className={compact ? "p2-area-map-compact" : "p2-main-area-map"}>
+    <div
+      className={compact ? "p2-area-map-compact" : "p2-main-area-map"}
+      data-map-attempt={attempt}
+    >
       <div className="palawan-map-wrap" style={{ position: "relative" }}>
         <div
           id={compact ? undefined : "palawan-map"}
@@ -518,23 +531,29 @@ export function AreaMap({
           ref={container}
           aria-label="Interactive Palawan destination map"
         />
-        {unavailable && (
-          <p role="status" className="map-unavailable">
-            The satellite map is unavailable.{" "}
-            {compact ? (
-              "Choose an area below to keep exploring."
-            ) : (
-              <>
-                Browse an area:{" "}
-                {mapData.areas.map((area) => (
-                  <a key={area.slug} href={`/area/${area.slug}/`}>
-                    {area.name}
-                  </a>
-                ))}
-              </>
-            )}
-          </p>
-        )}
+        <MapFeedback
+          loading={!ready && !unavailable}
+          error={unavailable}
+          className="map-unavailable"
+          retry={() => {
+            setReady(false);
+            setUnavailable(false);
+            setAttempt((n) => n + 1);
+          }}
+        >
+          {compact ? (
+            "Choose an area below to keep exploring."
+          ) : (
+            <>
+              Browse an area:{" "}
+              {mapData.areas.map((area) => (
+                <a key={area.slug} href={`/area/${area.slug}/`}>
+                  {area.name}
+                </a>
+              ))}
+            </>
+          )}
+        </MapFeedback>
         {!compact && (
           <div className="upd-map-escape-dock">
             <a

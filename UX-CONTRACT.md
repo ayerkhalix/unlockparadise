@@ -144,3 +144,15 @@ TravelerTitle is the shared profile/survey display title; public review badges s
 Traveler glyphs use the original shared Icon component again across profile, survey result and public reviews. TravelerTitle retains the themed lettering and ambient animation; the separate icon remains static.
 
 The latest profile revision omits the standalone traveler icon only on the profile. Its primary View map action navigates to the homepage #palawan-map anchor. Stop times are right-aligned beside the destination on desktop (above controls on phones), remain editable in their existing time disclosure, and use the destination-title size. Stop notes have no disclosure: their labeled textbox and save action are visible immediately. Save failure preserves drafts, and day/trip changes still guard unsaved notes or times.
+
+## Usability refinements — 24 October 2026
+
+Admin data belongs to the exact resource/filter/reload request. Pending, failure and loaded-empty table states are mutually exclusive; a slow or failed request never implies that the dataset is empty. Shared tables remain bounded and the existing retry/login recovery controls apply. Recent activity and audit history use the same readable entity/action labels.
+
+Bucketlist and Portfolio retain the same routes, tabs and saved records. Their filters appear only when there are saved records, including when a filter yields no matches. Empty accounts get the existing Discover Palawan action directly after the tabs.
+
+The daily timeline sorts timed visits by start time for reading without changing saved stop order. Same-day overlapping windows are warnings, not blockers; touching endpoints and flexible visits are not overlaps. Adding and editing times retains existing server validation and owner/version checks. Print itinerary prints all saved days and notes, omits application chrome, and allows the browser's Save as PDF for offline use. Unsaved notes/times block the Print action with explicit save guidance. It creates no public share URL and performs no write or external upload.
+
+Product preview reads current unsaved editor values and uses the storefront components in preview mode. It never changes draft/publication state, adds cart items or records analytics. Existing form validation and publish confirmations apply. Content readiness checks are suggestions rather than new business requirements. Merchandise remains preview-only; the separate Xendit membership sandbox remains explicitly identified.
+
+Area and destination maps share loading/failure/retry feedback and keep keyboard/touch destination choices available during tile failures. Retry recreates only the failed map; selected-trip and saved-stop state are retained. Images reserve their existing geometry and show a photo-unavailable fallback instead of a broken-image icon.

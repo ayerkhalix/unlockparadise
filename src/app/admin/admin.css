@@ -1605,3 +1605,90 @@ body
     grid-template-columns: 1fr;
   }
 }
+
+/* Shared table pending state, publishing cues and storefront preview. */
+.studio-table-loading {
+  min-height: 210px;
+  padding: 20px 22px;
+  color: var(--studio-muted);
+}
+.studio-table-skeleton {
+  display: grid;
+  gap: 22px;
+  margin-top: 24px;
+}
+.studio-table-skeleton > div {
+  display: flex;
+  gap: 20px;
+}
+.studio-table-skeleton span {
+  height: 12px;
+  border-radius: 4px;
+  background: var(--studio-hover);
+  flex: 1;
+}
+.studio-table-skeleton span:first-child {
+  flex: 2;
+}
+.studio-publish-checklist {
+  margin: 16px 0 24px;
+  max-width: 650px;
+}
+.studio-publish-checklist dl {
+  margin: 12px 0;
+}
+.studio-publish-checklist dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--studio-line);
+}
+.studio-publish-checklist dd {
+  margin: 0;
+  color: var(--studio-warning-ink);
+}
+.studio-publish-checklist dd[data-ready="true"] {
+  color: var(--studio-success-ink);
+}
+.p2-modal:has(.studio-product-preview) {
+  width: min(1060px, calc(100% - 32px));
+  max-width: 1060px;
+}
+.studio-product-preview {
+  padding: 0;
+  --p2-text: var(--studio-ink);
+  --p2-muted: var(--studio-muted);
+  --p2-line: var(--studio-line);
+  --p2-teal: var(--studio-teal);
+  --p2-panel: var(--studio-surface);
+  --p2-navy: var(--studio-paper);
+}
+.studio-product-preview .p2-product-detail {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px;
+}
+.studio-product-preview .studio-preview-card {
+  margin: 16px 0 28px;
+}
+.studio-product-preview .studio-preview-card > summary {
+  min-height: 44px;
+  cursor: pointer;
+}
+.studio-product-preview .studio-preview-card .p2-product-card {
+  max-width: 300px;
+  margin-top: 16px;
+}
+@media (max-width: 800px) {
+  .studio-table-loading {
+    min-height: 180px;
+    padding: 16px;
+  }
+  .studio-product-preview .p2-product-detail {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .studio .studio-savebar {
+    gap: 8px;
+  }
+}

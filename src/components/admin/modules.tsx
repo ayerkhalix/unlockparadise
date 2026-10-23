@@ -23,6 +23,9 @@ import {
   Status,
   str,
   StudioTable,
+  StudioDataState,
+  activityRecord,
+  activityAction,
   useAdminData,
   type Row,
   type Column,
@@ -282,7 +285,7 @@ export function StudioModule({
     },
   ];
   return (
-    <>
+    <StudioDataState value={{ loading: state.loading, error: state.error }}>
       {dialog}
       {error && (
         <p role="alert" className="studio-error">
@@ -387,7 +390,7 @@ export function StudioModule({
                 )}
               </div>
               <p className="studio-note">
-                Merchandise checkout is closed. Bag additions are never counted
+                Merchandise checkout is closed. Cart additions are never counted
                 as sales.
               </p>
             </section>
@@ -401,11 +404,11 @@ export function StudioModule({
               { label: "When", render: (r) => date(r.at) },
               {
                 label: "Action",
-                render: (r) => str(r.action).toLowerCase().replaceAll("_", " "),
+                render: (r) => activityAction(r.action),
               },
               {
                 label: "Record",
-                render: (r) => str(r.table_name).replaceAll("_", " "),
+                render: (r) => activityRecord(r.table_name),
               },
               {
                 label: "Item",
@@ -835,6 +838,6 @@ export function StudioModule({
           }}
         />
       )}
-    </>
+    </StudioDataState>
   );
 }

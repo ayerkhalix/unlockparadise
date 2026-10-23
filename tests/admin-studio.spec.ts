@@ -490,7 +490,7 @@ test.describe("Phase 3 real staging Admin Studio", () => {
     await expect(
       page.getByRole("heading", { name, exact: true }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "Add to bag", exact: true }).click();
+    await page.getByRole("button", { name: "Add to cart", exact: true }).click();
     await page.goto("/merch/cart/");
     await expect(page.getByRole("main")).toContainText("123.45");
     const body2 = {
