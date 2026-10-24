@@ -156,6 +156,7 @@ export function ItineraryPlanner({
   onBusyChange: (busy: boolean) => void;
 }) {
   const dirtyNotes = useRef(new Set<string>());
+  const [exportMounted, setExportMounted] = useState(false);
   const mapPanel = useRef<HTMLElement>(null);
   const catalog = usePlanningCatalog();
   const [filters, setFilters] = useState<PlaceSearchFilters>({
@@ -349,7 +350,8 @@ export function ItineraryPlanner({
         <div className="p2-actions">
           <button
             className="p2-button p2-button--quiet"
-            disabled={busy}
+            disabled={busy || !exportMounted}
+            aria-busy={!exportMounted}
             onClick={() => {
               if (exportReady()) downloadItinerary(trip.title);
             }}
@@ -358,7 +360,8 @@ export function ItineraryPlanner({
           </button>
           <button
             className="p2-button p2-button--quiet"
-            disabled={busy}
+            disabled={busy || !exportMounted}
+            aria-busy={!exportMounted}
             onClick={() => {
               if (exportReady()) window.print();
             }}
@@ -728,7 +731,7 @@ export function ItineraryPlanner({
           />
         </Modal>
       )}
-      <PrintableItinerary trip={trip} />
+      <PrintableItinerary trip={trip} onReady={setExportMounted} />
     </>
   );
 }

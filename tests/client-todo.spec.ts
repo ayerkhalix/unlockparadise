@@ -329,7 +329,26 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
   let trip = (await made.json()).data as Trip;
   try {
     const day = trip.itinerary_days[1];
-    await page.goto(`/itineraries/?trip=${trip.id}&day=${day.id}`);
+    let allowHydration!: () => void;
+    const hydration = new Promise<void>((resolve) => {
+      allowHydration = resolve;
+    });
+    const scripts = /\/_next\/static\/.*\.js(?:\?|$)/;
+    await page.route(scripts, async (route) => {
+      await hydration;
+      await route.continue();
+    });
+    await page.goto(`/itineraries/?trip=${trip.id}&day=${day.id}`, {
+      waitUntil: "commit",
+    });
+    const exportButton = page.getByRole("button", {
+      name: "Download trip",
+      exact: true,
+    });
+    await expect(exportButton).toBeDisabled();
+    allowHydration();
+    await page.unroute(scripts);
+    await expect(exportButton).toBeEnabled();
     await page
       .getByRole("button", { name: "Explore destinations", exact: true })
       .click();
@@ -379,7 +398,7 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       .click();
     await expect(page.locator(".p2-stop")).toHaveCount(1);
     await expect(page.locator(".p2-stop")).toContainText("8:00 AM");
-    const download = page.waitForEvent("download");
+    const download = page.waitForEvent("download", { timeout: 20000 });
     await page
       .getByRole("button", { name: "Download trip", exact: true })
       .click();
@@ -430,8 +449,10 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
     await shot(page, "planner-plan");
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   } finally {
+    test.setTimeout(test.info().timeout + 30000);
     const latest = await context.request.get(
       `${base}/api/v1/itineraries/${trip.id}/`,
+      { timeout: 20000 },
     );
     if (latest.ok()) {
       trip = (await latest.json()).data;

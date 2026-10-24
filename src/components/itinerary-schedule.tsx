@@ -8,7 +8,7 @@ import {
 } from "@/lib/planning";
 import { itineraryBrand } from "@/lib/itinerary-brand";
 import { overlappingStops } from "@/lib/itinerary-schedule";
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 const subscribe = () => () => {};
 const clientSnapshot = () => true;
@@ -63,12 +63,22 @@ export function DaySchedule({
 }
 
 /** Text-only, already-authorized trip data stays in this document; no public share or export endpoint. */
-export function PrintableItinerary({ trip }: { trip: Trip }) {
+export function PrintableItinerary({
+  trip,
+  onReady,
+}: {
+  trip: Trip;
+  onReady?: (ready: boolean) => void;
+}) {
   const mounted = useSyncExternalStore(
     subscribe,
     clientSnapshot,
     serverSnapshot,
   );
+  useEffect(() => {
+    if (mounted) onReady?.(true);
+    return () => onReady?.(false);
+  }, [mounted, onReady]);
   if (!mounted) return null;
   return createPortal(
     <article className="p2-print-itinerary" aria-label="Printable itinerary">
