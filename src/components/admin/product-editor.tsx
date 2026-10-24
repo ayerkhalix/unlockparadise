@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { useEffect, useRef, useState } from "react";
 import { ValidatedForm } from "../ui/validated-form";
 import { useDecision } from "../ui/decision";
@@ -612,7 +614,7 @@ export function ProductEditor({
             <div className="product-photo-grid">
               {images.map((image, i) => (
                 <div className="product-photo" key={image.src + ":" + i}>
-                  <img
+                  <ContentImage
                     src={image.src}
                     alt={image.alt || "Product preview"}
                     width={240}

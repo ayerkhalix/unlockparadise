@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-24T10:56:03.3384456Z",
+  "generatedAt": "2026-10-24T16:16:35.487407+00:00",
   "title": "Design System: Unlock Paradise",
   "extensions": {
     "colorMeta": {
@@ -659,7 +659,7 @@
       },
       "studio-heading": {
         "displayName": "Studio heading",
-        "purpose": "Scoped Studio module/editor title at 30–40px/500, 30px at 800px and below; MFA keeps its separate 28–36px/600 heading."
+        "purpose": "Scoped Studio module/editor title at 30\u201340px/500, 30px at 800px and below; MFA keeps its separate 28\u201336px/600 heading."
       },
       "studio-body": {
         "displayName": "Studio body",
@@ -770,7 +770,7 @@
       {
         "name": "studio-photo-arrow",
         "value": "250ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Photo editor arrow moves 2px; section and ledger arrows move 3px over 150–160ms. Reduced motion makes transitions immediate."
+        "purpose": "Photo editor arrow moves 2px; section and ledger arrows move 3px over 150\u2013160ms. Reduced motion makes transitions immediate."
       },
       {
         "name": "studio-navigation",
@@ -879,7 +879,7 @@
       "kind": "card",
       "refersTo": "featured-card",
       "description": "Source-derived body/action excerpt; the token preview omits the existing destination photograph.",
-      "html": "<article class=\"ds-featured\"><div class=\"ds-featured-body\"><a class=\"ds-featured-name\" href=\"#\">Place name</a><p class=\"ds-featured-meta\">Category · Travel time</p></div><button class=\"ds-featured-action\">Add to itinerary</button></article>",
+      "html": "<article class=\"ds-featured\"><div class=\"ds-featured-body\"><a class=\"ds-featured-name\" href=\"#\">Place name</a><p class=\"ds-featured-meta\">Category \u00b7 Travel time</p></div><button class=\"ds-featured-action\">Add to itinerary</button></article>",
       "css": ".ds-featured{display:flex;flex-direction:column;min-width:0;background:#fff;border-radius:16px;overflow:hidden;font-family:\"Open Sans\",sans-serif}.ds-featured-body{display:block;padding:var(--p2-card-inset,20px)}.ds-featured-name{color:#11202a;font-weight:600;font-size:1.05rem;text-decoration:none}.ds-featured-name:hover{text-decoration:underline}.ds-featured-meta{display:flex;gap:16px;margin:10px 0 0;color:#45606f;font-size:.82rem}.ds-featured-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;border:1px solid transparent;border-radius:10px;padding:11px 18px;font:600 14px/1.4 \"Open Sans\",sans-serif;text-decoration:none;cursor:pointer;white-space:normal;text-align:center;transition:background .18s,border-color .18s,box-shadow .18s;align-self:start;margin:0 var(--p2-card-inset,20px) var(--p2-card-inset,20px);font-size:12px;color:#123d3e;border-color:#567575;background:transparent}.ds-featured-action:hover{background:#e7eee7}.ds-featured-action:active{box-shadow:inset 0 0 0 2px #ffffff50}.ds-featured :is(a,button):focus-visible{outline:3px solid var(--p2-teal,#83d9c6);outline-offset:4px;}@media(prefers-reduced-motion:reduce){.ds-featured-action{transition:none}}"
     },
     {
@@ -974,7 +974,7 @@
       },
       {
         "name": "The Product Selection Rule",
-        "body": "Brand → Collection → Products is the durable catalog hierarchy. Admin selects existing categories, colors, sizes, brands and collections; an adjacent inline Add action creates a reusable option without leaving the product form. The product editor groups Product details, Photos, Options & pricing, Advanced and Publish in document flow. Photos belong to the current editor: upload/add, preview, make cover, reorder, replace and remove. There is no cross-product media picker. Upload feedback stays inline, successful partial uploads remain attached, and save is disabled while uploading. Slugs and SKUs are suggested but editable.",
+        "body": "Brand \u2192 Collection \u2192 Products is the durable catalog hierarchy. Admin selects existing categories, colors, sizes, brands and collections; an adjacent inline Add action creates a reusable option without leaving the product form. The product editor groups Product details, Photos, Options & pricing, Advanced and Publish in document flow. Photos belong to the current editor: upload/add, preview, make cover, reorder, replace and remove. There is no cross-product media picker. Upload feedback stays inline, successful partial uploads remain attached, and save is disabled while uploading. Slugs and SKUs are suggested but editable.",
         "section": "components"
       },
       {
@@ -994,7 +994,7 @@
       },
       {
         "name": "The Inclusive Trip Rule",
-        "body": "Trip creation uses start/end dates and an inclusive derived duration. An undated new trip starts with one day. Add day remains in the planner and extends a dated trip’s end date; occupied days cannot be removed by shortening dates. Profile/navigation, photos and native choices retain the shared validation, focus and theme contracts.",
+        "body": "Trip creation uses start/end dates and an inclusive derived duration. An undated new trip starts with one day. Add day remains in the planner and extends a dated trip\u2019s end date; occupied days cannot be removed by shortening dates. Profile/navigation, photos and native choices retain the shared validation, focus and theme contracts.",
         "section": "components"
       }
     ],

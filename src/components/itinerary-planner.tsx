@@ -157,12 +157,11 @@ export function ItineraryPlanner({
 }) {
   const dirtyNotes = useRef(new Set<string>());
   const [exportMounted, setExportMounted] = useState(false);
+  const [trip, setTrip] = useState(initial);
   const mapPanel = useRef<HTMLElement>(null);
-  const catalog = usePlanningCatalog();
+  const catalog = usePlanningCatalog(initial.id, trip.area_id);
   const [filters, setFilters] = useState<PlaceSearchFilters>({
     search: "",
-    area: "",
-    category: "",
   });
   const router = useRouter();
   const [adding, setAdding] = useState<TravelPlace | null>(null);
@@ -176,21 +175,16 @@ export function ItineraryPlanner({
   };
   const filteredPlaces = useMemo(
     () =>
-      catalog.places.filter(
-        (p) =>
-          (!filters.category ||
-            p.category.split(" · ").includes(filters.category)) &&
-          (!filters.area || p.area.split(" · ").includes(filters.area)) &&
-          p.title
-            .toLocaleLowerCase()
-            .includes(filters.search.trim().toLocaleLowerCase()),
+      catalog.places.filter((p) =>
+        p.title
+          .toLocaleLowerCase()
+          .includes(filters.search.trim().toLocaleLowerCase()),
       ),
     [catalog.places, filters],
   );
   const requestedDay = useSearchParams().get("day");
   const { ask, dialog } = useDecision();
-  const [trip, setTrip] = useState(initial),
-    [edit, setEdit] = useState(false),
+  const [edit, setEdit] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [view, setView] = useState("plan"),
@@ -284,6 +278,11 @@ export function ItineraryPlanner({
   };
   const exploreMap = async () => {
     if (busy) return;
+    if (!trip.area_id) {
+      setEdit(true);
+      notify("Choose an area for this trip first.");
+      return;
+    }
     if (
       dirtyNotes.current.size &&
       !(await ask(
@@ -342,9 +341,10 @@ export function ItineraryPlanner({
         <div>
           <span className="p2-eyebrow">
             {tripDateLabel(trip.start_date, trip.end_date)} ·{" "}
-            {trip.itinerary_days.length} days
+            {trip.itinerary_days.length} {trip.itinerary_days.length === 1 ? "day" : "days"}
           </span>
           <h1>{trip.title}</h1>
+          {trip.areas && <p className="p2-muted">{trip.areas.name}</p>}
           {trip.notes && <p className="p2-trip-notes">{trip.notes}</p>}
         </div>
         <div className="p2-actions">
@@ -486,14 +486,6 @@ export function ItineraryPlanner({
               ? `Moving ${stops.find((s) => s.id === drag.id)?.place?.title || "destination"}. Position ${stops.findIndex((s) => s.id === drag.over) + 1} of ${stops.length}. Release to save, or Escape to cancel.`
               : ""}
           </p>
-          <DaySchedule
-            stops={stops}
-            onStop={(id) => {
-              const el = document.getElementById(`stop-${id}`);
-              el?.scrollIntoView({ block: "center" });
-              el?.focus({ preventScroll: true });
-            }}
-          />
           <fieldset disabled={busy} className="p2-fieldset" aria-busy={busy}>
             <ol className="p2-stops">
               {stops.map((item, index) => (
@@ -540,7 +532,7 @@ export function ItineraryPlanner({
                   <div className="p2-stop-body">
                     <div className="p2-stop-heading">
                       {item.place?.image && (
-                        <ContentImage
+                        <ContentImage sizes="96px"
                           src={item.place.image}
                           alt=""
                           loading="lazy"
@@ -598,28 +590,49 @@ export function ItineraryPlanner({
               ))}
             </ol>
           </fieldset>
+          <DaySchedule
+            stops={stops}
+            onStop={(id) => {
+              const el = document.getElementById(`stop-${id}`);
+              el?.scrollIntoView({ block: "center" });
+              el?.focus({ preventScroll: true });
+            }}
+          />
           {!stops.length && (
             <p className="p2-muted">
               No stops yet. Find your first destination below. Your plan saves
               as you go.
             </p>
           )}
-          <PlaceSearch
-            catalog={catalog}
-            filtered={filteredPlaces}
-            filters={filters}
-            onFiltersChange={(values) =>
-              setFilters((current) => ({ ...current, ...values }))
-            }
-            onExploreMap={exploreMap}
-            day={dayLabel(day, trip.start_date)}
-            busy={busy}
-            addedPlaceIds={stops.map((s) => s.place_id)}
-            onAdd={async (p) => {
-              chooseStop(p);
-              return true;
-            }}
-          />
+          {!trip.area_id ? (
+            <div className="p2-empty">
+              <h3>Choose your trip area</h3>
+              <p>
+                Your existing stops are saved. Choose one area before adding
+                destinations.
+              </p>
+              <button className="p2-button" onClick={() => setEdit(true)}>
+                Choose area
+              </button>
+            </div>
+          ) : (
+            <PlaceSearch
+              catalog={catalog}
+              filtered={filteredPlaces}
+              filters={filters}
+              onFiltersChange={(values) =>
+                setFilters((current) => ({ ...current, ...values }))
+              }
+              onExploreMap={exploreMap}
+              day={dayLabel(day, trip.start_date)}
+              busy={busy}
+              addedPlaceIds={stops.map((s) => s.place_id)}
+              onAdd={async (p) => {
+                chooseStop(p);
+                return true;
+              }}
+            />
+          )}
         </section>
         <aside
           ref={mapPanel}
@@ -635,9 +648,6 @@ export function ItineraryPlanner({
             >
               Add destination
             </button>
-            <a className="p2-back" href="/#palawan-map">
-              Open main map ↗
-            </a>
           </div>
           {
             <PalawanMap

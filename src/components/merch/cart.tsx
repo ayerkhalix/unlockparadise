@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { useDecision } from "../ui/decision";
 import { createContext, useContext, useSyncExternalStore } from "react";
 import Link from "next/link";
@@ -324,7 +326,7 @@ export function CartPage() {
                   tabIndex={-1}
                   aria-hidden="true"
                 >
-                  <img src={i.product.displayImage} alt="" />
+                  <ContentImage sizes="96px" src={i.product.displayImage} alt="" />
                 </Link>
                 <div>
                   <h2>

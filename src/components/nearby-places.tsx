@@ -1,3 +1,4 @@
+import { ContentImage } from "@/components/ui/content-image";
 import { serverSupabase } from "@/lib/supabase/server";
 import { databaseError } from "@/lib/http";
 import {
@@ -46,7 +47,7 @@ export async function NearbyPlaces({ placeId }: { placeId: string }) {
                   rel="noopener noreferrer"
                   aria-label={`View ${place.name} on Google Maps`}
                 >
-                  <img
+                  <ContentImage
                     src={google.photo}
                     alt=""
                     loading="lazy"

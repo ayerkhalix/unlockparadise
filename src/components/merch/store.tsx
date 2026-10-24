@@ -184,7 +184,7 @@ export function Store() {
         </div>
         {products[0] && (
           <figure>
-            <img
+            <ContentImage
               src={products[0].displayImage}
               alt={`${products[0].name}, ${products[0].color}`}
               fetchPriority="high"
@@ -331,7 +331,7 @@ export function ProductDetail({
             aria-label={`Enlarge ${p.name} photo ${photo + 1}`}
             onClick={() => setZoom(true)}
           >
-            <img src={p.images[photo]} alt={`${p.name}, view ${photo + 1}`} />
+            <ContentImage src={p.images[photo]} alt={`${p.name}, view ${photo + 1}`} />
           </button>
           <div className="p2-product-thumbs">
             {p.images.map((src, i) => (
@@ -341,7 +341,7 @@ export function ProductDetail({
                 aria-pressed={photo === i}
                 onClick={() => setPhoto(i)}
               >
-                <img src={src} alt="" />
+                <ContentImage src={src} alt="" />
               </button>
             ))}
           </div>
@@ -449,7 +449,7 @@ export function ProductDetail({
       )}
       {zoom && (
         <Modal title={p.name} onClose={() => setZoom(false)}>
-          <img
+          <ContentImage
             className="p2-product-zoom"
             src={p.images[photo]}
             alt={`${p.name}, view ${photo + 1}`}

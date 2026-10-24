@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { ContentImage } from "@/components/ui/content-image";
 import { useEffect, useRef } from "react";
 import { loadBrowserAsset } from "@/lib/browser-assets";
 
@@ -54,9 +55,9 @@ export function Gallery({ images, title }: { images:string[]; title:string }) {
   if(!images.length)return null;
   return <div className="upd-gallery upd-gallery--inline" data-photo-count={images.length} ref={root} aria-label={`${title} gallery`}>
     <div className="upd-gallery__main swiper">
-      <div className="swiper-wrapper">{images.map((url,i)=><div className="swiper-slide" key={`${i}:${url}`}><a className="glightbox upd-gallery__slide-link" href={url} data-gallery="place-gallery" aria-label={`Open photo ${i+1} of ${images.length}`}><img className="upd-gallery__photo" src={url} alt={`${title}, photo ${i+1}`} loading={i===0?"eager":"lazy"} /></a></div>)}</div>
+      <div className="swiper-wrapper">{images.map((url,i)=><div className="swiper-slide" key={`${i}:${url}`}><a className="glightbox upd-gallery__slide-link" href={url} data-gallery="place-gallery" aria-label={`Open photo ${i+1} of ${images.length}`}><ContentImage sizes="(max-width: 900px) 100vw, 900px" className="upd-gallery__photo" src={url} alt={`${title}, photo ${i+1}`} loading={i===0?"eager":"lazy"} /></a></div>)}</div>
       {images.length>1&&<><button type="button" className="upd-gallery__arrow upd-gallery__arrow--prev" aria-label="Previous slide" /><button type="button" className="upd-gallery__arrow upd-gallery__arrow--next" aria-label="Next slide" /></>}
     </div>
-    {images.length>1&&<div className="upd-gallery__thumbs swiper"><div className="swiper-wrapper">{images.map((url,i)=><div className="swiper-slide" key={`${i}:${url}`} role="button" tabIndex={0} aria-label={`Show photo ${i+1}`} onKeyDown={event=>{if(event.key==="Enter"||event.key===" ")event.currentTarget.click();}}><img src={url} alt="" loading="lazy" /></div>)}</div></div>}
+    {images.length>1&&<div className="upd-gallery__thumbs swiper"><div className="swiper-wrapper">{images.map((url,i)=><div className="swiper-slide" key={`${i}:${url}`} role="button" tabIndex={0} aria-label={`Show photo ${i+1}`} onKeyDown={event=>{if(event.key==="Enter"||event.key===" ")event.currentTarget.click();}}><ContentImage sizes="80px" src={url} alt="" loading="lazy" /></div>)}</div></div>}
   </div>;
 }

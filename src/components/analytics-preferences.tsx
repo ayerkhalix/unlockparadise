@@ -25,7 +25,7 @@ export function AnalyticsPreferences() {
       setError("");
     } else {
       setError(
-        "Your browser cannot save this preference. Optional analytics stays off.",
+        "Your browser cannot save this preference. Optional cookies will stay off.",
       );
     }
     window.dispatchEvent(new Event("upd:analytics-consent"));
@@ -50,13 +50,12 @@ export function AnalyticsPreferences() {
       {open && (
         <Modal title="Cookies & privacy" onClose={() => setOpen(false)}>
           <p>
-            Essential cookies keep your sign-in working. Browser storage also
-            remembers your cart and privacy choices. These features do not
-            require optional analytics.
+            Some cookies keep you signed in and remember your cart and privacy
+            choices. These always work, whichever option you choose.
           </p>
           <p>
             Help us understand which Places and products people explore.
-            Analytics is off unless you allow it.
+            Optional cookies help us do this. They stay off unless you accept them.
           </p>
           <p>
             We collect event names, Place/product references and a random
@@ -66,16 +65,16 @@ export function AnalyticsPreferences() {
             automated tests disable tracking.
           </p>
           <p>
-            Do Not Track and Global Privacy Control keep analytics off even if
+            Do Not Track and Global Privacy Control keep optional cookies off even if
             you previously allowed it.
           </p>
           <p>
             <a href="/privacy-policy/">Read our Privacy Policy</a>
           </p>
           <p>
-            Current analytics preference:{" "}
+            Optional cookies:{" "}
             {value === "allowed"
-              ? "Allowed (subject to browser privacy settings)"
+              ? "Accepted (subject to browser privacy settings)"
               : "Off"}
             . You can change it here at any time.
           </p>
@@ -85,10 +84,10 @@ export function AnalyticsPreferences() {
               className="p2-button p2-button--quiet"
               onClick={() => choose(false)}
             >
-              Keep analytics off
+              No thanks
             </button>
             <button className="p2-button" onClick={() => choose(true)}>
-              Allow analytics
+              Accept cookies
             </button>
           </div>
           {error && <p role="alert">{error}</p>}
@@ -108,8 +107,9 @@ function CookieNotice({
     <Modal title="Cookies & privacy" onClose={() => onChoose(false)}>
       <div className="cookie-dialog">
         <p>
-          Essential cookies keep you signed in and remember your cart. Optional
-          analytics stays off unless you allow it.
+          We use cookies to keep you signed in and remember your cart. With your
+          permission, we also use cookies to understand how the site is used and
+          make it better.
         </p>
         <a href="/privacy-policy/">Read our Privacy Policy</a>
         <div className="p2-actions">
@@ -119,14 +119,14 @@ function CookieNotice({
             className="p2-button p2-button--quiet"
             onClick={() => onChoose(false)}
           >
-            Essential only
+            No thanks
           </button>
           <button
             type="button"
             className="p2-button p2-button--quiet"
             onClick={() => onChoose(true)}
           >
-            Allow analytics
+            Accept cookies
           </button>
         </div>
         <button type="button" className="p2-back" onClick={onManage}>

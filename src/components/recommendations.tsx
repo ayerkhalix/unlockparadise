@@ -1,3 +1,4 @@
+import { ContentImage } from "@/components/ui/content-image";
 import { serverSupabase } from "@/lib/supabase/server";
 import { databaseError } from "@/lib/http";
 import { planningPlace } from "@/lib/repositories/planning";
@@ -30,7 +31,7 @@ export async function Recommendations({ placeId }: { placeId: string }) {
         {cards.map(({ place: p, type, excerpt }) => (
           <article className="p2-recommendation" key={p!.id}>
             <a className="p2-recommendation__link" href={`/place/${p!.slug}/`}>
-              {p!.image && <img src={p!.image} alt="" loading="lazy" />}
+              {p!.image && <ContentImage sizes="96px" src={p!.image} alt="" loading="lazy" />}
               <div>
                 <span className="p2-eyebrow">{type || p!.category}</span>
                 <h3>{p!.title}</h3>

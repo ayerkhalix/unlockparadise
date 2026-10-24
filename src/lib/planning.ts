@@ -18,6 +18,7 @@ export const tripInput = z
     start_date: z.iso.date().nullable(),
     end_date: z.iso.date().nullable(),
     day_count: z.number().int().min(1).max(60),
+    area_id: z.uuid().optional(),
   })
   .refine(
     (v) =>
@@ -31,6 +32,7 @@ export const tripInput = z
       path: ["end_date"],
     },
   );
+export const newTripInput = tripInput.and(z.object({ area_id: z.uuid() }));
 const id = z.string().uuid();
 const localTime = z
   .string()
@@ -99,6 +101,7 @@ export const planMutation = z
   .and(z.object({ version: z.number().int().min(1) }));
 
 export type TravelPlace = {
+  areaIds?: string[];
   accessibility?: string[];
   travelMinutes?: number | null;
   id: string;
@@ -124,6 +127,8 @@ export type TripItem = {
 };
 export type Trip = {
   id: string;
+  area_id?: string | null;
+  areas?: { id: string; name: string; slug: string } | null;
   title: string;
   notes: string;
   start_date: string | null;

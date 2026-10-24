@@ -21,6 +21,19 @@ export default async function Page({
     }
   }
   if (selected) {
+    if (!selected.area_id)
+      return (
+        <section className="p2-empty">
+          <h1>Choose your trip area first</h1>
+          <p>
+            Open Edit trip and choose one area. Your existing stops will stay
+            saved.
+          </p>
+          <a className="p2-button" href={`/itineraries/?trip=${selected.id}`}>
+            Back to your trip
+          </a>
+        </section>
+      );
     const day =
       selected.itinerary_days.find((day) => day.id === query.day) ||
       selected.itinerary_days[0];

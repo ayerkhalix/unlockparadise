@@ -140,8 +140,9 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   margin-right: auto;
 }
 .p2-planning-map .p2-map-browser {
-  top: calc(var(--p2-map-feedback-height, 58px) + 14px);
-  max-height: calc(100% - var(--p2-map-feedback-height, 58px) - 64px);
+  top: calc(var(--p2-map-feedback-height, 0px) + 8px);
+  left: 8px;
+  max-height: calc(100% - var(--p2-map-feedback-height, 0px) - 56px);
 }
 .access-map-marker__label {
   visibility: hidden;
@@ -161,6 +162,35 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
 .destination-directions h3,
 .access-location-list h3 {
   font-size: 21px;
+}
+.destination-map-links {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+.destination-map-links > div {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.destination-map-links dt {
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.destination-map-links dd {
+  margin: 0;
+  min-width: 0;
+}
+.destination-map-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.destination-map-links dd p {
+  margin: 0 0 12px;
+  color: var(--p2-muted);
 }
 .p2-account-page .upd-profile__band {
   display: none;
@@ -298,6 +328,46 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
 .planner-browser-bar .p2-button {
   flex-shrink: 0;
 }
+.planner-browser-day {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--p2-muted);
+}
+.planner-browser-day select {
+  min-height: 44px;
+  width: min(100%, 300px);
+  padding: 8px 12px;
+  border: 1px solid var(--p2-line);
+  border-radius: 8px;
+  background: var(--p2-navy);
+  color: var(--p2-text);
+  font-size: 15px;
+}
+/* Crop the spare sky above the mountain; retain the shoreline and walker. */
+.upd-about__body .upd-about__plate:has(img[src*="IMG_5678"]) {
+  width: min(100%, var(--upd-about-measure));
+  margin-inline: auto;
+  aspect-ratio: 1290 / 1680;
+}
+.upd-about__body .upd-about__plate:has(img[src*="IMG_5678"]) img {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  max-width: none;
+}
+.upd-about__body .upd-about__plate:has(img[src*="IMG_5678"])::after {
+  background: linear-gradient(
+    180deg,
+    var(--upd-about-sea) 0%,
+    transparent 12%,
+    transparent 82%,
+    var(--upd-about-sea) 100%
+  );
+}
 .planner-category-tabs {
   display: flex;
   overflow: auto;
@@ -318,10 +388,12 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   font-size: 14px;
   cursor: pointer;
 }
-.planner-category-tabs button:hover {
+.planner-browser .planner-category-tabs button:is(:hover, :focus-visible) {
   background: var(--p2-panel);
+  color: var(--p2-text);
+  border-color: var(--p2-teal);
 }
-.planner-category-tabs button[aria-pressed="true"] {
+.planner-browser .planner-category-tabs button[aria-pressed="true"] {
   background: var(--p2-teal);
   color: var(--p2-on-teal);
   border-color: var(--p2-teal);
@@ -363,7 +435,7 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
 }
 .planner-browser-filters {
   display: grid;
-  grid-template-columns: minmax(200px, 2fr) repeat(4, minmax(120px, 1fr));
+  grid-template-columns: minmax(200px, 2fr) repeat(3, minmax(120px, 1fr));
   align-items: end;
   gap: 12px;
 }

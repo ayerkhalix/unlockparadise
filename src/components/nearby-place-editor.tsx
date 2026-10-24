@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { requestJSON } from "@/lib/client-api";
 import {
@@ -199,7 +201,7 @@ function NearbyRow({
             <div className="nearby-editor__match" key={p.id}>
               <figure>
                 {p.photo && (
-                  <img src={p.photo} alt="" width={160} height={112} />
+                  <ContentImage src={p.photo} alt="" width={160} height={112} />
                 )}
                 <GoogleAttribution place={p} />
               </figure>

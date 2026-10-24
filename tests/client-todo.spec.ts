@@ -170,14 +170,12 @@ test("compact cookie choices preserve consent and keyboard behavior", async ({
   await page.goto("/join/");
   const dialog = page.getByRole("dialog", { name: "Cookies & privacy" });
   await expect(
-    dialog.getByRole("button", { name: "Essential only", exact: true }),
+    dialog.getByRole("button", { name: "No thanks", exact: true }),
   ).toBeVisible();
   const size = await dialog.boundingBox();
   expect(size!.height).toBeLessThan(650);
   await shot(page, "cookies");
-  await dialog
-    .getByRole("button", { name: "Essential only", exact: true })
-    .click();
+  await dialog.getByRole("button", { name: "No thanks", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await page.reload();
   await expect(page.getByRole("dialog")).toHaveCount(0);
@@ -186,7 +184,7 @@ test("compact cookie choices preserve consent and keyboard behavior", async ({
     .click();
   await expect(
     page.getByRole("dialog", { name: "Cookies & privacy" }),
-  ).toContainText("Current analytics preference");
+  ).toContainText("Optional cookies");
 });
 
 test("Explorer card actions show the upgrade hook without granting access", async ({
@@ -230,12 +228,17 @@ test("profile edits are compact, persist, recover from failure and protect draft
   await expect(
     page.getByRole("button", { name: "Change profile photo", exact: true }),
   ).toHaveCount(0);
+  await expect(page.locator(".upd-stats li")).toHaveCount(2);
+  await expect(page.locator(".upd-stats")).not.toContainText("Areas explored");
   await shot(page, "profile");
   await page.getByRole("button", { name: "Edit profile", exact: true }).click();
   const editor = page.getByRole("dialog", {
     name: "Edit profile",
     exact: true,
   });
+  await expect(
+    editor.getByRole("button", { name: "Remove photo", exact: true }),
+  ).toHaveCount(0);
   const field = editor.getByLabel("Name", { exact: true });
   const original = await field.inputValue();
   await field.fill("Synthetic unsaved profile");
@@ -315,10 +318,19 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
 }) => {
   test.setTimeout(120000);
   await signIn(context, "explorerplus2@paradise.com");
+  const places = (
+    await (
+      await context.request.get(
+        base + "/api/v1/planning-places/?search=Tagkawayan",
+      )
+    ).json()
+  ).data;
+  const areaId = places[0].areaIds[0];
   const made = await context.request.post(base + "/api/v1/itineraries/", {
     headers: origin,
     data: {
       title: "[TEST] Client todo itinerary",
+      area_id: areaId,
       notes: "Synthetic release check",
       start_date: "2026-11-03",
       end_date: "2026-11-04",
@@ -360,6 +372,32 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       page.locator(".planner-destination-card").first(),
     ).toBeVisible();
     await expect(page.locator(".p2-floating")).toHaveCount(0);
+    const scoped = await context.request.get(
+      `${base}/api/v1/planning-places/?trip=${trip.id}&area=el-nido`,
+    );
+    const areaPlaces = (await scoped.json()).data;
+    expect(areaPlaces.length).toBeGreaterThan(0);
+    expect(
+      areaPlaces.every((p: { areaIds: string[] }) =>
+        p.areaIds.includes(areaId),
+      ),
+    ).toBe(true);
+    const dayChoice = page.getByRole("combobox", {
+      name: "Itinerary day",
+      exact: true,
+    });
+    await expect(dayChoice).toHaveValue(day.id);
+    await dayChoice.selectOption(trip.itinerary_days[0].id);
+    await expect(
+      page.getByRole("link", { name: "View final itinerary", exact: true }),
+    ).toHaveAttribute("href", new RegExp(trip.itinerary_days[0].id));
+    const category = page.locator(".planner-category-tabs button").nth(1);
+    await category.hover();
+    const contrast = await category.evaluate((el) => ({
+      text: getComputedStyle(el).color,
+      background: getComputedStyle(el).backgroundColor,
+    }));
+    expect(contrast.text).not.toBe(contrast.background);
     await page
       .getByLabel("Search destinations", { exact: true })
       .fill("Tagkawayan");
@@ -372,6 +410,9 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       .getByRole("button", { name: "Add to itinerary", exact: true })
       .click();
     const modal = page.getByRole("dialog");
+    await modal
+      .getByRole("combobox", { name: "Add to day", exact: true })
+      .selectOption(day.id);
     await modal.locator('input[type="time"]').nth(0).fill("08:00");
     await modal.locator('input[type="time"]').nth(1).fill("10:00");
     await modal
@@ -398,6 +439,19 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       .click();
     await expect(page.locator(".p2-stop")).toHaveCount(1);
     await expect(page.locator(".p2-stop")).toContainText("8:00 AM");
+    expect(
+      await page.evaluate(
+        () =>
+          !!(
+            document
+              .querySelector(".p2-stop")!
+              .compareDocumentPosition(
+                document.querySelector(".p2-day-schedule")!,
+              ) & Node.DOCUMENT_POSITION_FOLLOWING
+          ),
+      ),
+    ).toBe(true);
+    await expect(page.locator(".p2-place-search select")).toHaveCount(0);
     const download = page.waitForEvent("download", { timeout: 20000 });
     await page
       .getByRole("button", { name: "Download trip", exact: true })
@@ -421,6 +475,9 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       page.getByRole("heading", { name: "My route", exact: true }),
     ).toBeVisible();
     const retry = page.getByRole("button", { name: "Retry map", exact: true });
+    await expect(
+      page.getByRole("link", { name: "Open main map", exact: true }),
+    ).toHaveCount(0);
     await expect(retry).toBeVisible();
     const feedbackBox = (await page
       .locator(".p2-planning-map .p2-map-feedback")
@@ -429,7 +486,7 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       .locator(".p2-planning-map .p2-map-browser")
       .boundingBox())!;
     expect(browserBox.y).toBeGreaterThanOrEqual(
-      feedbackBox.y + feedbackBox.height + 10,
+      feedbackBox.y + feedbackBox.height + 6,
     );
     await retry.scrollIntoViewIfNeeded();
     expect(
@@ -747,15 +804,17 @@ test("release edge: destination directions use distinct points and discovery omi
   expect(place).toBeTruthy();
   await page.goto(`/place/${place.slug}/`);
   const access = page.getByRole("region", {
-    name: "Access points",
+    name: "Getting there",
     exact: true,
   });
-  const destination = page.getByRole("region", {
-    name: "Destination location",
-    exact: true,
-  });
+  const destination = access;
   await expect(
-    access.getByRole("link", { name: "Open in Maps", exact: true }).first(),
+    access
+      .getByRole("link", {
+        name: `Open ${place.accessPoints[0].name} in Maps`,
+        exact: true,
+      })
+      .first(),
   ).toHaveAttribute(
     "href",
     new RegExp(
@@ -763,7 +822,10 @@ test("release edge: destination directions use distinct points and discovery omi
     ),
   );
   await expect(
-    destination.getByRole("link", { name: "Open in Maps", exact: true }),
+    destination.getByRole("link", {
+      name: "Open destination in Maps",
+      exact: true,
+    }),
   ).toHaveAttribute(
     "href",
     new RegExp(`query=${place.coordinates[1]},${place.coordinates[0]}`),
@@ -771,6 +833,7 @@ test("release edge: destination directions use distinct points and discovery omi
   await expect(access).not.toContainText(
     String(place.accessPoints[0].latitude),
   );
+  await expect(access).not.toContainText(String(place.coordinates[1]));
   await shot(page, "destination-directions");
   const preferences = (
     await (await context.request.get(base + "/api/v1/traveler/")).json()
@@ -796,4 +859,167 @@ test("release edge: destination directions use distinct points and discovery omi
   await expect(page.locator(".td-result a")).toHaveCount(1);
   expect(sentSharing).toBe(preferences?.public_badges || false);
   await shot(page, "discovery-result");
+});
+
+test("area scope: creation requires one area and the saved route stays at the map corner", async ({
+  page,
+  context,
+}) => {
+  test.setTimeout(90000);
+  await signIn(context, "explorerplus2@paradise.com");
+  const choices = (
+    await (
+      await context.request.get(
+        base + "/api/v1/planning-places/?search=Tagkawayan",
+      )
+    ).json()
+  ).data;
+  const place = choices[0];
+  const areaId = place.areaIds[0];
+  const rejected = await context.request.post(base + "/api/v1/itineraries/", {
+    headers: origin,
+    data: {
+      title: "[TEST] Area required",
+      notes: "",
+      start_date: null,
+      end_date: null,
+      day_count: 1,
+    },
+  });
+  expect(rejected.status()).toBe(400);
+  await page.goto("/itineraries/?create=1");
+  const field = page.getByRole("combobox", { name: /^Trip area/ });
+  await expect(field).toBeEnabled();
+  await page
+    .getByLabel("Trip name", { exact: true })
+    .fill("[TEST] Area scope itinerary");
+  await page.getByRole("button", { name: "Create trip", exact: true }).click();
+  await expect(field).toHaveAttribute("aria-invalid", "true");
+  expect(await field.locator("option").count()).toBe(5);
+  await field.selectOption(areaId);
+  await shot(page, "trip-area");
+  const made = page.waitForResponse(
+    (r) =>
+      r.url().endsWith("/api/v1/itineraries/") &&
+      r.request().method() === "POST",
+  );
+  await page.getByRole("button", { name: "Create trip", exact: true }).click();
+  const response = await made;
+  expect(response.ok()).toBe(true);
+  let trip = (await response.json()).data as Trip;
+  try {
+    expect(trip.area_id).toBe(areaId);
+    const saved = await context.request.patch(
+      `${base}/api/v1/itineraries/${trip.id}/`,
+      {
+        headers: origin,
+        data: {
+          version: trip.version,
+          action: "add",
+          payload: {
+            day_id: trip.itinerary_days[0].id,
+            place_id: place.id,
+            start_time: "08:00",
+            end_time: "10:00",
+          },
+        },
+      },
+    );
+    expect(saved.ok()).toBe(true);
+    trip = (await saved.json()).data;
+    await page.unroute("https://api.mapbox.com/**");
+    await page.goto(`/itineraries/?trip=${trip.id}`);
+    await page
+      .getByRole("button", { name: "Add destination", exact: true })
+      .click();
+    await expect(page.locator("#find-destinations select")).toHaveCount(0);
+    await page.getByRole("button", { name: "My route", exact: true }).click();
+    await expect(page.locator(".p2-planning-map .p2-map-feedback")).toHaveCount(
+      0,
+      { timeout: 30000 },
+    );
+    const geometry = await page.locator(".p2-planning-map").evaluate((host) => {
+      const map = host.getBoundingClientRect(),
+        list = host.querySelector(".p2-map-browser")!.getBoundingClientRect();
+      return { top: list.top - map.top, left: list.left - map.left };
+    });
+    expect(geometry.top).toBeLessThanOrEqual(12);
+    expect(geometry.left).toBeLessThanOrEqual(12);
+    await shot(page, "route-loaded");
+  } finally {
+    const current = await context.request.get(
+      `${base}/api/v1/itineraries/${trip.id}/`,
+    );
+    if (current.ok()) {
+      trip = (await current.json()).data;
+      expect(trip.title).toBe("[TEST] Area scope itinerary");
+      expect(
+        (
+          await context.request.delete(
+            `${base}/api/v1/itineraries/${trip.id}/`,
+            { headers: origin, data: { version: trip.version } },
+          )
+        ).ok(),
+      ).toBe(true);
+    }
+  }
+});
+
+test("image delivery: About crop, storefront pictures and private originals remain usable", async ({
+  page,
+  context,
+  request,
+}) => {
+  await page.goto("/about/");
+  const photo = page
+    .locator(".upd-about__plate")
+    .filter({ has: page.locator('img[src*="IMG_5678"]') });
+  await photo.scrollIntoViewIfNeeded();
+  await expect(photo.locator("img")).toBeVisible();
+  await expect
+    .poll(() =>
+      photo
+        .locator("img")
+        .evaluate((img: HTMLImageElement) => img.naturalWidth),
+    )
+    .toBeGreaterThan(0);
+  const geometry = await photo.evaluate((el) => {
+    const figure = el.getBoundingClientRect(),
+      image = el.querySelector("img")!.getBoundingClientRect();
+    return {
+      cropped: image.top < figure.top - 40,
+      ratio: figure.height / figure.width,
+      fade: getComputedStyle(el, "::after").backgroundImage,
+    };
+  });
+  expect(geometry.cropped).toBe(true);
+  expect(geometry.ratio).toBeLessThan(1.4);
+  expect(geometry.fade).toContain("linear-gradient");
+  await shot(page, "about-cropped");
+  await page.goto("/merch/");
+  const picture = page.locator(".p2-product-card img").first();
+  await expect(picture).toBeVisible();
+  await expect
+    .poll(() => picture.evaluate((img: HTMLImageElement) => img.naturalWidth))
+    .toBeGreaterThan(0);
+  await shot(page, "merch-optimized");
+  await signIn(context, "explorerplus2@paradise.com");
+  const catalog = (
+    await (await context.request.get(base + "/api/v1/planning-places/")).json()
+  ).data;
+  const privatePlace = catalog.find((p: { image?: string }) => p.image);
+  const route = new URL(privatePlace.image, base);
+  route.searchParams.set("width", "640");
+  const image = await context.request.get(route.toString());
+  expect(image.ok()).toBe(true);
+  expect(image.headers()["content-type"]).toMatch(/^image\//);
+  // Authenticated image delivery must still make the same RLS decision for guests.
+  const unoptimized = new URL(privatePlace.image, base);
+  const guestOriginal = await request.get(unoptimized.toString(), {
+    maxRedirects: 0,
+  });
+  const guestOptimized = await request.get(route.toString(), {
+    maxRedirects: 0,
+  });
+  expect(guestOptimized.status()).toBe(guestOriginal.status());
 });

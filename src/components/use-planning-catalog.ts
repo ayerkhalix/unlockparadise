@@ -11,8 +11,15 @@ export type PlanningCatalog = {
   error: string;
   reload: () => void;
 };
-export function usePlanningCatalog(): PlanningCatalog {
-  const [state, setState] = useState<Omit<PlanningCatalog, "reload">>({
+export function usePlanningCatalog(
+  tripId?: string,
+  areaId?: string | null,
+): PlanningCatalog {
+  const key = `${tripId || ""}:${areaId || ""}`;
+  const [state, setState] = useState<
+    Omit<PlanningCatalog, "reload"> & { key: string }
+  >({
+    key,
     places: [],
     loading: true,
     error: "",
@@ -24,8 +31,9 @@ export function usePlanningCatalog(): PlanningCatalog {
   }, []);
   useEffect(() => {
     const controller = new AbortController();
+    if (tripId && !areaId) return;
     requestJSON<{ data: TravelPlace[]; map?: PlanningCatalog["metadata"] }>(
-      "/api/v1/planning-places/",
+      `/api/v1/planning-places/${tripId ? `?trip=${encodeURIComponent(tripId)}` : ""}`,
       "GET",
       undefined,
       controller.signal,
@@ -33,6 +41,7 @@ export function usePlanningCatalog(): PlanningCatalog {
       .then((result) => {
         if (!controller.signal.aborted)
           setState({
+            key,
             places: result.data,
             metadata: result.map,
             loading: false,
@@ -41,13 +50,23 @@ export function usePlanningCatalog(): PlanningCatalog {
       })
       .catch((error) => {
         if (!controller.signal.aborted)
-          setState((current) => ({
-            ...current,
+          setState({
+            key,
+            places: [],
             loading: false,
             error: error.message,
-          }));
+          });
       });
     return () => controller.abort();
-  }, [revision]);
-  return { ...state, reload };
+  }, [revision, tripId, areaId, key]);
+  if (tripId && !areaId)
+    return {
+      places: [],
+      loading: false,
+      error: "Choose a trip area in Edit trip before adding destinations.",
+      reload,
+    };
+  return state.key === key
+    ? { ...state, reload }
+    : { places: [], loading: true, error: "", reload };
 }

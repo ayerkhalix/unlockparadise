@@ -26,11 +26,15 @@ export function PlannerBrowser({
   dayId: string;
 }) {
   const [trip, setTrip] = useState(initial);
-  const day = trip.itinerary_days.find((day) => day.id === dayId)!;
-  const catalog = usePlanningCatalog();
+  const [selectedDayId, setSelectedDayId] = useState(dayId);
+  const [addingDayId, setAddingDayId] = useState(dayId);
+  const day =
+    trip.itinerary_days.find((day) => day.id === selectedDayId) ||
+    trip.itinerary_days[0];
+  const catalog = usePlanningCatalog(trip.id, trip.area_id);
   const params = useSearchParams();
   const search = params.get("search") || "",
-    area = params.get("area") || "",
+    area = trip.areas?.name || "",
     category = params.get("category") || "",
     mode = params.get("mode") || "",
     duration = params.get("duration") || "",
@@ -48,17 +52,21 @@ export function PlannerBrowser({
       else query.delete(key);
     }
     query.set("trip", trip.id);
-    query.set("day", day.id);
+    query.set("day", values.day || day.id);
+    query.delete("area");
     history.replaceState(null, "", `?${query}`);
     setLimit(24);
   };
-  const stops = trip.items.filter((item) => item.day_id === dayId);
+  const stops = trip.items.filter((item) => item.day_id === day.id);
+  const targetStops = trip.items.filter((item) => item.day_id === addingDayId);
   const added = new Set(stops.map((item) => item.place_id));
-  const areas = [...new Set(catalog.places.flatMap((p) => p.area.split(" · ")))]
-    .filter(Boolean)
-    .sort();
+  const availableCategories = new Set(
+    catalog.places.flatMap((place) => place.category.split(" · ")),
+  );
   const categories =
-    catalog.metadata?.categories.map((c) => c.name) ||
+    catalog.metadata?.categories
+      .map((c) => c.name)
+      .filter((name) => availableCategories.has(name)) ||
     [...new Set(catalog.places.flatMap((p) => p.category.split(" · ")))]
       .filter(Boolean)
       .sort();
@@ -67,7 +75,6 @@ export function PlannerBrowser({
       catalog.places
         .filter(
           (p) =>
-            (!area || p.area.split(" · ").includes(area)) &&
             (!category || p.category.split(" · ").includes(category)) &&
             p.title
               .toLocaleLowerCase()
@@ -82,7 +89,7 @@ export function PlannerBrowser({
               a.title.localeCompare(b.title)
             : a.title.localeCompare(b.title),
         ),
-    [catalog.places, area, category, search, mode, duration, sort],
+    [catalog.places, category, search, mode, duration, sort],
   );
   const cover = filtered.find((place) => place.image)?.image;
   const reloadTrip = async () => {
@@ -114,6 +121,24 @@ export function PlannerBrowser({
             {dayLabel(day, trip.start_date)} · {stops.length}{" "}
             {stops.length === 1 ? "stop" : "stops"}
           </p>
+          <label className="planner-browser-day">
+            Add destinations to
+            <select
+              aria-label="Itinerary day"
+              value={day.id}
+              disabled={busy}
+              onChange={(event) => {
+                setSelectedDayId(event.target.value);
+                update({ day: event.target.value });
+              }}
+            >
+              {trip.itinerary_days.map((choice) => (
+                <option key={choice.id} value={choice.id}>
+                  {dayLabel(choice, trip.start_date)}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         <a className="p2-button" href={plannerHref(trip.id, day.id)}>
           View final itinerary
@@ -157,18 +182,6 @@ export function PlannerBrowser({
             onValueChange={(search) => update({ search })}
             placeholder="Search by destination name"
           />
-        </label>
-        <label>
-          Area
-          <select
-            value={area}
-            onChange={(e) => update({ area: e.target.value })}
-          >
-            <option value="">All areas</option>
-            {areas.map((name) => (
-              <option key={name}>{name}</option>
-            ))}
-          </select>
         </label>
         <label>
           Accessible by
@@ -257,6 +270,7 @@ export function PlannerBrowser({
                       onClick={() => {
                         setTime({ start_time: null, end_time: null });
                         setError("");
+                        setAddingDayId(day.id);
                         setAdding(place);
                       }}
                     >
@@ -280,7 +294,10 @@ export function PlannerBrowser({
           ) : (
             <div className="p2-empty">
               <h2>No destinations match</h2>
-              <p>Try another area or category, or clear your filters.</p>
+              <p>
+                Try another category or clear your filters within{" "}
+                {area || "this trip’s area"}.
+              </p>
               <button
                 type="button"
                 className="p2-button p2-button--quiet"
@@ -288,7 +305,6 @@ export function PlannerBrowser({
                   update({
                     search: "",
                     category: "",
-                    area: "",
                     mode: "",
                     duration: "",
                   })
@@ -308,7 +324,7 @@ export function PlannerBrowser({
           }}
         >
           <p>
-            {dayLabel(day, trip.start_date)} · {trip.title}
+            {trip.title} · {area}
           </p>
           <ValidatedForm
             className="p2-form"
@@ -326,10 +342,16 @@ export function PlannerBrowser({
                   {
                     version: trip.version,
                     action: "add",
-                    payload: { day_id: day.id, place_id: adding.id, ...time },
+                    payload: {
+                      day_id: addingDayId,
+                      place_id: adding.id,
+                      ...time,
+                    },
                   },
                 );
                 setTrip(result.data);
+                setSelectedDayId(addingDayId);
+                update({ day: addingDayId });
                 window.dispatchEvent(
                   new CustomEvent("upd:itinerary-saved", {
                     detail: result.data,
@@ -349,9 +371,23 @@ export function PlannerBrowser({
             }}
           >
             <fieldset className="p2-fieldset" disabled={busy}>
+              <label>
+                Add to day
+                <select
+                  aria-label="Add to day"
+                  value={addingDayId}
+                  onChange={(event) => setAddingDayId(event.target.value)}
+                >
+                  {trip.itinerary_days.map((choice) => (
+                    <option key={choice.id} value={choice.id}>
+                      {dayLabel(choice, trip.start_date)}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <StopTimeFields value={time} onChange={setTime} />
             </fieldset>
-            {overlappingStops([...stops, { id: "new", ...time }]).has(
+            {overlappingStops([...targetStops, { id: "new", ...time }]).has(
               "new",
             ) && (
               <p className="p2-schedule-warning">

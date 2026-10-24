@@ -597,7 +597,7 @@ export function StudioModule({
                 render: (r) => (
                   <div className="studio-place-cell">
                     {r.status === "ready" && (
-                      <img
+                      <ContentImage
                         src={`/api/media/${r.id}/`}
                         alt={String(r.alt || "")}
                         loading="lazy"

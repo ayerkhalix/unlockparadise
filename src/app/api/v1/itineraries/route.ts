@@ -1,6 +1,6 @@
 import { api, input, json, verifyOrigin, databaseError } from "@/lib/http";
 import { requirePremium } from "@/lib/auth/session";
-import { tripInput } from "@/lib/planning";
+import { newTripInput } from "@/lib/planning";
 import { getTrip, planningError } from "@/lib/repositories/planning";
 export async function GET(request: Request) {
   return api(async () => {
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   return api(async () => {
     verifyOrigin(request);
     const { db, user } = await requirePremium(request);
-    const body = await input(request, tripInput);
+    const body = await input(request, newTripInput);
     const result = await db.rpc("plan_itinerary", {
       trip_id: null,
       expected_version: null,

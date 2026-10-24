@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 /* eslint-disable @next/next/no-location-assign-relative-destination -- The source archive enhancement owns document-level filter/history state; preserve its full-page navigation contract. */
 
 import { useEffect, useId, useRef, useState } from "react";
@@ -513,7 +515,7 @@ export function AreaMap({
       }}
     >
       {cat.image && (
-        <img className="category-thumb" src={cat.image} alt="" loading="lazy" />
+        <ContentImage sizes="128px" className="category-thumb" src={cat.image} alt="" loading="lazy" />
       )}
       <span className="category-label">{cat.name}</span>
     </button>

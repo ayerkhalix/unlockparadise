@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/lib/merch-products";
@@ -112,7 +114,7 @@ export function HomeMerch({ products }: { products: Product[] }) {
             href={`/merch/products/${p.slug}/`}
             key={p.id}
           >
-            <img
+            <ContentImage sizes="(max-width: 640px) 45vw, 240px"
               src={p.displayImage}
               alt={p.imageAlts?.[0] || p.name}
               loading="lazy"

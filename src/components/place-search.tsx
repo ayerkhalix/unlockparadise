@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { SearchInput } from "./ui/search-input";
 import { useRef, useState } from "react";
 import { Icon } from "./icon";
@@ -7,8 +9,6 @@ import type { PlanningCatalog } from "./use-planning-catalog";
 
 export type PlaceSearchFilters = {
   search: string;
-  area: string;
-  category: string;
 };
 
 export function PlaceSearch({
@@ -18,7 +18,7 @@ export function PlaceSearch({
   addedPlaceIds,
   catalog,
   filtered,
-  filters: { search, area, category },
+  filters: { search },
   onFiltersChange,
   onExploreMap,
 }: {
@@ -33,7 +33,7 @@ export function PlaceSearch({
   onExploreMap: () => void;
 }) {
   const section = useRef<HTMLElement>(null);
-  const { places, loading } = catalog;
+  const { loading } = catalog;
   const [error, setError] = useState("");
   const [limit, setLimit] = useState(6);
   const [expanded, setExpanded] = useState(false);
@@ -99,46 +99,6 @@ export function PlaceSearch({
             placeholder="Search by destination name"
           />
         </label>
-        <div className="p2-form__row">
-          <label>
-            Area
-            <select
-              aria-label="Area"
-              value={area}
-              onChange={(e) => {
-                onFiltersChange({ area: e.target.value });
-                setLimit(6);
-              }}
-            >
-              <option value="">All areas</option>
-              {[...new Set(places.flatMap((p) => p.area.split(" · ")))]
-                .filter(Boolean)
-                .sort()
-                .map((a) => (
-                  <option key={a}>{a}</option>
-                ))}
-            </select>
-          </label>
-          <label>
-            Category
-            <select
-              aria-label="Category"
-              value={category}
-              onChange={(e) => {
-                onFiltersChange({ category: e.target.value });
-                setLimit(6);
-              }}
-            >
-              <option value="">All categories</option>
-              {[...new Set(places.flatMap((p) => p.category.split(" · ")))]
-                .filter(Boolean)
-                .sort()
-                .map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-            </select>
-          </label>
-        </div>
         {loading ? (
           <p role="status">Loading destinations…</p>
         ) : (
@@ -166,18 +126,18 @@ export function PlaceSearch({
               <div className="p2-empty">
                 <h3>No destinations found</h3>
                 <p>
-                  Try another name or clear the filters. Only destinations
-                  available to your membership are shown.
+                  Try another name or clear your search. Destination choices
+                  stay within your trip area.
                 </p>
                 <button
                   type="button"
                   className="p2-button p2-button--quiet"
                   onClick={() => {
-                    onFiltersChange({ search: "", area: "", category: "" });
+                    onFiltersChange({ search: "" });
                     setLimit(6);
                   }}
                 >
-                  Clear filters
+                  Clear search
                 </button>
               </div>
             ) : (
@@ -205,7 +165,9 @@ export function PlaceSearch({
                   const added = addedPlaceIds.includes(p.id);
                   return (
                     <li key={p.id}>
-                      {p.image && <img src={p.image} alt="" loading="lazy" />}
+                      {p.image && (
+                        <ContentImage sizes="96px" src={p.image} alt="" loading="lazy" />
+                      )}
                       <div>
                         <strong>{p.title}</strong>
                         <p>

@@ -1,6 +1,6 @@
 "use client";
 import { ValidatedForm } from "./ui/validated-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { requestJSON } from "@/lib/client-api";
 import { tripDuration, type Trip } from "@/lib/planning";
 import { captureInterest } from "@/lib/analytics-client";
@@ -17,6 +17,33 @@ export function TripForm({
     [error, setError] = useState("");
   const [start, setStart] = useState(trip?.start_date || ""),
     [end, setEnd] = useState(trip?.end_date || "");
+  const [area, setArea] = useState(trip?.area_id || "");
+  const [areas, setAreas] = useState<{ id: string; name: string }[]>([]);
+  const [loadingAreas, setLoadingAreas] = useState(true),
+    [areaError, setAreaError] = useState(""),
+    [revision, setRevision] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    requestJSON<{ data: { id: string; name: string }[] }>(
+      "/api/v1/areas/",
+      "GET",
+      undefined,
+      controller.signal,
+    )
+      .then(({ data }) => {
+        if (!controller.signal.aborted) {
+          setAreas(data);
+          setLoadingAreas(false);
+        }
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) {
+          setAreaError(error.message);
+          setLoadingAreas(false);
+        }
+      });
+    return () => controller.abort();
+  }, [revision]);
   const duration = tripDuration(start, end);
   return (
     <ValidatedForm
@@ -33,6 +60,7 @@ export function TripForm({
           start_date: f.get("start_date") || null,
           end_date: f.get("end_date") || null,
           day_count: duration || trip?.itinerary_days.length || 1,
+          area_id: area,
         };
         try {
           const result = await requestJSON<{ data: Trip }>(
@@ -61,6 +89,44 @@ export function TripForm({
           defaultValue={trip?.title}
         />
       </label>
+      <label>
+        Trip area
+        <select
+          name="area_id"
+          required
+          value={area}
+          disabled={busy || loadingAreas || !!areaError}
+          onChange={(event) => setArea(event.target.value)}
+        >
+          <option value="">
+            {loadingAreas ? "Loading areas…" : "Choose one area"}
+          </option>
+          {areas.map((area) => (
+            <option key={area.id} value={area.id}>
+              {area.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p className="p2-muted">
+        Your destination choices will stay within this area.
+      </p>
+      {areaError && (
+        <div className="p2-error" role="alert">
+          <p>{areaError}</p>
+          <button
+            type="button"
+            className="p2-back"
+            onClick={() => {
+              setAreaError("");
+              setLoadingAreas(true);
+              setRevision((value) => value + 1);
+            }}
+          >
+            Reload areas
+          </button>
+        </div>
+      )}
       <div className="p2-form__row">
         <label>
           Start date{" "}
@@ -109,7 +175,10 @@ export function TripForm({
         </p>
       )}
       <div className="p2-actions">
-        <button className="p2-button" disabled={busy}>
+        <button
+          className="p2-button"
+          disabled={busy || loadingAreas || !!areaError}
+        >
           {busy ? "Saving…" : trip ? "Save trip details" : "Create trip"}
         </button>
         {onCancel && (

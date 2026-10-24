@@ -1,3 +1,4 @@
+import { ContentImage } from "@/components/ui/content-image";
 import { mediaAvailable } from "@/lib/media-availability";
 import { redirect } from "next/navigation";
 import { currentSession } from "@/lib/auth/session";
@@ -104,11 +105,6 @@ export async function MemberPage({ kind }: { kind: string }) {
   );
   const data = profile.data;
   const preferences = await travelPreferences(current.db, current.user.id);
-  const areas = new Set(
-    visited.flatMap((e) =>
-      (e.places as unknown as PlaceSummary).place_areas.map((a) => a.areas.id),
-    ),
-  );
   const photo = data.profile_media?.media;
   const active = subscriptions.data?.find(
     (s) => s.status === "active" || s.status === "cancelled",
@@ -151,7 +147,7 @@ export async function MemberPage({ kind }: { kind: string }) {
               <div className="profile-avatar-stack">
                 <div className="profile-avatar-static">
                   {photo?.status === "ready" ? (
-                    <img
+                    <ContentImage sizes="96px"
                       src={`/api/media/${photo.id}/`}
                       alt="Your profile"
                       width={96}
@@ -234,9 +230,6 @@ export async function MemberPage({ kind }: { kind: string }) {
                   </li>
                   <li>
                     <strong>{visited.length}</strong> In Portfolio
-                  </li>
-                  <li>
-                    <strong>{areas.size}</strong> Areas explored
                   </li>
                 </ul>
                 {current.premium ? (

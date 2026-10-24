@@ -5,7 +5,7 @@ import { mediaAvailable } from "@/lib/media-availability";
 import type { TravelPlace, Trip } from "@/lib/planning";
 
 export const planningPlaceSelect =
-  "id,slug,title,vip_content,status,accessibility,travel_minutes,place_areas(areas(name,slug)),place_categories(categories(name,slug)),place_media(kind,media(id,status)),place_details(latitude,longitude,access_points)";
+  "id,slug,title,vip_content,status,accessibility,travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,media(id,status)),place_details(latitude,longitude,access_points)";
 type PlaceRow = {
   id: string;
   slug: string;
@@ -14,7 +14,7 @@ type PlaceRow = {
   vip_content: boolean;
   accessibility: string[];
   travel_minutes: number | null;
-  place_areas: { areas: { name: string; slug: string } }[];
+  place_areas: { areas: { id: string; name: string; slug: string } }[];
   place_categories: { categories: { name: string; slug: string } }[];
   place_media: { kind: string; media: { id: string; status: string } | null }[];
   place_details: {
@@ -31,6 +31,7 @@ export function planningPlace(row: unknown): TravelPlace | null {
   )?.media;
   return {
     id: p.id,
+    areaIds: p.place_areas.map((a) => a.areas.id),
     accessibility: p.accessibility,
     travelMinutes: p.travel_minutes,
     slug: p.slug,
@@ -52,7 +53,7 @@ export async function getTrip(
 ): Promise<Trip> {
   const result = await db
     .from("itineraries")
-    .select("*,itinerary_days(*)")
+    .select("*,areas(id,name,slug),itinerary_days(*)")
     .eq("id", id)
     .eq("user_id", userId)
     .maybeSingle();
@@ -76,7 +77,11 @@ export async function getTrip(
     })),
   };
 }
-export function planningError(error: { code?: string } | null) {
+export function planningError(
+  error: { code?: string; message?: string } | null,
+) {
+  if (error?.code === "PT422")
+    throw new ApiError(422, error.message || "Check your trip area.");
   if (error?.code === "40001" || error?.code === "PT409")
     throw new ApiError(
       409,

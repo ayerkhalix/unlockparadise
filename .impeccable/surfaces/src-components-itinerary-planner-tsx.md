@@ -15,3 +15,8 @@ One day is selected at a time. Its timeline and ordered destination cards share 
 
 ## Verification
 Earlier plan/menu/route evidence remains under artifacts/planner-client-update. The client PDF packet adds desktop/phone browser, confirmed-added, plan and route captures under artifacts/client-todo, indexed in screenshots.json. The initial PDF browser suite passed before the five finish-review fixes; final checks are tracked in CLIENT_TODO_DELIVERY.md. Retain pointer hold/drop/cancel, keyboard disclosure/Escape and move actions, touch, day changes, notes/dirty guards, version/failure recovery and export content coverage. Map failure/retry is captured because automated real tiles were blocked; successful live tiles and long print pagination remain release checks. Shared tokens/primitives remain authoritative.
+
+
+## Superseding client refinements — 25 October 2026
+
+Photo stop cards precede Daily timeline. New trips require exactly one area; existing trips without one keep their saved content and choose an area before adding. The area is enforced in owned catalog reads and versioned server mutations. Inline search omits area/category filters. Explore destinations includes native day selectors in its toolbar and add dialog, and category hover/focus preserves contrast. My route omits Open main map; Route stops is 8px inside the upper-left edge below measured map notices. Responsive image delivery retains access checks and original assets. Current evidence and release status are tracked in CLIENT_REFINEMENTS_DELIVERY.md.

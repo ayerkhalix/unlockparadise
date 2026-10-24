@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 /* eslint-disable @next/next/no-location-assign-relative-destination -- Sign-out must discard all member client state and reload the anonymous server layout. */
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -59,7 +61,7 @@ function AccountMenu({ tier, name, photo }: Props) {
     <ProfileDisclosure>
       <summary aria-label="Profile" data-tooltip="Your account">
         <span className="p2-avatar" aria-hidden="true">
-          {photo ? <img src={photo} alt="" /> : <ProfileIcon />}
+          {photo ? <ContentImage sizes="96px" src={photo} alt="" /> : <ProfileIcon />}
         </span>
       </summary>
       <nav className="p2-account__menu" aria-label="Account">
@@ -138,7 +140,7 @@ export function SiteHeader(props: Props) {
                   href="/"
                   aria-label="Unlock Paradise home"
                 >
-                  <img
+                  <ContentImage sizes="96px"
                     width="300"
                     height="300"
                     src="/original/wp-content/uploads/2026/07/upd-mark-white-header-300x300.png"

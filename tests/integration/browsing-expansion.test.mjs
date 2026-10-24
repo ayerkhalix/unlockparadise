@@ -318,11 +318,12 @@ test("Client access and browsing expansion preserve authorization and saved data
       await db.exec(
         `insert into public.entitlements(user_id,source,reason) values('${explorer}','manual','Date planner test requires Explorer+')`,
       );
+      await db.exec("insert into public.areas(id,name,slug) values('20000000-0000-4000-8000-000000000325','Date area','date-area')");
       const trip = (
         await asUser(
           db,
           explorer,
-          `select public.plan_itinerary(null,null,'create',${json({ title: "Dates", start_date: "2026-10-21", end_date: "2026-10-23", day_count: 1 })}) id`,
+          `select public.plan_itinerary(null,null,'create',${json({ area_id: "20000000-0000-4000-8000-000000000325", title: "Dates", start_date: "2026-10-21", end_date: "2026-10-23", day_count: 1 })}) id`,
         )
       ).rows[0].id;
       assert.equal(

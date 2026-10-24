@@ -105,8 +105,9 @@ test("guest/free discovery never exposes premium identities and expired planning
     ).rows[0].title,
     "Secret Gem Name",
   );
+  await db.exec("insert into public.areas(id,name,slug) values('20000000-0000-4000-8000-000000000109','Privacy area','privacy-area')");
   const query =
-    'select public.plan_itinerary(null,null,\'create\',\'{"title":"Retained trip","day_count":1}\'::jsonb) as id';
+    'select public.plan_itinerary(null,null,\'create\',\'{"title":"Retained trip","day_count":1,"area_id":"20000000-0000-4000-8000-000000000109"}\'::jsonb) as id';
   await assert.rejects(() => asUser(db, free, query), /Explorer\+ required/);
   const trip = (await asUser(db, paid, query)).rows[0].id;
   assert.equal(

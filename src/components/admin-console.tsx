@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { PlaceEditor } from "./place-editor";
@@ -239,7 +241,7 @@ export function AdminConsole({
       <div className="studio-main">
         <header className="studio-topbar">
           <div className="studio-breadcrumb">
-            <img
+            <ContentImage
               className="studio-mobile-mark"
               src="/original/wp-content/uploads/2026/07/upd-mark-white-header-300x300.png"
               alt=""

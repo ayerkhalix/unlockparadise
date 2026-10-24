@@ -3,6 +3,7 @@ import { api, ApiError, databaseError } from "@/lib/http";
 import { serverSupabase } from "@/lib/supabase/server";
 import { legacyImage } from "@/lib/storage/legacy";
 import { mediaAvailable } from "@/lib/media-availability";
+import { imageWidths } from "@/lib/image-delivery";
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
@@ -32,10 +33,14 @@ export async function GET(
     }
     if (result.data.status === "legacy") return legacyImage(result.data);
     if (result.data.status !== "ready") throw new ApiError(404, "Image unavailable.");
+    const width = Number(new URL(request.url).searchParams.get("width"));
+    const transform = imageWidths.includes(width as (typeof imageWidths)[number]) &&
+      /image\/(jpeg|png|webp|avif)/.test(result.data.mime_type || "")
+      ? { width, quality: 75 } : undefined;
     if (result.data.bucket === "destination-public") {
       const { data } = db.storage
         .from(result.data.bucket)
-        .getPublicUrl(result.data.object_path);
+        .getPublicUrl(result.data.object_path, { transform });
       return new Response(null, {
         status: 307,
         headers: {
@@ -46,7 +51,7 @@ export async function GET(
     }
     const { data, error } = await db.storage
       .from(result.data.bucket)
-      .createSignedUrl(result.data.object_path, 60);
+      .createSignedUrl(result.data.object_path, 60, { transform });
     if (error || !data) throw new ApiError(503, "Image unavailable.");
     return new Response(null, {
       status: 307,

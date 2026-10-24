@@ -112,7 +112,7 @@ export function ItineraryWorkspace({
           <div>
             <h1>Plan your first Palawan trip.</h1>
             <p className="p2-muted">
-              Give it a name and choose your dates. You can add destinations,
+              Give it a name, choose one area and set your dates. You can add destinations,
               explore the map and adjust the details as you go.
             </p>
             <a className="p2-back" href="/#palawan-map">

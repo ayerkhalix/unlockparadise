@@ -470,3 +470,10 @@ Merchandise calls its local selection a cart throughout. Product editor previews
 ## Client planner refinement — 24 October 2026
 
 The planner retains the public navy, teal, sand/gold, Outfit and Open Sans system. One selected-day work surface replaces simultaneous desktop columns. Final itinerary and My route use the existing filled-teal selected control at every width. Destination cards retain real photos and a static gold sequence marker, with the timing on the right, a small upper-right three-line actions disclosure and a Notes disclosure. Search and map discovery sit behind two explicitly named Add destination choices. The cards use existing rounded media/control geometry and thin slate boundaries; an open action panel lifts its owning card above its neighbors. Hold-to-drag feedback is direct manipulation rather than an idle animation. At phone widths card content stacks and wraps without reducing supporting metadata below 11px; the shared 44px action targets remain.
+
+
+## Area-scoped planner refinement — 25 October 2026
+
+Keep the incumbent navy/teal/gold and Outfit/Open Sans system. A native single-area field anchors each new trip. The photographic Explore browser retains category tabs, accessible hover/focus contrast and one trip area; native day selectors sit in its toolbar and add dialog. Photo stop cards precede the timeline. The compact inline finder is search-only, and Route stops sits 8px inside the map's upper-left edge below any measured recovery notice.
+
+Profile statistics use two equal columns: Bucketlisted and In Portfolio; the editor offers photo upload/replacement only. Getting there uses inline access-type and destination Maps links without coordinate text. Cookie choices say Accept cookies and No thanks. The About shoreline photograph crops spare sky near the mountain ridge and fades at the top/bottom into its existing sea background. Responsive delivery preserves originals and the same framing.

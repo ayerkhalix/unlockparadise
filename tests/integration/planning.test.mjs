@@ -27,6 +27,7 @@ const owner = "00000000-0000-4000-8000-000000000201",
 const beach = "10000000-0000-4000-8000-000000000201",
   river = "10000000-0000-4000-8000-000000000202",
   vip = "10000000-0000-4000-8000-000000000203";
+const area = "20000000-0000-4000-8000-000000000201";
 const sqlJSON = (value) =>
   `'${JSON.stringify(value).replaceAll("'", "''")}'::jsonb`;
 test("Phase 2 ownership, atomic ordering, content access and recommendations", async (t) => {
@@ -35,6 +36,7 @@ test("Phase 2 ownership, atomic ordering, content access and recommendations", a
   await db.exec(`insert into auth.users(id) values('${owner}'),('${other}'),('${admin}');insert into public.user_roles(user_id,role) values('${admin}','admin');
  insert into public.places(id,slug,title,status,vip_content) values('${beach}','test-beach','Test Beach','publish',false),('${river}','test-river','Test River','publish',false),('${vip}','test-vip','Restricted','publish',true);
  insert into public.entitlements(user_id,source,reason) values('${owner}','manual','Synthetic planner member');
+ insert into public.areas(id,name,slug) values('${area}','Test area','test-area'); insert into public.place_areas(place_id,area_id) values('${beach}','${area}'),('${river}','${area}'),('${vip}','${area}');
  insert into public.place_details(place_id) values('${beach}'),('${river}'),('${vip}');`);
   let trip,
     days,
@@ -55,7 +57,7 @@ test("Phase 2 ownership, atomic ordering, content access and recommendations", a
         await asUser(
           db,
           owner,
-          `select public.plan_itinerary(null,null,'create',${sqlJSON({ title: "Palawan test", start_date: "2026-11-01", end_date: "2026-11-03", day_count: 3 })}) as id`,
+          `select public.plan_itinerary(null,null,'create',${sqlJSON({ area_id: area, title: "Palawan test", start_date: "2026-11-01", end_date: "2026-11-03", day_count: 3 })}) as id`,
         )
       ).rows[0].id;
       days = (
@@ -92,14 +94,14 @@ test("Phase 2 ownership, atomic ordering, content access and recommendations", a
         asUser(
           db,
           owner,
-          `select public.plan_itinerary(null,null,'create',${sqlJSON({ title: "Bad", start_date: "2026-11-03", end_date: "2026-11-01", day_count: 3 })})`,
+          `select public.plan_itinerary(null,null,'create',${sqlJSON({ area_id: area, title: "Bad", start_date: "2026-11-03", end_date: "2026-11-01", day_count: 3 })})`,
         ),
       );
       await assert.rejects(() =>
         asUser(
           db,
           owner,
-          `select public.plan_itinerary(null,null,'create',${sqlJSON({ title: "Bad", start_date: "2026-11-03", end_date: null, day_count: 3 })})`,
+          `select public.plan_itinerary(null,null,'create',${sqlJSON({ area_id: area, title: "Bad", start_date: "2026-11-03", end_date: null, day_count: 3 })})`,
         ),
       );
     },

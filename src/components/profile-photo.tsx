@@ -1,4 +1,6 @@
 "use client";
+import { ContentImage } from "@/components/ui/content-image";
+
 import { ValidatedForm } from "./ui/validated-form";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -27,7 +29,7 @@ export function AvatarForm({
   return (
     <div className={inline ? "profile-photo-fields" : "profile-photo-editor"}>
       {photoId && (
-        <img
+        <ContentImage sizes="96px"
           src={`/api/media/${photoId}/`}
           alt="Current profile photo"
           width={64}
@@ -79,31 +81,6 @@ export function AvatarForm({
           Upload photo
         </button>
       </ValidatedForm>
-      {photoId && (
-        <button
-          className="p2-back"
-          type="button"
-          disabled={busy || disabled}
-          onClick={async () => {
-            if (busy || disabled || (beforeStart && !beforeStart())) return;
-            working(true);
-            try {
-              const r = await fetch("/api/profile/photo/", {
-                method: "DELETE",
-              });
-              if (!r.ok) throw new Error((await r.json()).error);
-              setMessage("Photo removed.");
-              router.refresh();
-            } catch (e) {
-              setMessage((e as Error).message);
-            } finally {
-              working(false);
-            }
-          }}
-        >
-          Remove photo
-        </button>
-      )}
       <p role="status">{message}</p>
     </div>
   );
