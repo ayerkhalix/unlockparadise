@@ -118,6 +118,12 @@ test("guest previews, distinct gates and navigation preserve the membership boun
   const featured = await request.get(base + "/api/v1/places/?featured=1");
   expect(featured.ok()).toBe(true);
   await shot(page, "home");
+  await page.locator("#palawan-map").scrollIntoViewIfNeeded();
+  const zoomOut = page.locator(".p2-main-area-map .mapboxgl-ctrl-zoom-out");
+  await expect(zoomOut).toBeVisible();
+  const zoomBox = (await zoomOut.boundingBox())!;
+  const dockBox = (await page.locator(".p2-floating").boundingBox())!;
+  expect(zoomBox.y + zoomBox.height + 12).toBeLessThanOrEqual(dockBox.y);
   await page.goto(`/place/${hidden.id}/`);
   await expect(
     page.getByRole("heading", { name: "Explorer+ destination", exact: true }),
