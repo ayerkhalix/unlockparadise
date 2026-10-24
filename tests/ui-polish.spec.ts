@@ -299,6 +299,7 @@ test("planner warns about overlaps, prints all days and retains editable notes",
     await expect(timeline.getByRole("button")).toHaveCount(2);
     await timeline.getByRole("button").first().click();
     await expect(page.locator(".p2-stop").first()).toBeFocused();
+    await page.locator(".p3-stop-note-editor > summary").first().click();
     const note = page
       .getByLabel("Notes for this stop", { exact: true })
       .first();

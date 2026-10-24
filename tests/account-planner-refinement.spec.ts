@@ -249,10 +249,8 @@ test("mini homepage map browses area, category and real destinations without lea
       category = place.category.split(" · ")[0];
     await page.goto(`/itineraries/?trip=${trip.id}`);
     await ready(page);
-    if (page.viewportSize()!.width > 921)
-      await expect(page.locator(".p2-plan-map .p2-mini-map")).toBeVisible();
     await page
-      .getByRole("button", { name: "Explore Our Map", exact: true })
+      .getByRole("button", { name: "Explore options", exact: true })
       .click();
     const mini = page.getByRole("region", {
       name: "Explore the planner map",

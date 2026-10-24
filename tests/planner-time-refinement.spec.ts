@@ -56,6 +56,9 @@ test("selected planner days, timed visits and refined profile persist on staging
     await expect(first).toHaveAttribute("aria-pressed", "false");
     await first.click();
     const finder = page.locator("#find-destinations");
+    await finder
+      .getByRole("button", { name: "Search destination", exact: true })
+      .click();
     await finder.locator("button[data-place-choice]").first().click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
@@ -71,10 +74,10 @@ test("selected planner days, timed visits and refined profile persist on staging
     );
     const stop = page.locator(".p2-stop").first();
     const notes = stop.getByLabel("Notes for this stop", { exact: true });
+    await expect(notes).toBeHidden();
+    await stop.locator(".p3-stop-note-editor > summary").click();
     await expect(notes).toBeVisible();
-    await expect(stop.locator("details:not(.p3-stop-timing)")).toHaveCount(0);
     const timeBox = await timing.boundingBox();
-    const titleBox = await stop.locator("h3").boundingBox();
     const stopBody = await stop.locator(".p2-stop-body").boundingBox();
     expect(
       Math.abs(timeBox!.x + timeBox!.width - stopBody!.x - stopBody!.width),
@@ -83,8 +86,7 @@ test("selected planner days, timed visits and refined profile persist on staging
       "font-size",
       await stop.locator("h3").evaluate((el) => getComputedStyle(el).fontSize),
     );
-    if (page.viewportSize()!.width > 600)
-      expect(timeBox!.y).toBeLessThan(titleBox!.y + titleBox!.height);
+    expect(timeBox!.y).toBeGreaterThanOrEqual(stopBody!.y);
     await notes.fill("Bring water and a camera.");
     const [noteSaved] = await Promise.all([
       page.waitForResponse(
@@ -104,6 +106,7 @@ test("selected planner days, timed visits and refined profile persist on staging
       stop.getByRole("button", { name: "Save note", exact: true }),
     ).toBeDisabled();
     await page.reload();
+    await stop.locator(".p3-stop-note-editor > summary").click();
     await expect(notes).toHaveValue("Bring water and a camera.");
     await expect(timing.locator("summary")).toContainText(
       "8:00 AM – 12:00 PM · 4h",
@@ -129,14 +132,9 @@ test("selected planner days, timed visits and refined profile persist on staging
       finder.locator("button[data-place-choice]").first(),
     ).toBeVisible();
     await capture(page, "planner-timed-day");
-    if (page.viewportSize()!.width < 760)
-      await page
-        .getByRole("group", { name: "Planner view" })
-        .getByRole("button", { name: "Map", exact: true })
-        .click();
     await page
-      .getByRole("group", { name: "Map content" })
-      .getByRole("button", { name: /My route/ })
+      .getByRole("group", { name: "Planner view" })
+      .getByRole("button", { name: "My route", exact: true })
       .click();
     await expect(
       page.getByRole("heading", { name: "My route", exact: true }),

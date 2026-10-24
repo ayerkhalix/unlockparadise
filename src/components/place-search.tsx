@@ -1,6 +1,7 @@
 "use client";
 import { SearchInput } from "./ui/search-input";
 import { useRef, useState } from "react";
+import { Icon } from "./icon";
 import type { TravelPlace } from "@/lib/planning";
 import type { PlanningCatalog } from "./use-planning-catalog";
 
@@ -35,6 +36,7 @@ export function PlaceSearch({
   const { places, loading } = catalog;
   const [error, setError] = useState("");
   const [limit, setLimit] = useState(6);
+  const [expanded, setExpanded] = useState(false);
   const add = async (p: TravelPlace) => {
     setError("");
     try {
@@ -53,37 +55,34 @@ export function PlaceSearch({
       aria-label="Find destinations"
       id="find-destinations"
     >
-      <div className="p2-section-head">
-        <div>
-          <h3>Find destinations</h3>
-          <p className="p2-muted">
-            Search or filter, then add a stop to {day}.
-          </p>
-        </div>
-        <a className="p2-back" href="/#palawan-map">
-          Explore main map ↗
-        </a>
-      </div>
-      <div
-        className="p2-tabs p2-mobile-only"
-        role="group"
-        aria-label="Choose how to find a Place"
-      >
+      <h3>Add destination</h3>
+      <div className="p2-destination-choices">
         <button
+          id="planner-search-destination"
           className="p2-button p2-button--quiet"
-          onClick={() =>
-            section.current
-              ?.querySelector<HTMLInputElement>('input[type="search"]')
-              ?.focus()
-          }
+          aria-expanded={expanded}
+          aria-controls="planner-destination-search"
+          onClick={() => {
+            setExpanded((value) => !value);
+            if (!expanded)
+              requestAnimationFrame(() =>
+                section.current
+                  ?.querySelector<HTMLInputElement>('input[type="search"]')
+                  ?.focus(),
+              );
+          }}
         >
-          Search by Name
+          <Icon name="Search" size={23} />
+          Search destination
         </button>
         <button className="p2-button p2-button--quiet" onClick={onExploreMap}>
-          Explore map
+          <Icon name="Explore" size={23} />
+          Explore options
         </button>
       </div>
       <fieldset
+        id="planner-destination-search"
+        hidden={!expanded}
         disabled={busy}
         className="p2-fieldset p2-form"
         aria-busy={busy}

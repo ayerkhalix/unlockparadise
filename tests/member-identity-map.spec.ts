@@ -327,19 +327,14 @@ test("planner category browsing and destination preview stay inside the map", as
     expect(made.ok()).toBe(true);
     trip = (await made.json()).data;
     await page.goto(`/itineraries/?trip=${trip!.id}`);
-    if (page.viewportSize()!.width < 760)
-      await page
-        .getByRole("group", { name: "Planner view" })
-        .getByRole("button", { name: "Map", exact: true })
-        .click();
-    else
-      await expect(
-        page.locator("#find-destinations .p2-mobile-only"),
-      ).toBeHidden();
+    await page
+      .locator("#find-destinations")
+      .getByRole("button", { name: "Explore options", exact: true })
+      .click();
     const map = page.getByRole("complementary", { name: "Selected day map" });
     await expect(
-      map.getByRole("button", { name: "Explore destinations", exact: true }),
-    ).toHaveCSS("background-color", "rgb(131, 217, 198)");
+      map.getByRole("heading", { name: "Explore options", exact: true }),
+    ).toBeVisible();
     await map
       .getByRole("group", { name: "Choose an area" })
       .getByRole("button")
@@ -373,11 +368,15 @@ test("planner category browsing and destination preview stay inside the map", as
     await expect(
       map.getByRole("button", { name: "Added to this day", exact: true }),
     ).toBeDisabled();
-    await map.getByRole("button", { name: /My route/ }).click();
-    await expect(map.getByRole("button", { name: /My route/ })).toHaveCSS(
-      "background-color",
-      "rgb(131, 217, 198)",
-    );
+    await page
+      .getByRole("group", { name: "Planner view" })
+      .getByRole("button", { name: "My route", exact: true })
+      .click();
+    await expect(
+      page
+        .getByRole("group", { name: "Planner view" })
+        .getByRole("button", { name: "My route", exact: true }),
+    ).toHaveCSS("background-color", "rgb(131, 217, 198)");
     await expect(
       map.getByRole("button", { name: "View all stops", exact: true }),
     ).toHaveCount(0);

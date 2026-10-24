@@ -124,3 +124,35 @@ export function PrintableItinerary({ trip }: { trip: Trip }) {
     document.body,
   );
 }
+
+/** Download only the authorized, rendered text already loaded in this browser. */
+export function downloadItinerary(title: string) {
+  const printable = document.querySelector(".p2-print-itinerary");
+  if (!printable) return;
+  const copy = document.implementation.createHTMLDocument(title);
+  copy.documentElement.lang = "en";
+  const charset = copy.createElement("meta");
+  charset.setAttribute("charset", "utf-8");
+  const viewport = copy.createElement("meta");
+  viewport.name = "viewport";
+  viewport.content = "width=device-width, initial-scale=1";
+  const styles = copy.createElement("style");
+  styles.textContent = `body{font:16px/1.6 system-ui,sans-serif;color:#183d42;background:#fffdf8;max-width:800px;margin:auto;padding:32px 24px}h1,h2,h3{line-height:1.25}h1{font-size:32px}h2{font-size:24px;margin-top:36px}h3{font-size:18px}li{padding:8px 0}p{margin:6px 0}.p2-print-notes{white-space:pre-wrap}footer{border-top:1px solid #cbd3cb;padding-top:20px;margin-top:36px;font-size:14px}@media print{body{background:white;color:black}section{break-inside:avoid}}`;
+  copy.head.append(charset, viewport, styles);
+  copy.body.append(printable.cloneNode(true));
+  const url = URL.createObjectURL(
+    new Blob(["<!doctype html>\n", copy.documentElement.outerHTML], {
+      type: "text/html;charset=utf-8",
+    }),
+  );
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${
+    title
+      .replace(/[^a-zA-Z0-9_-]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 80) || "unlock-paradise-trip"
+  }.html`;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}

@@ -21,7 +21,14 @@ import { PalawanMap } from "./palawan-map";
 import { PlannerDiscoveryMap } from "./planner-discovery-map";
 import { usePlanningCatalog } from "./use-planning-catalog";
 import { StopTimeFields } from "./stop-time-fields";
-import { DaySchedule, PrintableItinerary } from "./itinerary-schedule";
+import {
+  DaySchedule,
+  PrintableItinerary,
+  downloadItinerary,
+} from "./itinerary-schedule";
+import { PlannerStopActions } from "./planner-stop-actions";
+import { Icon } from "./icon";
+import { ContentImage } from "./ui/content-image";
 import { overlappingStops } from "@/lib/itinerary-schedule";
 function StopTiming({
   item,
@@ -99,7 +106,11 @@ function StopNotes({
   const [notes, setNotes] = useState(item.notes),
     [saved, setSaved] = useState(item.notes);
   return (
-    <div className="p2-stop-notes p3-stop-note-editor">
+    <details className="p2-stop-notes p3-stop-note-editor">
+      <summary>
+        <Icon name="Notes" size={20} />
+        <span>Notes{saved ? " · Added" : ""}</span>
+      </summary>
       <ValidatedForm
         data-backend="true"
         onSubmit={async (e) => {
@@ -129,7 +140,7 @@ function StopNotes({
           Save note
         </button>
       </ValidatedForm>
-    </div>
+    </details>
   );
 }
 export function ItineraryPlanner({
@@ -177,16 +188,13 @@ export function ItineraryPlanner({
     [catalog.places, filters],
   );
   const requestedDay = useSearchParams().get("day");
-  const pointerStart = useRef<{ x: number; y: number; index: number } | null>(
-    null,
-  );
   const { ask, dialog } = useDecision();
   const [trip, setTrip] = useState(initial),
     [edit, setEdit] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [view, setView] = useState("plan"),
-    [drag, setDrag] = useState<string | null>(null);
+    [drag, setDrag] = useState<{ id: string; over: string } | null>(null);
   const day =
     trip.itinerary_days.find((d) => d.id === requestedDay) ||
     trip.itinerary_days[0];
@@ -262,6 +270,11 @@ export function ItineraryPlanner({
   const findDestinations = () => {
     setView("plan");
     requestAnimationFrame(() => {
+      const searchToggle = document.getElementById(
+        "planner-search-destination",
+      );
+      if (searchToggle?.getAttribute("aria-expanded") === "false")
+        searchToggle.click();
       const finder = document.getElementById("find-destinations");
       finder?.scrollIntoView({ block: "start" });
       finder
@@ -278,10 +291,44 @@ export function ItineraryPlanner({
     });
   };
   const reorder = async (from: number, to: number) => {
-    if (from < 0 || to < 0 || to >= stops.length || from === to) return;
+    if (from < 0 || to < 0 || to >= stops.length || from === to) return false;
     const order = stops.map((s) => s.id);
     order.splice(to, 0, order.splice(from, 1)[0]);
-    await mutate("reorder", { day_id: day.id, item_ids: order });
+    return mutate("reorder", { day_id: day.id, item_ids: order });
+  };
+  const changeStop = async (
+    item: TripItem,
+    action: "move" | "remove",
+    dayId?: string,
+  ) => {
+    const dirty =
+      dirtyNotes.current.has(item.id) ||
+      dirtyNotes.current.has(item.id + ":time");
+    if (
+      dirty &&
+      !(await ask("Discard unsaved notes or times for this destination?"))
+    )
+      return false;
+    const saved = await mutate(action, {
+      item_id: item.id,
+      ...(dayId ? { day_id: dayId } : {}),
+    });
+    if (saved) {
+      dirtyNotes.current.delete(item.id);
+      dirtyNotes.current.delete(item.id + ":time");
+      onDirtyChange(dirtyNotes.current.size > 0);
+    }
+    return saved;
+  };
+  const exportReady = () => {
+    if (dirtyNotes.current.size) {
+      notify(
+        "Save your stop notes and times before printing or downloading.",
+        true,
+      );
+      return false;
+    }
+    return true;
   };
   return (
     <>
@@ -300,11 +347,16 @@ export function ItineraryPlanner({
             className="p2-button p2-button--quiet"
             disabled={busy}
             onClick={() => {
-              if (dirtyNotes.current.size) {
-                notify("Save your stop notes and times before printing.", true);
-                return;
-              }
-              window.print();
+              if (exportReady()) downloadItinerary(trip.title);
+            }}
+          >
+            Download trip
+          </button>
+          <button
+            className="p2-button p2-button--quiet"
+            disabled={busy}
+            onClick={() => {
+              if (exportReady()) window.print();
             }}
           >
             Print itinerary
@@ -392,42 +444,42 @@ export function ItineraryPlanner({
           + Add day
         </button>
       </nav>
+      <h2 className="p2-planner-day-heading">
+        {dayLabel(day, trip.start_date)}
+      </h2>
       <div className="p2-view-tabs" role="group" aria-label="Planner view">
         <button
           className="p2-button p2-button--quiet"
           aria-pressed={view === "plan"}
           onClick={() => setView("plan")}
         >
-          Day plan
+          Final itinerary
         </button>
         <button
           className="p2-button p2-button--quiet"
-          aria-pressed={view === "map"}
-          onClick={() => setView("map")}
+          aria-pressed={view === "map" && mapMode === "stops"}
+          onClick={() => {
+            setMapMode("stops");
+            setView("map");
+          }}
         >
-          Map
+          My route
         </button>
       </div>
-      <div className={`p2-planner p2-planner--${view}`}>
+      <div className={`p2-planner p2-planner--${view} p2-planner--focused`}>
         <section
           className="p2-day-plan"
           aria-label={dayLabel(day, trip.start_date)}
         >
-          <div className="p2-section-head">
-            <h2>{dayLabel(day, trip.start_date)}</h2>
-            <button
-              className="p2-button"
-              disabled={busy}
-              onClick={findDestinations}
-            >
-              + Add Place
-            </button>
-          </div>
-          {stops.length > 0 && (
-            <p className="p2-muted">
-              Drag a stop’s numbered handle, or use the up and down buttons.
-            </p>
-          )}
+          <p
+            className="p2-drag-announcement p2-sr-only"
+            role="status"
+            aria-live="polite"
+          >
+            {drag
+              ? `Moving ${stops.find((s) => s.id === drag.id)?.place?.title || "destination"}. Position ${stops.findIndex((s) => s.id === drag.over) + 1} of ${stops.length}. Release to save, or Escape to cancel.`
+              : ""}
+          </p>
           <DaySchedule
             stops={stops}
             onStop={(id) => {
@@ -445,62 +497,48 @@ export function ItineraryPlanner({
                   key={item.id}
                   className="p2-stop"
                   data-stop-index={index}
-                  data-dragging={drag === item.id || undefined}
+                  data-planner-stop={item.id}
+                  data-dragging={drag?.id === item.id || undefined}
+                  data-drop-target={
+                    (drag?.over === item.id && drag.id !== item.id) || undefined
+                  }
                 >
-                  <button
-                    type="button"
-                    data-drag-handle
+                  <span
                     className="p2-stop-number"
-                    aria-label={`Reorder stop ${index + 1}: ${item.place?.title || "unavailable Place"}. Drag, or use the arrow buttons.`}
-                    data-tooltip="Drag to reorder, or use the arrow buttons"
-                    onPointerDown={(e) => {
-                      if (busy) return;
-                      e.preventDefault();
-                      pointerStart.current = {
-                        x: e.clientX,
-                        y: e.clientY,
-                        index,
-                      };
-                      e.currentTarget.setPointerCapture(e.pointerId);
-                      setDrag(item.id);
-                    }}
-                    onPointerUp={(e) => {
-                      const start = pointerStart.current;
-                      pointerStart.current = null;
-                      setDrag(null);
-                      if (!start) return;
-                      const target = document
-                        .elementFromPoint(e.clientX, e.clientY)
-                        ?.closest<HTMLElement>("[data-stop-index]");
-                      if (
-                        target &&
-                        Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8
-                      )
-                        void reorder(
-                          start.index,
-                          Number(target.dataset.stopIndex),
-                        );
-                      e.currentTarget.releasePointerCapture(e.pointerId);
-                    }}
-                    onPointerCancel={() => {
-                      pointerStart.current = null;
-                      setDrag(null);
-                    }}
-                    onClick={(e) =>
-                      e.currentTarget
-                        .closest("li")
-                        ?.querySelector<HTMLButtonElement>(
-                          ".p2-stop-controls button:not(:disabled)",
-                        )
-                        ?.focus()
-                    }
+                    aria-label={`Stop ${index + 1}`}
                   >
                     {index + 1}
-                  </button>
+                  </span>
+                  <PlannerStopActions
+                    name={item.place?.title || "Unavailable destination"}
+                    itemId={item.id}
+                    dayId={day.id}
+                    days={trip.itinerary_days}
+                    first={index === 0}
+                    last={index === stops.length - 1}
+                    busy={busy}
+                    onUp={() => reorder(index, index - 1)}
+                    onDown={() => reorder(index, index + 1)}
+                    onMove={(id) => changeStop(item, "move", id)}
+                    onRemove={() => changeStop(item, "remove")}
+                    onDrag={(target) =>
+                      setDrag(target ? { id: item.id, over: target } : null)
+                    }
+                    onDrop={(target) =>
+                      void reorder(
+                        index,
+                        stops.findIndex((s) => s.id === target),
+                      )
+                    }
+                  />
                   <div className="p2-stop-body">
                     <div className="p2-stop-heading">
                       {item.place?.image && (
-                        <img src={item.place.image} alt="" loading="lazy" />
+                        <ContentImage
+                          src={item.place.image}
+                          alt=""
+                          loading="lazy"
+                        />
                       )}
                       <div>
                         <span className="p2-eyebrow">
@@ -538,52 +576,6 @@ export function ItineraryPlanner({
                         onDirtyChange(dirtyNotes.current.size > 0);
                       }}
                     />
-                    <div className="p2-stop-controls">
-                      <button
-                        className="p2-icon"
-                        aria-label={`Move ${item.place?.title || "stop"} up`}
-                        disabled={index === 0}
-                        onClick={() => void reorder(index, index - 1)}
-                      >
-                        ↑
-                      </button>
-                      <button
-                        className="p2-icon"
-                        aria-label={`Move ${item.place?.title || "stop"} down`}
-                        disabled={index === stops.length - 1}
-                        onClick={() => void reorder(index, index + 1)}
-                      >
-                        ↓
-                      </button>
-                      <label>
-                        Move to
-                        <select
-                          aria-label={`Move to another day: ${item.place?.title || "stop"}`}
-                          value={day.id}
-                          onChange={(e) =>
-                            void mutate("move", {
-                              item_id: item.id,
-                              day_id: e.target.value,
-                            })
-                          }
-                        >
-                          {trip.itinerary_days.map((d) => (
-                            <option key={d.id} value={d.id}>
-                              Day {d.day_number}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <button
-                        className="p2-icon"
-                        aria-label={`Remove ${item.place?.title || "stop"} from itinerary`}
-                        onClick={() =>
-                          void mutate("remove", { item_id: item.id })
-                        }
-                      >
-                        ×
-                      </button>
-                    </div>
                     <StopNotes
                       item={item}
                       onDirtyChange={(dirty) => {
@@ -629,35 +621,18 @@ export function ItineraryPlanner({
           className={`p2-plan-map p2-plan-map--${mapMode}`}
           aria-label="Selected day map"
         >
-          <h2>{mapMode === "stops" ? "My route" : "Your day, on the map"}</h2>
-          <div className="p2-tabs" role="group" aria-label="Map content">
+          <h2>{mapMode === "stops" ? "My route" : "Explore options"}</h2>
+          <div className="p2-plan-map-actions">
             <button
-              type="button"
-              className="p2-button p2-map-mode"
-              aria-pressed={mapMode === "discover"}
-              onClick={() => setMapMode("discover")}
+              className="p2-button p2-button--quiet"
+              onClick={findDestinations}
             >
-              Explore destinations
+              Search destination
             </button>
-            <button
-              type="button"
-              className="p2-button p2-map-mode"
-              aria-pressed={mapMode === "stops"}
-              onClick={() => setMapMode("stops")}
-            >
-              My route ({stops.length})
-            </button>
+            <a className="p2-back" href="/#palawan-map">
+              Open main map ↗
+            </a>
           </div>
-          <a className="p2-back" href="/#palawan-map">
-            Open main map ↗
-          </a>
-          <button
-            className="p2-button p2-map-add p2-mobile-only"
-            disabled={busy}
-            onClick={findDestinations}
-          >
-            Search by name
-          </button>
           {mapMode === "discover" ? (
             catalog.loading ? (
               <p role="status">Loading map destinations…</p>

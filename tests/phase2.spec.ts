@@ -528,6 +528,7 @@ test.describe("live Supabase Phase 2", () => {
       name: "Notes for this stop",
       exact: true,
     });
+    await page.locator(".p3-stop-note-editor > summary").first().click();
     await draft.fill("Unsaved note must survive Cancel.");
     await switcher.selectOption(b.id);
     await expect(
@@ -695,9 +696,12 @@ test.describe("live Supabase Phase 2", () => {
     );
     const id = new URL(page.url()).searchParams.get("trip")!;
     createdTrips.push(id);
-    await page
-      .getByRole("button", { name: "+ Add Place", exact: true })
-      .click();
+    if (
+      (await page
+        .locator("#planner-search-destination")
+        .getAttribute("aria-expanded")) === "false"
+    )
+      await page.locator("#planner-search-destination").click();
     await page
       .getByRole("searchbox", { name: "Search destinations", exact: true })
       .fill(boat.title);
@@ -706,8 +710,8 @@ test.describe("live Supabase Phase 2", () => {
       exact: true,
     });
     await expect(
-      finder.getByRole("link", { name: /Explore main map/ }),
-    ).toHaveAttribute("href", "/#palawan-map");
+      finder.getByRole("button", { name: "Explore options", exact: true }),
+    ).toBeVisible();
     await finder
       .getByLabel("Category", { exact: true })
       .selectOption({ label: "Beaches" });
@@ -727,13 +731,16 @@ test.describe("live Supabase Phase 2", () => {
       }),
     ).toBeDisabled();
     await finder.getByLabel("Category", { exact: true }).selectOption("");
-    await page
-      .getByRole("button", { name: "+ Add Place", exact: true })
-      .click();
+    if (
+      (await page
+        .locator("#planner-search-destination")
+        .getAttribute("aria-expanded")) === "false"
+    )
+      await page.locator("#planner-search-destination").click();
     await page
       .getByRole("searchbox", { name: "Search destinations", exact: true })
       .fill(mountain.title);
-    await page.getByRole("button", { name: "Explore Our Map" }).click();
+    await page.getByRole("button", { name: "Explore options" }).click();
     const searchDialog = page.getByRole("complementary", {
       name: "Selected day map",
       exact: true,
@@ -760,12 +767,8 @@ test.describe("live Supabase Phase 2", () => {
       .click();
     await searchDialog.getByRole("button", { name: /^Add to Day 1/ }).click();
     await expect(page.locator(".p2-stop")).toHaveCount(2);
-    if (isMobile)
-      await searchDialog
-        .getByRole("button", { name: "Search by name", exact: true })
-        .click();
-    await page
-      .getByRole("button", { name: "Search by Name", exact: true })
+    await searchDialog
+      .getByRole("button", { name: "Search destination", exact: true })
       .click();
     await page
       .getByRole("searchbox", { name: "Search destinations", exact: true })
@@ -787,24 +790,53 @@ test.describe("live Supabase Phase 2", () => {
       fullPage: true,
     });
     if (!isMobile) {
-      await page
+      await page.locator(".p2-stops").scrollIntoViewIfNeeded();
+      const handle = await page
         .locator("[data-drag-handle]")
         .first()
-        .dragTo(page.locator(".p2-stop").last());
+        .boundingBox();
+      const target = await page.locator(".p2-stop").last().boundingBox();
+      await page.mouse.move(handle!.x + 20, handle!.y + 20);
+      await page.mouse.down();
+      await expect(page.locator(".p2-stop").first()).toHaveAttribute(
+        "data-dragging",
+        "true",
+      );
+      await page.mouse.move(
+        target!.x + target!.width / 2,
+        target!.y + target!.height / 2,
+        { steps: 10 },
+      );
+      await page.mouse.up();
       await expect(page.locator(".p2-stop").first()).toContainText(
         mountain.title,
       );
       await page
-        .getByRole("button", { name: `Move ${boat.title} up`, exact: true })
+        .locator(".p2-stop")
+        .filter({ hasText: boat.title })
+        .locator(".p2-stop-actions > summary")
+        .click();
+      await page
+        .locator(".p2-stop")
+        .filter({ hasText: boat.title })
+        .getByRole("button", { name: "Move up", exact: true })
         .click();
       await expect(page.locator(".p2-stop").first()).toContainText(boat.title);
     }
     await page
-      .getByRole("button", { name: `Move ${mountain.title} up`, exact: true })
+      .locator(".p2-stop")
+      .filter({ hasText: mountain.title })
+      .locator(".p2-stop-actions > summary")
+      .click();
+    await page
+      .locator(".p2-stop")
+      .filter({ hasText: mountain.title })
+      .getByRole("button", { name: "Move up", exact: true })
       .click();
     await expect(page.locator(".p2-stop").first()).toContainText(
       mountain.title,
     );
+    await page.locator(".p3-stop-note-editor > summary").first().click();
     await page
       .locator(".p2-stop")
       .first()
@@ -823,6 +855,7 @@ test.describe("live Supabase Phase 2", () => {
           ).notes,
       )
       .toBe("Remember my camera.");
+    await page.locator(".p2-stop-actions > summary").first().click();
     await page
       .locator(".p2-stop")
       .first()
@@ -832,6 +865,7 @@ test.describe("live Supabase Phase 2", () => {
     await expect(page.locator(".p2-stop")).toHaveCount(1);
     await page.reload();
     await expect(page.locator(".p2-stop")).toContainText(mountain.title);
+    await page.locator(".p3-stop-note-editor > summary").first().click();
     await expect(page.getByLabel("Notes for this stop")).toHaveValue(
       "Remember my camera.",
     );
@@ -981,9 +1015,12 @@ test.describe("live Supabase Phase 2", () => {
     createdTrips.push(trip.id);
     await page.goto(`/itineraries/${trip.id}/`);
     await ready(page);
-    await page
-      .getByRole("button", { name: "+ Add Place", exact: true })
-      .click();
+    if (
+      (await page
+        .locator("#planner-search-destination")
+        .getAttribute("aria-expanded")) === "false"
+    )
+      await page.locator("#planner-search-destination").click();
     await page
       .getByRole("searchbox", { name: "Search destinations", exact: true })
       .fill(boat.title);

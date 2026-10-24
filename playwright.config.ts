@@ -20,6 +20,7 @@ export default defineConfig({
         "**/ui-polish.spec.ts",
         "**/auth-privacy.spec.ts",
         "**/admin-redesign.spec.ts",
+        "**/planner-client-update.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },
