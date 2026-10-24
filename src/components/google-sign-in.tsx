@@ -42,6 +42,9 @@ export function GoogleSignIn({ next }: { next: string }) {
   }
   return (
     <div className="p2-google-auth">
+      <div className="p2-auth-divider">
+        <span>or</span>
+      </div>
       <button
         type="button"
         className="p2-google-button"
@@ -82,9 +85,6 @@ export function GoogleSignIn({ next }: { next: string }) {
           {error}
         </p>
       )}
-      <div className="p2-auth-divider">
-        <span>or use email</span>
-      </div>
     </div>
   );
 }

@@ -68,7 +68,6 @@ export function AuthForm({
               : "That confirmation link could not be verified. Use a fresh link or sign in."}
           </p>
         )}
-        {!recovery && <GoogleSignIn next={next} />}
         <form
           noValidate
           className="p2-auth-form"
@@ -154,6 +153,7 @@ export function AuthForm({
                 : "Sign in"}
           </button>
         </form>
+        {!recovery && <GoogleSignIn next={next} />}
         <p className="p2-auth-alt">
           {joining ? (
             <>
