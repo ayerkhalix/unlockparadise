@@ -2,7 +2,7 @@
 
 Prepared 24 October 2026 from the seven-page `todo list (1).pdf`, including its screenshots, and a read-only review of the current application.
 
-Status: A–F and local verification G1–G5 are complete. G6 remains open for staging deployment and post-deploy checks. Checked items record the executed scope described below, not comprehensive browser or assistive-technology coverage. See [CLIENT_TODO_DELIVERY.md](CLIENT_TODO_DELIVERY.md) for the demo checklist, evidence and remaining limits.
+Status: A–G are complete for the scoped implementation and verification below. The release is live on unlockparadise-staging.vercel.app. Checked items record the executed scope described below, not comprehensive browser or assistive-technology coverage. See [CLIENT_TODO_DELIVERY.md](CLIENT_TODO_DELIVERY.md) for the demo checklist, evidence and remaining limits.
 
 ## Working interpretations
 
@@ -131,7 +131,7 @@ Completion checks: a nontechnical editor can reproduce the reference formatting 
 - [x] G3. Test guest, Explorer and Explorer+ journeys, plus admin/editor restrictions. Include direct bookmarked links, browser refresh/back, expired sessions, inaccessible plans and the non-featured premium-name checks.
 - [x] G4. Test the revised mobile menu, cookie dialog, category bar, maps/dock clearance, profile editor and planner browser together at phone, tablet and desktop widths. Check keyboard operation, reduced motion and focused accessibility coverage.
 - [x] G5. Run checks appropriate to each change, then the final typecheck, lint, database/access tests, affected Playwright journeys, production build and release-secret scan. Document any untested external delivery rather than claiming it passed.
-- [ ] G6. Deploy the completed batches to `unlockparadise-staging.vercel.app`, verify the live journeys and provide a final screenshot set and client demo checklist. Keep the new plan/status document current as work completes.
+- [x] G6. Deploy the completed batches to `unlockparadise-staging.vercel.app`, verify the live journeys and provide a final screenshot set and client demo checklist. Keep the new plan/status document current as work completes.
 
 ### Verification progress — 24 October 2026
 
@@ -143,7 +143,7 @@ The finish review inspected all 25 required PNGs and identified five runtime gap
 
 Both the actual browser print/PDF and downloaded HTML show the official embedded mark, saved days and times without site chrome. A nine-page synthetic long-entry export was visually sampled; its last stop/footer are present, day headings stay with the first stop, and the offline file makes no external request. Native printer drivers and every possible note length are not exhaustively covered.
 
-The hosted journey audit confirms RLS, safe function search paths, no anonymous write access, no browser execution of the prior save function, 385 retained destination details and no invalid starting points. The schema/function snapshot predates the additive migration. Rolling application code back can leave this compatible column in place to preserve authored data. Hosted Supabase advisor access was denied; no fresh advisor clearance is claimed. Automated map captures exercise failure/retry because tile requests were blocked. Staging delivery and successful live map loading remain pending.
+The hosted journey audit confirms RLS, safe function search paths, no anonymous write access, no browser execution of the prior save function, 385 retained destination details and no invalid starting points. The schema/function snapshot predates the additive migration. Rolling application code back can leave this compatible column in place to preserve authored data. Hosted Supabase advisor access was denied; no fresh advisor clearance is claimed. Automated map captures exercise failure/retry because tile requests were blocked. Staging delivery is verified. Real map tiles loaded without provider errors at 1440/390px; zoom-to-dock gaps are 68/55px. All 18 unique hosted journeys pass across the initial verification and focused reruns. The final cold-load planner tests explicitly delay JavaScript, verify disabled exports before readiness, then exercise timed additions, download, browser PDF, route and cleanup at both widths.
 
 ## Scope notes
 
@@ -151,3 +151,9 @@ The hosted journey audit confirms RLS, safe function search paths, no anonymous 
 - No new social profile features, free premium entitlements, live payment changes or deletion of portfolio/trip records are implied.
 - Preserve the established navy, teal and gold styling and compact sizing. Apply the project's existing design/UX rules during implementation and update those documents where the new client direction supersedes older behavior.
 - Before changing application code, read the relevant installed Next.js guide as required by AGENTS.md.
+
+## Verified staging release
+
+Runtime source: `1c60886` — https://unlockparadise-staging.vercel.app. Production deployment: `unlockparadise-staging-lidr2wiuh-ayerkhalidesu-4298s-projects.vercel.app` (Ready). Earlier hosted attempts exposed a shared test-output collision and then an export hydration race; they are not counted as passing. Test outputs were isolated, temporary plans were cleaned, and Download/Print now wait for the printable document. Both final hosted cold-load journeys pass. No live charge, customer record deletion, OAuth activation or SMTP change occurred.
+
+The final screenshot set and client-demo archive are stored under `artifacts/client-todo/`. Source/design/test changes are pushed to GitHub. The remaining setup exclusions below still apply.
