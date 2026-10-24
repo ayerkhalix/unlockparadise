@@ -175,14 +175,18 @@ test("compact cookie choices preserve consent and keyboard behavior", async ({
   const size = await dialog.boundingBox();
   expect(size!.height).toBeLessThan(650);
   await shot(page, "cookies");
-  await dialog.getByRole("button", { name: "Manage preferences", exact: true }).click();
+  await dialog
+    .getByRole("button", { name: "Manage preferences", exact: true })
+    .click();
   await expect(dialog).toContainText("Optional cookies");
   await page.keyboard.press("Escape");
   await dialog.getByRole("button", { name: "No thanks", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await page.reload();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Privacy preferences", exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "Privacy preferences", exact: true }),
+  ).toHaveCount(0);
   await expect(page.locator(".p2-privacy-preferences")).toHaveCount(0);
 });
 
@@ -370,6 +374,22 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
     await expect(
       page.locator(".planner-destination-card").first(),
     ).toBeVisible();
+    const cardStyle = await page
+      .locator(".planner-destination-card")
+      .first()
+      .evaluate((card) => ({
+        background: getComputedStyle(card).backgroundColor,
+        title: getComputedStyle(card.querySelector(".upd-card__title")!).color,
+      }));
+    expect(cardStyle.background).toBe("rgb(255, 255, 255)");
+    expect(cardStyle.title).toBe("rgb(17, 17, 17)");
+    expect(
+      (
+        await new AxeBuilder({ page })
+          .include(".planner-destination-grid")
+          .analyze()
+      ).violations,
+    ).toEqual([]);
     await expect(page.locator(".p2-floating")).toHaveCount(0);
     const scoped = await context.request.get(
       `${base}/api/v1/planning-places/?trip=${trip.id}&area=el-nido`,

@@ -464,45 +464,20 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   font-size: 14px;
 }
 .planner-destination-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px 24px;
   margin-bottom: 32px;
 }
 .planner-destination-card {
   min-width: 0;
-  display: flex;
-  flex-direction: column;
 }
-.planner-destination-card > a {
-  color: inherit;
-  text-decoration: none;
+.planner-destination-card .upd-card__link {
+  height: 100%;
 }
-.planner-destination-card img {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  border-radius: 12px;
+.planner-destination-card .upd-card__body {
+  flex: 1;
 }
-.planner-destination-card h2 {
-  font-size: 21px;
-  line-height: 1.3;
-  margin: 4px 0;
-}
-.planner-destination-card a:hover h2 {
+.planner-destination-card a:hover .upd-card__title {
   text-decoration: underline;
   text-underline-offset: 4px;
-}
-.planner-destination-card p {
-  font-size: 13px;
-  color: var(--p2-muted);
-  margin: 12px 0 8px;
-}
-.planner-destination-card .p2-button {
-  margin-top: auto;
-  align-self: flex-start;
-  min-height: 44px;
-  font-size: 14px;
 }
 .rich-editor-toolbar {
   gap: 6px;
@@ -595,9 +570,6 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   .planner-browser-filters > label:first-child {
     grid-column: 1 / -1;
   }
-  .planner-destination-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 @media (max-width: 600px) {
   .destination-invitation {
@@ -650,22 +622,6 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   .planner-browser-filters input,
   .planner-browser-filters select {
     font-size: 16px;
-  }
-  .planner-destination-grid {
-    gap: 28px 14px;
-  }
-  .planner-destination-card h2 {
-    font-size: 18px;
-  }
-  .planner-destination-card .p2-button {
-    width: 100%;
-    font-size: 13px;
-    padding: 10px 8px;
-  }
-}
-@media (max-width: 380px) {
-  .planner-destination-grid {
-    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {

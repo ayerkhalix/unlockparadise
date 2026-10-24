@@ -477,3 +477,6 @@ The planner retains the public navy, teal, sand/gold, Outfit and Open Sans syste
 Keep the incumbent navy/teal/gold and Outfit/Open Sans system. A native single-area field anchors each new trip. The photographic Explore browser retains category tabs, accessible hover/focus contrast and one trip area; native day selectors sit in its toolbar and add dialog. Photo stop cards precede the timeline. The compact inline finder is search-only, and Route stops sits 8px inside the map's upper-left edge below any measured recovery notice.
 
 Profile statistics use two equal columns: Bucketlisted and In Portfolio; the editor offers photo upload/replacement only. Getting there uses inline access-type and destination Maps links without coordinate text. Cookie choices say Accept cookies and No thanks. The About shoreline photograph crops spare sky near the mountain ridge and fades at the top/bottom into its existing sea background. Responsive delivery preserves originals and the same framing.
+
+
+The itinerary destination browser uses the same white Places cards as regular browsing, retaining the shared 4:3 photo, dark title, travel-time and teal transport metadata, with its itinerary action over the photograph. The phone grid is one column. The canonical title selector also supports section-level headings inside the planner shell.

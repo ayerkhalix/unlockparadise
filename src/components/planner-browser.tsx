@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { usePlanningCatalog } from "./use-planning-catalog";
 import { SearchInput } from "./ui/search-input";
 import { ContentImage } from "./ui/content-image";
+import { Icon } from "./icon";
 import { Modal } from "./ui/modal";
 import { ValidatedForm } from "./ui/validated-form";
 import { StopTimeFields } from "./stop-time-fields";
@@ -238,46 +239,85 @@ export function PlannerBrowser({
           </p>
           {filtered.length ? (
             <>
-              <div className="planner-destination-grid">
+              <div className="planner-destination-grid upd-grid">
                 {filtered.slice(0, limit).map((place) => (
-                  <article className="planner-destination-card" key={place.id}>
+                  <article
+                    className="planner-destination-card upd-card"
+                    key={place.id}
+                  >
                     <a
+                      className="upd-card__link"
                       href={`/place/${place.slug}/?trip=${trip.id}&day=${day.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`View ${place.title}`}
                     >
-                      <ContentImage
-                        src={place.image || ""}
-                        alt={place.title}
-                        loading="lazy"
-                      />
-                      <div>
-                        <p>{place.area}</p>
-                        <h2>{place.title}</h2>
+                      <div className="upd-card__photo">
+                        {place.image ? (
+                          <ContentImage
+                            src={place.image || ""}
+                            alt={place.title}
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="upd-card__coming-soon">
+                            Coming soon
+                          </span>
+                        )}
+                      </div>
+                      <div className="upd-card__body">
+                        <h2 className="upd-card__title">{place.title}</h2>
+                        <dl className="upd-card__stats">
+                          <div className="upd-card__stat">
+                            <dt className="upd-card__label">Travel time</dt>
+                            <dd className="upd-card__value">
+                              {place.travelMinutes != null
+                                ? `${place.travelMinutes} min`
+                                : "Not specified"}
+                            </dd>
+                          </div>
+                          <div className="upd-card__stat upd-card__access">
+                            <dt className="upd-card__label">Accessible by</dt>
+                            <dd className="upd-card__value upd-card__modes">
+                              {place.accessibility?.length
+                                ? place.accessibility.map((mode) => (
+                                    <span
+                                      key={mode}
+                                      className="upd-card__mode"
+                                      role="img"
+                                      aria-label={mode}
+                                      data-tooltip={mode}
+                                    >
+                                      <Icon name={mode} size={16} />
+                                    </span>
+                                  ))
+                                : "Not specified"}
+                            </dd>
+                          </div>
+                        </dl>
                       </div>
                     </a>
-                    <p>
-                      {place.category}
-                      {place.travelMinutes != null
-                        ? ` · ${place.travelMinutes} min travel`
-                        : ""}
-                    </p>
-                    <button
-                      type="button"
-                      className="p2-button"
-                      disabled={busy || added.has(place.id)}
-                      onClick={() => {
-                        setTime({ start_time: null, end_time: null });
-                        setError("");
-                        setAddingDayId(day.id);
-                        setAdding(place);
-                      }}
-                    >
-                      {added.has(place.id)
-                        ? "Added to itinerary"
-                        : "Add to itinerary"}
-                    </button>
+                    <div className="upd-card__save">
+                      <button
+                        type="button"
+                        className="p2-card-plan"
+                        aria-label={
+                          added.has(place.id)
+                            ? "Added to itinerary"
+                            : "Add to itinerary"
+                        }
+                        disabled={busy || added.has(place.id)}
+                        onClick={() => {
+                          setTime({ start_time: null, end_time: null });
+                          setError("");
+                          setAddingDayId(day.id);
+                          setAdding(place);
+                        }}
+                      >
+                        {added.has(place.id)
+                          ? "Added to itinerary"
+                          : "+ Itinerary"}
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>

@@ -20,3 +20,8 @@ Earlier plan/menu/route evidence remains under artifacts/planner-client-update. 
 ## Superseding client refinements — 25 October 2026
 
 Photo stop cards precede Daily timeline. New trips require exactly one area; existing trips without one keep their saved content and choose an area before adding. The area is enforced in owned catalog reads and versioned server mutations. Inline search omits area/category filters. Explore destinations includes native day selectors in its toolbar and add dialog, and category hover/focus preserves contrast. My route omits Open main map; Route stops is 8px inside the upper-left edge below measured map notices. Responsive image delivery retains access checks and original assets. Current evidence and release status are tracked in CLIENT_REFINEMENTS_DELIVERY.md.
+
+
+## Shared Places cards — 25 October 2026
+
+Explore destinations reuses the normal Places card anatomy: rounded 4:3 photograph, white detail panel, dark destination title, travel-time value and teal transport icons. The itinerary action overlays the photo outside the destination link. The browser retains its area and day selection, membership access, versioned add flow and confirmed Added state. Phone cards use one full-width column like regular Places. No Bucketlist control or premium lock is introduced into this authorized planning context.

@@ -251,7 +251,7 @@
 }
 
 .upd-card__body { padding: 16px 18px 20px; }
-.upd-card__title { font-size: var(--upd-fs-18px); line-height: 1.25; margin: 0 0 10px; color: #111; }
+.upd-card .upd-card__title { font-size: var(--upd-fs-18px); line-height: 1.25; margin: 0 0 10px; color: #111; }
 
 /* Rating badge on a feed card. .upd-rating lives in reviews.css, which is only
    enqueued on is_singular('place'), so on a feed the badge arrives with NO
