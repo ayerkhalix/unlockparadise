@@ -183,6 +183,7 @@ export function PlaceEditor({
             travel_minutes: number("travel_minutes"),
             boat_required: data.has("boat_required"),
             departure_port: data.get("departure_port") || null,
+            journey_start: String(data.get("journey_start") || "City proper"),
             road_minutes: number("road_minutes"),
             boat_minutes: number("boat_minutes"),
             hike_minutes: number("hike_minutes"),
@@ -359,9 +360,9 @@ export function PlaceEditor({
           </label>
         </div>
         <details className="studio-form-section">
-          <summary>Travel information</summary>
+          <summary>Getting there: road and boat</summary>
           <fieldset>
-            <legend>Verified travel information</legend>
+            <legend>Getting there by road and boat</legend>
             <p>
               Leave unknown durations blank. The legacy travel time above is
               preserved separately and is never assumed to be boat or hike time.
@@ -375,6 +376,15 @@ export function PlaceEditor({
               Verified boat access required
             </label>
             <div className="admin-fields">
+              <label>
+                Starting point
+                <input
+                  name="journey_start"
+                  maxLength={200}
+                  required
+                  defaultValue={String(details.journey_start || "City proper")}
+                />
+              </label>
               <label>
                 Departure port or access point
                 <input
@@ -435,6 +445,7 @@ export function PlaceEditor({
         </details>
         <h2>Description</h2>
         <RichTextEditor
+          onDirty={markDirty}
           name="description"
           label="Description"
           initial={String(details.description || "")}

@@ -16,6 +16,7 @@ export const placeInput = z
     premium_content: z.boolean(),
     listing_types: z.array(z.enum(["destination", "lot"])).min(1),
     travel_minutes: z.number().min(0).max(100000).nullable(),
+    journey_start: z.string().trim().min(1).max(200).optional(),
     boat_required: z.boolean().optional(),
     departure_port: z.string().trim().max(200).nullable().optional(),
     road_minutes: z.number().min(0).max(100000).nullable().optional(),

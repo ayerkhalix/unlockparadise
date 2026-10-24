@@ -14,10 +14,12 @@ import { TravelCompanion } from "@/components/travel-companion";
 import { currentSession } from "@/lib/auth/session";
 import "./phase2.css";
 import "./traveler.css";
+import "./client-todo.css";
 import { AnalyticsPreferences } from "@/components/analytics-preferences";
 import { cookies } from "next/headers";
 import { AdminThemeScope } from "@/components/admin-theme";
 import { FlightLifecycle } from "@/components/flight-lifecycle";
+import { BrowsingTrail } from "@/components/gate-navigation";
 
 export const metadata: Metadata = {
   title: { default: "Unlock Paradise", template: "%s - Unlock Paradise" },
@@ -93,6 +95,7 @@ export default async function RootLayout({
             <AnalyticsPreferences />
           </div>
           <SiteBehavior />
+          <BrowsingTrail />
           <BackendForms />
           <MemberActions />
           <TravelCompanion tier={tier} />

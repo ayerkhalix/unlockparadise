@@ -91,7 +91,12 @@ export async function studioGET(request: Request, resource: string[]) {
   if (name === "merchandise") {
     let query = current.db
       .from("merch_products")
-      .select("*,merch_variants(*)", { count: "exact" });
+      .select(
+        "*,merch_variants(*),merch_collections!merch_products_collection_id_fkey(name)",
+        {
+          count: "exact",
+        },
+      );
     if (id) query = query.eq("id", positiveId.parse(id));
     else {
       if (search)

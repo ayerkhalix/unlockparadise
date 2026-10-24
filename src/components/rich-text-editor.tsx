@@ -8,24 +8,37 @@ export function RichTextEditor({
   name,
   label,
   initial,
+  onDirty,
 }: {
   name: string;
   label: string;
   initial: string;
+  onDirty?: () => void;
 }) {
   const { ask, dialog } = useDecision();
   const [value, setValue] = useState(initial),
-    [preview, setPreview] = useState(false);
-  const ref = useRef<HTMLTextAreaElement>(null);
-  const wrap = async (tag: string) => {
-    const el = ref.current;
-    if (!el) return;
-    const start = el.selectionStart,
-      end = el.selectionEnd;
-    const selected = value.slice(start, end);
-    let open = `<${tag}>`;
-    const close = `</${tag}>`;
-    if (tag === "a") {
+    [source, setSource] = useState(false);
+  const editor = useRef<HTMLDivElement>(null),
+    selection = useRef<Range | null>(null);
+  const remember = () => {
+    const selected = window.getSelection();
+    if (selected?.rangeCount && editor.current?.contains(selected.anchorNode))
+      selection.current = selected.getRangeAt(0).cloneRange();
+  };
+  const changed = () => {
+    const html = editor.current?.innerHTML || "";
+    if (html.length > 100000) {
+      notify(
+        "Description is too long. Keep it under 100,000 characters.",
+        true,
+      );
+      return;
+    }
+    setValue(html);
+    onDirty?.();
+  };
+  const format = async (command: string, argument?: string) => {
+    if (command === "createLink") {
       const href = await ask("Source URL (https://…)", "");
       if (!href) return;
       try {
@@ -35,60 +48,107 @@ export function RichTextEditor({
         notify("Enter a complete http:// or https:// source URL.", true);
         return;
       }
-      open = `<a href="${href.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;")}">`;
+      argument = href;
     }
-    setValue(
-      value.slice(0, start) + open + selected + close + value.slice(end),
-    );
-    el.focus();
+    editor.current?.focus();
+    if (
+      selection.current &&
+      editor.current?.contains(selection.current.commonAncestorContainer)
+    ) {
+      const selected = window.getSelection();
+      selected?.removeAllRanges();
+      selected?.addRange(selection.current);
+    }
+    // Browser editing keeps keyboard shortcuts and the native undo history together.
+    document.execCommand(command, false, argument);
+    changed();
+    remember();
   };
   return (
     <div className="p2-rich-editor">
       {dialog}
       <div
-        className="p2-actions"
+        className="p2-actions rich-editor-toolbar"
         role="group"
         aria-label={`${label} formatting`}
       >
-        <button type="button" onClick={() => wrap("strong")}>
-          Bold
-        </button>
-        <button type="button" onClick={() => wrap("h3")}>
-          Heading
-        </button>
-        <button type="button" onClick={() => wrap("a")}>
-          Source link
-        </button>
-        <button
-          type="button"
-          aria-pressed={preview}
-          onClick={() => setPreview(!preview)}
-        >
-          {preview ? "Hide preview" : "Preview formatting"}
-        </button>
+        {[
+          ["Bold", "bold"],
+          ["Heading", "formatBlock", "h3"],
+          ["Paragraph", "formatBlock", "p"],
+          ["Bullet list", "insertUnorderedList"],
+          ["Numbered list", "insertOrderedList"],
+          ["Source link", "createLink"],
+          ["Undo", "undo"],
+          ["Redo", "redo"],
+        ].map(([text, command, argument]) => (
+          <button
+            key={command + text}
+            type="button"
+            disabled={source}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => void format(command, argument)}
+          >
+            {text}
+          </button>
+        ))}
       </div>
-      <label>
-        {label}
+      <label id={`${name}-editor-label`}>{label}</label>
+      {!source ? (
+        <div
+          key="visual"
+          ref={(node) => {
+            editor.current = node;
+            if (node && !node.dataset.initialized) {
+              node.innerHTML = safeHtml(paragraphs(value));
+              node.dataset.initialized = "true";
+            }
+          }}
+          role="textbox"
+          aria-multiline="true"
+          aria-labelledby={`${name}-editor-label`}
+          className="visual-rich-editor"
+          contentEditable
+          suppressContentEditableWarning
+          onInput={changed}
+          onKeyUp={remember}
+          onMouseUp={remember}
+          onPaste={(e) => {
+            e.preventDefault();
+            document.execCommand(
+              "insertText",
+              false,
+              e.clipboardData.getData("text/plain"),
+            );
+            changed();
+          }}
+        />
+      ) : (
         <textarea
           className="resize-none"
-          ref={ref}
-          name={name}
+          aria-labelledby={`${name}-editor-label`}
           value={value}
-          rows={8}
-          onChange={(e) => setValue(e.target.value)}
+          rows={9}
           maxLength={100000}
-        />
-      </label>
-      <p className="p2-muted">
-        Select text to format. Keep factual content and credits intact. Unsafe
-        HTML is removed on save.
-      </p>
-      {preview && (
-        <div
-          className="p2-guide-copy p2-rich-preview"
-          dangerouslySetInnerHTML={{ __html: safeHtml(paragraphs(value)) }}
+          onChange={(e) => {
+            setValue(e.target.value);
+            onDirty?.();
+          }}
         />
       )}
+      <input type="hidden" name={name} value={value} />
+      <p className="p2-muted">
+        Type your description and select text to format it. Existing links and
+        formatting are preserved.
+      </p>
+      <button
+        className="p2-back"
+        type="button"
+        aria-pressed={source}
+        onClick={() => setSource(!source)}
+      >
+        {source ? "Return to visual editor" : "HTML source (advanced)"}
+      </button>
     </div>
   );
 }

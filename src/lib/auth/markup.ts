@@ -1,5 +1,29 @@
 import "server-only";
 export function membershipMarkup(html: string, signedIn: boolean) {
+  let column = 0;
+  html = html.replace(
+    /(<ul class="upd-plans__features">)([\s\S]*?)(<\/ul>)/g,
+    (_match, open, content, close) => {
+      const premium = column++ === 2;
+      const features = [
+        "Day-by-day itinerary planner",
+        "Visit times, durations and notes",
+        "Your route on the map",
+        "Download and print your itinerary",
+      ];
+      return (
+        open +
+        content +
+        features
+          .map(
+            (label) =>
+              `<li class="upd-plans__feature ${premium ? "is-on" : "is-off"}"><span aria-hidden="true">${premium ? "✓" : "×"}</span> ${label}</li>`,
+          )
+          .join("") +
+        close
+      );
+    },
+  );
   const checkout = html.replaceAll(
     'href="/join/?redirect_to=/checkout/"',
     'href="/checkout/"',

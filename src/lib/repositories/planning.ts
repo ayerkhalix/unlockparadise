@@ -5,17 +5,23 @@ import { mediaAvailable } from "@/lib/media-availability";
 import type { TravelPlace, Trip } from "@/lib/planning";
 
 export const planningPlaceSelect =
-  "id,slug,title,vip_content,status,place_areas(areas(name,slug)),place_categories(categories(name,slug)),place_media(kind,media(id,status)),place_details(latitude,longitude,access_points)";
+  "id,slug,title,vip_content,status,accessibility,travel_minutes,place_areas(areas(name,slug)),place_categories(categories(name,slug)),place_media(kind,media(id,status)),place_details(latitude,longitude,access_points)";
 type PlaceRow = {
   id: string;
   slug: string;
   title: string;
   status: string;
   vip_content: boolean;
+  accessibility: string[];
+  travel_minutes: number | null;
   place_areas: { areas: { name: string; slug: string } }[];
   place_categories: { categories: { name: string; slug: string } }[];
   place_media: { kind: string; media: { id: string; status: string } | null }[];
-  place_details: { latitude: number | null; longitude: number | null; access_points?: import("../access-points").AccessPoint[] } | null;
+  place_details: {
+    latitude: number | null;
+    longitude: number | null;
+    access_points?: import("../access-points").AccessPoint[];
+  } | null;
 };
 export function planningPlace(row: unknown): TravelPlace | null {
   const p = row as PlaceRow | null;
@@ -25,6 +31,8 @@ export function planningPlace(row: unknown): TravelPlace | null {
   )?.media;
   return {
     id: p.id,
+    accessibility: p.accessibility,
+    travelMinutes: p.travel_minutes,
     slug: p.slug,
     title: p.title,
     area: p.place_areas.map((a) => a.areas.name).join(" · "),

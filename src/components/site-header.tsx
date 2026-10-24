@@ -192,14 +192,45 @@ export function SiteHeader(props: Props) {
           title="Explore Unlock Paradise"
           onClose={() => setOpen(false)}
           drawer
+          side="left"
         >
           <nav className="p2-mobile-nav" aria-label="Mobile">
             {nav}
-            {props.tier === "public" ? (
-              <GuestProfile />
-            ) : (
-              <AccountMenu {...props} />
-            )}
+            <div className="mobile-account-links">
+              {props.tier === "public" ? (
+                <>
+                  <a href="/login/">Sign in</a>
+                  <a href="/join/">Register free</a>
+                </>
+              ) : (
+                <>
+                  <strong>{props.name || "Your account"}</strong>
+                  {accountLinks
+                    .filter(
+                      ([label]) =>
+                        !["Membership", "Itinerary Planner"].includes(label),
+                    )
+                    .map(([label, href]) => (
+                      <a key={href} href={href}>
+                        {label}
+                      </a>
+                    ))}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await requestJSON("/api/auth/logout/", "POST", {});
+                        location.assign("/");
+                      } catch (error) {
+                        notify((error as Error).message, true);
+                      }
+                    }}
+                  >
+                    Log out
+                  </button>
+                </>
+              )}
+            </div>
           </nav>
           <p className="p2-muted">The side of Palawan they don’t tell you.</p>
         </Modal>

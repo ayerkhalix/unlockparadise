@@ -5,18 +5,29 @@ import { databaseError } from "@/lib/http";
 import { card } from "@/lib/repositories/render";
 import type { PlaceSummary } from "@/lib/repositories/places";
 import { OriginalMarkup } from "./original-markup";
-import { AvatarForm } from "./profile-photo";
+import { ProfileEditor } from "./profile-editor";
+import { Icon } from "./icon";
 import { ValidatedForm } from "./ui/validated-form";
 import { travelPreferences } from "@/lib/repositories/traveler";
 import { FeatureLock } from "./feature-lock";
 import { TravelerBadgePrivacy } from "./traveler-badge-privacy";
 import { TravelerIdentity } from "./traveler-identity";
-import { TravelerInvitation } from "./traveler-invitation";
 import { SavedPlacesPage } from "./bucketlist";
 
 export async function MemberPage({ kind }: { kind: string }) {
   const current = await currentSession();
-  if (!current) redirect("/login/");
+  if (!current) {
+    if (kind === "account") redirect("/login/");
+    return (
+      <main id="upd-main" className="upd-main">
+        <div className="p2-shell">
+          <FeatureLock
+            feature={kind === "portfolio" ? "Portfolio" : "Bucketlist"}
+          />
+        </div>
+      </main>
+    );
+  }
   if (kind !== "account")
     return (
       <main id="upd-main" className="upd-main">
@@ -138,9 +149,18 @@ export async function MemberPage({ kind }: { kind: string }) {
             )}
             <header className="upd-profile__id">
               <div className="profile-avatar-stack">
-                <AvatarForm
-                  photoId={photo?.status === "ready" ? photo.id : undefined}
-                />
+                <div className="profile-avatar-static">
+                  {photo?.status === "ready" ? (
+                    <img
+                      src={`/api/media/${photo.id}/`}
+                      alt="Your profile"
+                      width={96}
+                      height={96}
+                    />
+                  ) : (
+                    <Icon name="Person" size={48} />
+                  )}
+                </div>
                 <span
                   className={`membership-label membership-label--${current.premium ? "plus" : "explorer"}`}
                 >
@@ -161,9 +181,16 @@ export async function MemberPage({ kind }: { kind: string }) {
                   })}
                 </span>
               </p>
-              <a className="p2-button p3-profile-plan" href="/#palawan-map">
-                View map
-              </a>
+              <div className="profile-header-actions">
+                <ProfileEditor
+                  name={data.display_name}
+                  photoId={photo?.status === "ready" ? photo.id : undefined}
+                  preferences={preferences}
+                />
+                <a className="p2-button p3-profile-plan" href="/#palawan-map">
+                  View map
+                </a>
+              </div>
             </header>
             <div className="p3-profile-workspace">
               <aside
@@ -184,24 +211,13 @@ export async function MemberPage({ kind }: { kind: string }) {
                         : "Your destinations are unlocked."
                       : "Your free Palawan explorer account."}
                   </p>
-                  <a href={current.premium ? "/membership/" : "/checkout/"}>
+                  <a href="/membership/">
                     {current.premium
                       ? "Membership details"
                       : "Explore Explorer+"}
                   </a>
                 </section>
 
-                {preferences &&
-                  ["skipped", "dismissed"].includes(preferences.status) && (
-                    <p className="td-preferences-link">
-                      <a href="/traveler-discovery/?next=%2Faccount%2F">
-                        Edit Travel Preferences
-                      </a>
-                    </p>
-                  )}
-                {(!preferences || preferences.status === "pending") && (
-                  <TravelerInvitation version={preferences?.version} />
-                )}
                 <nav
                   className="p3-profile-links"
                   aria-label="Profile shortcuts"
@@ -217,7 +233,7 @@ export async function MemberPage({ kind }: { kind: string }) {
                     <strong>{saved.length}</strong> Bucketlisted
                   </li>
                   <li>
-                    <strong>{visited.length}</strong> Visited
+                    <strong>{visited.length}</strong> In Portfolio
                   </li>
                   <li>
                     <strong>{areas.size}</strong> Areas explored
@@ -255,7 +271,7 @@ export async function MemberPage({ kind }: { kind: string }) {
                           <div className="upd-bucketlist-empty">
                             <p>
                               {section.title === "My Portfolio"
-                                ? "Your portfolio is empty — mark a place visited to start building it."
+                                ? "Your portfolio is empty. Your visited destinations will appear here."
                                 : "Your bucketlist is empty — start exploring Palawan."}
                             </p>
                             <a className="upd-btn upd-btn--primary" href="/">
@@ -275,7 +291,7 @@ export async function MemberPage({ kind }: { kind: string }) {
                 >
                   <div className="upd-profile__sectionhead">
                     <h2>Settings</h2>
-                    <a href="/itineraries/">Plan your next trip →</a>
+                    <a href="/itineraries/">Itinerary Planner →</a>
                   </div>
                   <div className="upd-profile__settings">
                     {data.featured_place_id && (
@@ -305,43 +321,6 @@ export async function MemberPage({ kind }: { kind: string }) {
                         </div>
                       </details>
                     )}
-                    <details className="upd-profile__row">
-                      <summary>
-                        <span className="upd-profile__rowlabel">
-                          Display name
-                        </span>
-                        <span className="upd-profile__rowval">
-                          {data.display_name}
-                        </span>
-                      </summary>
-                      <div className="upd-profile__rowbody">
-                        <ValidatedForm
-                          className="upd-auth-form"
-                          data-endpoint="/api/v1/me/"
-                          data-method="PATCH"
-                          method="post"
-                          action="/api/v1/me/"
-                        >
-                          <label className="upd-auth-field">
-                            Display name
-                            <input
-                              name="display_name"
-                              minLength={2}
-                              maxLength={40}
-                              defaultValue={data.display_name}
-                              required
-                            />
-                          </label>
-                          <button
-                            className="upd-btn upd-btn--primary"
-                            type="submit"
-                          >
-                            Save name
-                          </button>
-                          <span role="status" />
-                        </ValidatedForm>
-                      </div>
-                    </details>
                     <details className="upd-profile__row">
                       <summary>
                         <span className="upd-profile__rowlabel">Password</span>

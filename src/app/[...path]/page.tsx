@@ -16,6 +16,7 @@ import { MemberPage } from "@/components/member-page";
 import { ResetPassword } from "@/components/reset-password";
 import { Checkout } from "@/components/checkout";
 import { AreaNavigation } from "@/components/area-navigation";
+import { FeatureLock } from "@/components/feature-lock";
 import { googleReturnPath } from "@/lib/auth/google";
 
 const titles: Record<string, string> = {
@@ -62,6 +63,25 @@ export default async function PublicPage({ params, searchParams }: Props) {
         next={googleReturnPath(query.redirect_to)}
         error={typeof query.error === "string" ? query.error : undefined}
       />
+    );
+  }
+  if (key === "explorer-plus") {
+    const query = await searchParams;
+    const features: Record<string, string> = {
+      bucketlist: "Bucketlist",
+      portfolio: "Portfolio",
+      itinerary: "Itinerary Planner",
+    };
+    return (
+      <main id="upd-main" className="upd-main">
+        <div className="p2-shell">
+          <FeatureLock
+            feature={
+              features[String(query.feature)] || "Explorer+ destinations"
+            }
+          />
+        </div>
+      </main>
     );
   }
   if (key === "forgot-password") return <AuthForm route={key} />;

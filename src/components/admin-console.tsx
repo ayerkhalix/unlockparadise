@@ -204,7 +204,6 @@ export function AdminConsole({
         className="studio-utilities"
         aria-label="Studio preferences and account"
       >
-        <AdminThemeToggle />
         <a href="/account/">
           <Icon name="Person" size={18} />
           My account
@@ -258,6 +257,7 @@ export function AdminConsole({
             )}
           </div>
           <span className="studio-today">{today}</span>
+          <AdminThemeToggle />
           <button
             className="studio-menu"
             aria-label="Open studio menu"

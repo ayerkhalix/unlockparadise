@@ -11,7 +11,7 @@ export function TravelJourney({ place }: { place: Destination }) {
         <li>
           <span className="p2-journey-dot" />
           <div>
-            <strong>City proper</strong>
+            <strong>{info.journey_start || "City proper"}</strong>
             <p>
               Travel by road:{" "}
               {info.road_minutes != null

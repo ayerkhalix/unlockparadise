@@ -10,7 +10,6 @@ export function PlaceActions({
   premium,
   placeId,
   saved = false,
-  visited = false,
 }: {
   premium: boolean;
   placeId?: string;
@@ -39,26 +38,17 @@ export function PlaceActions({
             </span>
             <span className="upd-action__label">Bucketlist</span>
           </button>
-          <button
-            type="button"
-            className={`upd-action${visited ? " is-visited" : ""}`}
-            disabled={!placeId}
-            data-member-op={visited ? "unvisit" : "visit"}
-            data-place-uuid={placeId}
-            aria-pressed={visited}
-            aria-label={
-              visited ? "Remove from Portfolio" : "Add to Portfolio"
-            }
-            data-tooltip={
-              visited ? "Remove from Portfolio" : "Add to Portfolio"
-            }
-          >
-            <span className="upd-action__icon">
-              <Icon name="Visited" size={14} />
-            </span>
-            <span className="upd-action__label">Portfolio</span>
-          </button>
         </>
+      )}
+      {!premium && (
+        <a
+          className="upd-action"
+          href="/explorer-plus/?feature=bucketlist"
+          aria-label="Add to Bucketlist"
+        >
+          <Icon name="Bucket" size={18} />
+          <span>Bucketlist</span>
+        </a>
       )}
       {placeId && (
         <button

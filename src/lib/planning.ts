@@ -99,6 +99,8 @@ export const planMutation = z
   .and(z.object({ version: z.number().int().min(1) }));
 
 export type TravelPlace = {
+  accessibility?: string[];
+  travelMinutes?: number | null;
   id: string;
   slug: string;
   title: string;

@@ -1,6 +1,17 @@
 import { Icon } from "./icon";
+import { GateBack, GateUpgrade } from "./gate-navigation";
 
-export function FeatureLock({ feature }: { feature: string }) {
+export function FeatureLock({
+  feature,
+  kind = "feature",
+  required = "explorer-plus",
+  returnTo = "/account/",
+}: {
+  feature: string;
+  kind?: "feature" | "destination";
+  required?: "explorer" | "explorer-plus";
+  returnTo?: string;
+}) {
   return (
     <section className="member-lock" aria-labelledby="member-lock-title">
       <a className="member-lock__brand" href="/">
@@ -17,14 +28,32 @@ export function FeatureLock({ feature }: { feature: string }) {
       </div>
       <h1 id="member-lock-title">{feature}</h1>
       <p>
-        Upgrade to <strong>Explorer+</strong> to access this feature.
+        {required === "explorer" ? (
+          <>
+            Create a free <strong>Explorer</strong> account to explore this
+            destination.
+          </>
+        ) : (
+          <>
+            Upgrade to <strong>Explorer+</strong> to{" "}
+            {kind === "destination"
+              ? "explore this destination"
+              : "access this feature"}
+            .
+          </>
+        )}
       </p>
-      <a className="upd-btn upd-btn--vip" href="/checkout/">
-        Upgrade to Explorer+
-      </a>
-      <a className="member-lock__return" href="/">
-        Keep exploring Palawan
-      </a>
+      {required === "explorer" ? (
+        <a
+          className="upd-btn upd-btn--primary"
+          href={`/join/?redirect_to=${encodeURIComponent(returnTo)}`}
+        >
+          Join free
+        </a>
+      ) : (
+        <GateUpgrade />
+      )}
+      <GateBack />
     </section>
   );
 }

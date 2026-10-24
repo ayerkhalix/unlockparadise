@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Modal } from "./ui/modal";
 import { SavedPlaces, useSavedPlaces } from "./bucketlist";
 import { ItineraryPicker } from "./itinerary-picker";
@@ -11,6 +11,7 @@ export function TravelCompanion({ tier }: { tier: string }) {
   const [drawer, setDrawer] = useState(false),
     [place, setPlace] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { rows, loading, error, reload } = useSavedPlaces(
     tier === "explorer-plus",
   );
@@ -20,6 +21,10 @@ export function TravelCompanion({ tier }: { tier: string }) {
         "[data-add-itinerary]",
       );
       if (button?.dataset.addItinerary) {
+        if (tier !== "explorer-plus") {
+          router.push("/explorer-plus/?feature=itinerary");
+          return;
+        }
         setDrawer(false);
         setPlace(button.dataset.addItinerary);
       }
@@ -27,6 +32,10 @@ export function TravelCompanion({ tier }: { tier: string }) {
     document.addEventListener("click", click);
     const pending = new URLSearchParams(location.search).get("add_place");
     if (pending && /^[0-9a-f-]{36}$/i.test(pending)) {
+      if (tier !== "explorer-plus") {
+        router.replace("/explorer-plus/?feature=itinerary");
+        return () => document.removeEventListener("click", click);
+      }
       const timer = setTimeout(() => setPlace(pending), 0);
       return () => {
         clearTimeout(timer);
@@ -34,8 +43,10 @@ export function TravelCompanion({ tier }: { tier: string }) {
       };
     }
     return () => document.removeEventListener("click", click);
-  }, []);
+  }, [tier, router]);
   const hidden =
+    pathname.startsWith("/itineraries/explore") ||
+    pathname.startsWith("/explorer-plus") ||
     /^\/(admin|auth|merch|login|join|forgot-password|reset-password|checkout|traveler-discovery)(\/|$)/.test(
       pathname,
     );
@@ -49,7 +60,11 @@ export function TravelCompanion({ tier }: { tier: string }) {
             data-tooltip="Open Bucketlist"
             type="button"
             aria-label={`Open Bucketlist ${loading ? "loading" : error ? "unavailable" : `${rows.length} saved Places`}`}
-            onClick={() => setDrawer(true)}
+            onClick={() =>
+              tier === "explorer-plus"
+                ? setDrawer(true)
+                : router.push("/explorer-plus/?feature=bucketlist")
+            }
           >
             <Icon name="Bucket" size={22} />
             <span>Bucketlist</span>{" "}

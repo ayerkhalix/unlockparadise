@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 export function MapFeedback({
   loading,
   error,
@@ -13,9 +13,27 @@ export function MapFeedback({
   children?: ReactNode;
   className?: string;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const notice = ref.current;
+    const host = notice?.parentElement;
+    if (!notice || !host) return;
+    const measure = () =>
+      host.style.setProperty(
+        "--p2-map-feedback-height",
+        `${notice.getBoundingClientRect().height}px`,
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(notice);
+    return () => {
+      observer.disconnect();
+      host.style.removeProperty("--p2-map-feedback-height");
+    };
+  }, [loading, error]);
   if (!loading && !error) return null;
   return (
-    <div className={`${className} p2-map-feedback`} role="status">
+    <div ref={ref} className={`${className} p2-map-feedback`} role="status">
       <span>
         {error
           ? "The map couldn’t load. Destination choices are still available."

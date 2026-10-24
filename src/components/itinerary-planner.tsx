@@ -2,7 +2,7 @@
 import { captureInterest } from "@/lib/analytics-client";
 import { ValidatedForm } from "./ui/validated-form";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   dayLabel,
   tripDateLabel,
@@ -18,7 +18,6 @@ import { useDecision } from "./ui/decision";
 import { Modal } from "./ui/modal";
 import { PlaceSearch, type PlaceSearchFilters } from "./place-search";
 import { PalawanMap } from "./palawan-map";
-import { PlannerDiscoveryMap } from "./planner-discovery-map";
 import { usePlanningCatalog } from "./use-planning-catalog";
 import { StopTimeFields } from "./stop-time-fields";
 import {
@@ -164,7 +163,7 @@ export function ItineraryPlanner({
     area: "",
     category: "",
   });
-  const [mapMode, setMapMode] = useState<"discover" | "stops">("discover");
+  const router = useRouter();
   const [adding, setAdding] = useState<TravelPlace | null>(null);
   const [visitTime, setVisitTime] = useState<StopTime>({
     start_time: null,
@@ -282,13 +281,18 @@ export function ItineraryPlanner({
         ?.focus({ preventScroll: true });
     });
   };
-  const exploreMap = () => {
-    setMapMode("discover");
-    setView("map");
-    requestAnimationFrame(() => {
-      mapPanel.current?.scrollIntoView({ block: "start", behavior: "instant" });
-      mapPanel.current?.focus({ preventScroll: true });
-    });
+  const exploreMap = async () => {
+    if (busy) return;
+    if (
+      dirtyNotes.current.size &&
+      !(await ask(
+        "Discard unsaved stop notes or times before browsing destinations?",
+      ))
+    )
+      return;
+    dirtyNotes.current.clear();
+    onDirtyChange(false);
+    router.push(`/itineraries/explore/?trip=${trip.id}&day=${day.id}`);
   };
   const reorder = async (from: number, to: number) => {
     if (from < 0 || to < 0 || to >= stops.length || from === to) return false;
@@ -457,9 +461,8 @@ export function ItineraryPlanner({
         </button>
         <button
           className="p2-button p2-button--quiet"
-          aria-pressed={view === "map" && mapMode === "stops"}
+          aria-pressed={view === "map"}
           onClick={() => {
-            setMapMode("stops");
             setView("map");
           }}
         >
@@ -618,62 +621,22 @@ export function ItineraryPlanner({
         <aside
           ref={mapPanel}
           tabIndex={-1}
-          className={`p2-plan-map p2-plan-map--${mapMode}`}
+          className="p2-plan-map p2-plan-map--stops"
           aria-label="Selected day map"
         >
-          <h2>{mapMode === "stops" ? "My route" : "Explore options"}</h2>
+          <h2>My route</h2>
           <div className="p2-plan-map-actions">
             <button
               className="p2-button p2-button--quiet"
               onClick={findDestinations}
             >
-              Search destination
+              Add destination
             </button>
             <a className="p2-back" href="/#palawan-map">
               Open main map ↗
             </a>
           </div>
-          {mapMode === "discover" ? (
-            catalog.loading ? (
-              <p role="status">Loading map destinations…</p>
-            ) : catalog.error ? (
-              <div className="p2-error" role="alert">
-                <p>{catalog.error}</p>
-                <button
-                  type="button"
-                  className="p2-button"
-                  onClick={catalog.reload}
-                >
-                  Retry map destinations
-                </button>
-              </div>
-            ) : filteredPlaces.length ? (
-              <PlannerDiscoveryMap
-                places={filteredPlaces}
-                metadata={catalog.metadata}
-                day={dayLabel(day, trip.start_date)}
-                busy={busy}
-                addedPlaceIds={stops.map((s) => s.place_id)}
-                onSelect={(p) => {
-                  chooseStop(p);
-                }}
-              />
-            ) : (
-              <div className="p2-empty">
-                <h3>No destinations found</h3>
-                <p>Clear the search filters to browse the map.</p>
-                <button
-                  type="button"
-                  className="p2-button p2-button--quiet"
-                  onClick={() =>
-                    setFilters({ search: "", area: "", category: "" })
-                  }
-                >
-                  Clear map filters
-                </button>
-              </div>
-            )
-          ) : (
+          {
             <PalawanMap
               planning={{
                 places: locations,
@@ -689,7 +652,7 @@ export function ItineraryPlanner({
                 },
               }}
             />
-          )}
+          }
         </aside>
       </div>
       {adding && (

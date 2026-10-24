@@ -1,5 +1,5 @@
 import "server-only";
-import { serverSupabase } from "@/lib/supabase/server";
+import { serverSupabase, privilegedSupabase } from "@/lib/supabase/server";
 import { databaseError } from "@/lib/http";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { currentSession } from "@/lib/auth/session";
@@ -19,6 +19,7 @@ export interface PlaceSummary {
   rating_count?: number;
   saved?: boolean;
   visited?: boolean;
+  preview_id?: string;
   place_details?: {
     hike_minutes: number | null;
     transport_minutes: Record<string, number | null>;
@@ -66,6 +67,27 @@ export async function findPlaces(
   const rows = (result.data || []) as unknown as (PlaceSummary & {
     reviews: { rating: number; status: string }[];
   })[];
+  // Only the explicit editorial Featured projection can publish a premium name.
+  // No privileged guide, storage path, coordinates or other detail enters this projection.
+  const hidden = rows.filter((p) => p.vip_content && p.slug === p.id);
+  if (hidden.length) {
+    const previews = await privilegedSupabase()
+      .from("places")
+      .select("id,title,featured")
+      .in(
+        "id",
+        hidden.map((p) => p.id),
+      )
+      .eq("status", "publish")
+      .contains("listing_types", ["destination"]);
+    databaseError(previews.error);
+    for (const place of hidden) {
+      const preview = previews.data?.find((p) => p.id === place.id);
+      if (!preview) continue;
+      place.preview_id = place.id;
+      if (filters.featured && preview.featured) place.title = preview.title;
+    }
+  }
   const current =
     filters.memberState && !client ? await currentSession() : null;
   const state =

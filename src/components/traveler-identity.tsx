@@ -57,12 +57,6 @@ export function TravelerIdentity({
           </p>
         </div>
       </div>
-      <a
-        className="p2-button p2-button--quiet"
-        href="/traveler-discovery/?next=%2Faccount%2F"
-      >
-        Edit Travel Preferences
-      </a>
     </section>
   );
 }

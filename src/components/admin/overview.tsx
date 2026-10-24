@@ -35,6 +35,9 @@ export function StudioOverview({
   const library = useAdminData(
     content ? "places?status=publish&offset=0" : null,
   );
+  const merchandise = useAdminData(
+    administrator ? "merchandise?status=publish&offset=0" : null,
+  );
   const selection = (library.data?.data || [])
     .filter((row) => cover(row) && !/^\[test\]/i.test(String(row.title)))
     .slice(0, 3);
@@ -128,6 +131,90 @@ export function StudioOverview({
               details.
             </span>
           </div>
+        </section>
+      )}
+      {administrator && (
+        <section
+          className="studio-library-preview studio-merch-preview"
+          aria-labelledby="studio-merch-library-heading"
+        >
+          <div className="studio-section-heading">
+            <div>
+              <h2 id="studio-merch-library-heading">The Merchandise library</h2>
+              <p>Your products, ready for the next adventure.</p>
+            </div>
+            <a
+              href="/admin/?section=merchandise"
+              onClick={(event) => {
+                event.preventDefault();
+                void navigate("merchandise");
+              }}
+            >
+              Open library <StudioIcon name="arrow" size={17} />
+            </a>
+          </div>
+          {merchandise.loading ? (
+            <p role="status">Loading your Merchandise library…</p>
+          ) : merchandise.error ? (
+            <div role="alert">
+              <p>The Merchandise library couldn’t be loaded.</p>
+              <button type="button" onClick={merchandise.reload}>
+                Try Merchandise library again
+              </button>
+            </div>
+          ) : merchandise.data?.data?.length ? (
+            <div className="studio-contact-sheet">
+              {merchandise.data.data
+                .filter((row) => !/^\[test\]/i.test(String(row.name)))
+                .slice(0, 3)
+                .map((row) => {
+                  const image = list(row.images)[0];
+                  return (
+                    <button
+                      className="studio-specimen"
+                      key={str(row.id)}
+                      onClick={() => openEditor("product", row)}
+                    >
+                      <div className="studio-specimen-photo">
+                        <ContentImage
+                          src={
+                            typeof image === "string"
+                              ? image
+                              : str(
+                                  image?.url ||
+                                    image?.src ||
+                                    (image?.media_id
+                                      ? `/api/media/${image.media_id}/`
+                                      : ""),
+                                )
+                          }
+                          alt=""
+                        />
+                        <span className="studio-specimen-open">
+                          <StudioIcon name="arrow" size={20} />
+                        </span>
+                      </div>
+                      <span className="studio-specimen-name">
+                        {str(row.name)}
+                      </span>
+                      <span className="studio-specimen-meta">
+                        {str(
+                          (row.merch_collections as Row)?.name ||
+                            "No collection assigned",
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+            </div>
+          ) : (
+            <div className="studio-library-failed">
+              <p>Your Merchandise library is ready for its first product.</p>
+              <button type="button" onClick={() => openEditor("product", null)}>
+                Add product
+              </button>
+            </div>
+          )}
         </section>
       )}
       {!content && orders && (

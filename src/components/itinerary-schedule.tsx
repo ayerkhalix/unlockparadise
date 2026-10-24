@@ -6,6 +6,7 @@ import {
   type Trip,
   type TripItem,
 } from "@/lib/planning";
+import { itineraryBrand } from "@/lib/itinerary-brand";
 import { overlappingStops } from "@/lib/itinerary-schedule";
 import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
@@ -72,7 +73,13 @@ export function PrintableItinerary({ trip }: { trip: Trip }) {
   return createPortal(
     <article className="p2-print-itinerary" aria-label="Printable itinerary">
       <header>
-        <p>Unlock Paradise · Your itinerary</p>
+        <div className="p2-print-brand">
+          <img src={itineraryBrand} alt="" width={48} height={48} />
+          <div>
+            <strong>Unlock Paradise</strong>
+            <small>Your Palawan itinerary</small>
+          </div>
+        </div>
         <h1>{trip.title}</h1>
         <p>{tripDateLabel(trip.start_date, trip.end_date)}</p>
         <p>All visit times are local to Palawan (UTC+8).</p>
@@ -117,8 +124,9 @@ export function PrintableItinerary({ trip }: { trip: Trip }) {
         );
       })}
       <footer>
-        Visit times do not include travel between destinations. Save as PDF from
-        your browser’s print dialog to keep an offline copy.
+        Unlock Paradise · unlockparadise.ph · Visit times do not include travel
+        between destinations. Save as PDF from your browser’s print dialog to
+        keep an offline copy.
       </footer>
     </article>,
     document.body,
@@ -137,7 +145,7 @@ export function downloadItinerary(title: string) {
   viewport.name = "viewport";
   viewport.content = "width=device-width, initial-scale=1";
   const styles = copy.createElement("style");
-  styles.textContent = `body{font:16px/1.6 system-ui,sans-serif;color:#183d42;background:#fffdf8;max-width:800px;margin:auto;padding:32px 24px}h1,h2,h3{line-height:1.25}h1{font-size:32px}h2{font-size:24px;margin-top:36px}h3{font-size:18px}li{padding:8px 0}p{margin:6px 0}.p2-print-notes{white-space:pre-wrap}footer{border-top:1px solid #cbd3cb;padding-top:20px;margin-top:36px;font-size:14px}@media print{body{background:white;color:black}section{break-inside:avoid}}`;
+  styles.textContent = `body{font:16px/1.6 system-ui,sans-serif;color:#183d42;background:#fffdf8;max-width:800px;margin:auto;padding:32px 24px}h1,h2,h3{line-height:1.25}h1{font-size:32px}h2{font-size:24px;margin-top:36px}h3{font-size:18px}li{padding:8px 0}p{margin:6px 0}.p2-print-brand{display:flex;align-items:center;gap:12px;margin-bottom:24px}.p2-print-brand img{width:48px;height:48px;padding:8px;background:#102a35;border-radius:8px}.p2-print-brand small{display:block;font-size:12px}.p2-print-brand strong{font-size:18px}article{overflow-wrap:anywhere}.p2-print-notes{white-space:pre-wrap}footer{border-top:1px solid #cbd3cb;padding-top:20px;margin-top:36px;font-size:14px}@media print{body{background:white;color:black}section{break-inside:auto}h2,h3{break-after:avoid}li{break-inside:avoid}.p2-print-brand img{print-color-adjust:exact;-webkit-print-color-adjust:exact}}`;
   copy.head.append(charset, viewport, styles);
   copy.body.append(printable.cloneNode(true));
   const url = URL.createObjectURL(

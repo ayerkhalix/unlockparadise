@@ -21,7 +21,9 @@ export default async function HomePage() {
     ? await travelPreferences(current.db, current.user.id)
     : null;
   const personalized =
-    preferences?.status === "completed" && preferences.interests.length > 0;
+    Boolean(current?.premium) &&
+    preferences?.status === "completed" &&
+    preferences.interests.length > 0;
   const places = backendConfigured()
     ? await findPlaces(
         { featured: !personalized, personalized, limit: 4 },
@@ -56,6 +58,20 @@ export default async function HomePage() {
           />
           <PalawanMap data={map} />
           <OriginalMarkup html={featured} />
+          {!current?.premium && (
+            <section className="destination-invitation">
+              <div>
+                <h2>There’s more to discover.</h2>
+                <p>
+                  Explore the destinations reserved for Explorer+ and find your
+                  next place in Palawan.
+                </p>
+              </div>
+              <a className="upd-btn upd-btn--vip" href="/membership/">
+                Explore Explorer+
+              </a>
+            </section>
+          )}
           <HomeMerch products={merch} />
           {current && (!preferences || preferences.status === "pending") && (
             <TravelerInvitation version={preferences?.version} />

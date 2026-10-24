@@ -106,48 +106,54 @@ export function DestinationLocation({
           available below.
         </p>
       )}
-      <div className="upd-place__mapfoot">
-        <button
-          type="button"
-          className={`upd-coords${copied ? " upd-coords--copied" : ""}`}
-          aria-label={
-            copied
-              ? "Copied destination coordinates"
-              : `Copy destination coordinates ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-          }
-          data-tooltip="Copy destination coordinates"
-          onClick={async () => {
-            try {
-              await navigator.clipboard.writeText(`${lat}, ${lng}`);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 1600);
-            } catch {
-              notify(
-                "Could not copy. You can select the coordinates shown here.",
-                true,
-              );
+      <section
+        className="destination-directions"
+        aria-label="Destination location"
+      >
+        <h3>Destination coordinates</h3>
+        <div className="upd-place__mapfoot">
+          <button
+            type="button"
+            className={`upd-coords${copied ? " upd-coords--copied" : ""}`}
+            aria-label={
+              copied
+                ? "Copied destination coordinates"
+                : `Copy destination coordinates ${lat.toFixed(6)}, ${lng.toFixed(6)}`
             }
-          }}
-        >
-          {copied ? "Copied" : `${lat.toFixed(6)}, ${lng.toFixed(6)}`}
-        </button>
-        <a
-          className="upd-maps-btn"
-          href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Icon name="Location" size={16} />
-          Open in Maps
-        </a>
-      </div>
+            data-tooltip="Copy destination coordinates"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(`${lat}, ${lng}`);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1600);
+              } catch {
+                notify(
+                  "Could not copy. You can select the coordinates shown here.",
+                  true,
+                );
+              }
+            }}
+          >
+            {copied ? "Copied" : `${lat.toFixed(6)}, ${lng.toFixed(6)}`}
+          </button>
+          <a
+            className="upd-maps-btn"
+            href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Icon name="Location" size={16} />
+            Open in Maps
+          </a>
+        </div>
+      </section>
       {accessPoints.length > 0 && (
         <section className="access-location-list" aria-label="Access points">
           <p className="access-map-legend">
             <span>Gold pin: destination</span>
             <span>Teal square: access point</span>
           </p>
-          <h3>Getting there: access points</h3>
+          <h3>Getting there: jump-off / access points</h3>
           <ul>
             {accessPoints.map((point, i) => (
               <li key={i}>
@@ -159,11 +165,8 @@ export function DestinationLocation({
                   rel="noopener noreferrer"
                   href={`https://www.google.com/maps/search/?api=1&query=${point.latitude},${point.longitude}`}
                 >
-                  Open {point.name} in Maps
+                  Open in Maps
                 </a>
-                <span>
-                  {point.latitude.toFixed(6)}, {point.longitude.toFixed(6)}
-                </span>
               </li>
             ))}
           </ul>

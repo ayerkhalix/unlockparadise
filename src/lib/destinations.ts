@@ -28,6 +28,7 @@ export interface Destination {
   travelTime: number | null;
   isMountain?: boolean;
   travel?: {
+    journey_start?: string;
     boat_required: boolean;
     departure_port: string | null;
     road_minutes: number | null;
@@ -162,6 +163,7 @@ export const destinationRepository = {
           ? {
               boat_required: details.boat_required,
               departure_port: details.departure_port,
+              journey_start: details.journey_start || "City proper",
               road_minutes: details.road_minutes,
               boat_minutes: details.boat_minutes,
               hike_minutes: details.hike_minutes,

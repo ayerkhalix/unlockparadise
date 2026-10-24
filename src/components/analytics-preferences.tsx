@@ -1,6 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { Modal } from "./ui/modal";
 import { captureInterest } from "@/lib/analytics-client";
@@ -35,7 +34,7 @@ export function AnalyticsPreferences() {
   if (path.startsWith("/admin")) return null;
   return (
     <>
-      {value === "unanswered" && (
+      {value === "unanswered" && !open && (
         <CookieNotice onChoose={choose} onManage={() => setOpen(true)} />
       )}
       <div className="p2-privacy-preferences">
@@ -105,59 +104,39 @@ function CookieNotice({
   onChoose: (allowed: boolean) => void;
   onManage: () => void;
 }) {
-  const ref = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const root = document.documentElement;
-    const measure = () =>
-      root.style.setProperty(
-        "--p2-consent-clearance",
-        `${Math.ceil(ref.current?.getBoundingClientRect().height || 0) + 12}px`,
-      );
-    const observer = new ResizeObserver(measure);
-    if (ref.current) observer.observe(ref.current);
-    measure();
-    return () => {
-      observer.disconnect();
-      root.style.removeProperty("--p2-consent-clearance");
-    };
-  }, []);
-  return createPortal(
-    <section
-      ref={ref}
-      className="p2-cookie-banner"
-      aria-labelledby="cookie-notice-title"
-    >
-      <div className="p2-cookie-banner__copy">
-        <h2 id="cookie-notice-title">Cookies &amp; privacy</h2>
+  return (
+    <Modal title="Cookies & privacy" onClose={() => onChoose(false)}>
+      <div className="cookie-dialog">
         <p>
-          We use essential cookies for sign-in and browser storage for your
-          cart. Optional analytics helps us improve the site and stays off until
-          you allow it. <a href="/privacy-policy/">Privacy Policy</a>
+          Essential cookies keep you signed in and remember your cart. Optional
+          analytics stays off unless you allow it.
         </p>
-      </div>
-      <div className="p2-cookie-banner__choices">
-        <button
-          type="button"
-          className="p2-button p2-button--quiet"
-          onClick={() => onChoose(false)}
-        >
-          Essential only
-        </button>
-        <button
-          type="button"
-          className="p2-button p2-button--quiet"
-          onClick={() => onChoose(true)}
-        >
-          Allow analytics
-        </button>
-        <button type="button" className="p2-cookie-manage" onClick={onManage}>
+        <a href="/privacy-policy/">Read our Privacy Policy</a>
+        <div className="p2-actions">
+          <button
+            type="button"
+            data-initial-focus
+            className="p2-button p2-button--quiet"
+            onClick={() => onChoose(false)}
+          >
+            Essential only
+          </button>
+          <button
+            type="button"
+            className="p2-button p2-button--quiet"
+            onClick={() => onChoose(true)}
+          >
+            Allow analytics
+          </button>
+        </div>
+        <button type="button" className="p2-back" onClick={onManage}>
           Manage preferences
         </button>
       </div>
-    </section>,
-    document.body,
+    </Modal>
   );
 }
+
 export function InterestView({
   placeId,
   productId,

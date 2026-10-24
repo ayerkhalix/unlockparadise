@@ -41,6 +41,7 @@ export function AdminThemeToggle() {
       className="studio-theme-toggle"
       onClick={context.toggle}
       aria-label={`Switch to ${context.theme === "dark" ? "light" : "dark"} theme`}
+      data-tooltip={`Switch to ${context.theme === "dark" ? "light" : "dark"} theme`}
     >
       <svg
         viewBox="0 0 24 24"
@@ -60,7 +61,6 @@ export function AdminThemeToggle() {
           <path d="M20.7 13.6A9 9 0 0 1 10.4 3.3a9 9 0 1 0 10.3 10.3Z" />
         )}
       </svg>
-      <span>{context.theme === "dark" ? "Light" : "Dark"} theme</span>
     </button>
   );
 }

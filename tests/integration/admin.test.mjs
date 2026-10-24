@@ -22,6 +22,7 @@ test("admin CRUD is transactional, MFA-protected, audited and safeguards deletio
     featured: false,
     feature_order: 0,
     description: "Description",
+    journey_start: "City terminal",
     content: "",
     excerpt: "",
     latitude: 10,
@@ -39,6 +40,27 @@ test("admin CRUD is transactional, MFA-protected, audited and safeguards deletio
   await assert.rejects(() => asUser(db, admin, call(null, body)));
   const id = (await asUser(db, admin, call(null, body), "aal2")).rows[0].id;
   assert.ok(id);
+  assert.equal(
+    (
+      await db.query(
+        `select journey_start from public.place_details where place_id='${id}'`,
+      )
+    ).rows[0].journey_start,
+    "City terminal",
+  );
+  await assert.rejects(() =>
+    asUser(
+      db,
+      admin,
+      call(id, { ...body, journey_start: "", title: "Should roll back" }),
+      "aal2",
+    ),
+  );
+  assert.equal(
+    (await db.query(`select title from public.places where id='${id}'`)).rows[0]
+      .title,
+    body.title,
+  );
   assert.equal(
     (await asUser(db, explorer, "select * from public.places")).rows.length,
     0,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-23T21:03:18.413Z",
+  "generatedAt": "2026-10-24T10:56:03.3384456Z",
   "title": "Design System: Unlock Paradise",
   "extensions": {
     "colorMeta": {
@@ -776,6 +776,11 @@
         "name": "studio-navigation",
         "value": "160ms ease-out",
         "purpose": "Grouped rail background and boundary state changes; no repeated or ambient animation."
+      },
+      {
+        "name": "left-drawer-entry",
+        "value": "250ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Public left drawer translates from -100% to its settled position; removed under reduced motion."
       }
     ],
     "breakpoints": [
@@ -814,6 +819,18 @@
       {
         "name": "studio-overview-stack",
         "value": "1000px"
+      },
+      {
+        "name": "planner-browser-single-column",
+        "value": "380px"
+      },
+      {
+        "name": "planner-browser-two-columns",
+        "value": "900px"
+      },
+      {
+        "name": "studio-merch-overview-stack",
+        "value": "900px"
       }
     ]
   },
@@ -931,9 +948,14 @@
         "section": "layout"
       },
       {
-        "name": "The Measured Clearance Rule",
-        "body": "Floating Bucketlist/cart controls reserve space around actual fields, actions, product titles and metadata, and footer links at their current viewport edge. Maintain the measured control gap (8px), remain below the header, and hide when no clear position exists. Settle clearance before measuring a flight endpoint; a moved dock cancels old flights. Existing focus and open-dialog visibility rules remain in force.",
+        "name": "The Fixed Dock Rule",
+        "body": "Bucketlist/cart controls stay at the bottom-right viewport edge: 24px on desktop, 16px below 800px, with safe-area allowances. FloatingDock portals both controls to the body so page transforms cannot change their containing block. They never move or disappear in response to nearby page content. Shared CSS reserves final page clearance and scroll padding; map zoom controls clear the dock and failure text occupies its own row with the retry action on the left. Existing mobile field-focus, open-dialog and route exclusions remain; completing an action returns the dock to the same corner. Flights measure the actual dock, with a bottom-right transform origin for its brief confirmation pulse. This supersedes the former content-measured dock movement rule.",
         "section": "layout"
+      },
+      {
+        "name": "The Browsing Navigation Rule",
+        "body": "The public brand header orders About, Membership, Merch, Contact Us, Itinerary Planner and Profile. Desktop Profile is a native disclosure with sign-in/register links for guests and the account menu for members; mobile exposes those account links directly in the left drawer. Native disclosure supports click, keyboard, Escape and outside dismissal. Area/category navigation retains the selected area. Real destination cards link to Places; protected save and itinerary controls remain separate actions. Merchandise has one floating cart with its browser-local count and no duplicate breadcrumb cart.",
+        "section": "components"
       },
       {
         "name": "The Confirmed Travel Rule",
@@ -946,33 +968,33 @@
         "section": "components"
       },
       {
-        "name": "The Browsing Navigation Rule",
-        "body": "Primary navigation orders About, Membership, Merch, Contact Us, Itinerary Planner and Profile. Profile uses a photograph/person icon with an accessible Profile name and no visible text label. Area category navigation retains the selected area. Merchandise has one shared floating cart; the upper breadcrumb does not duplicate it.",
+        "name": "The Branded Auth Rule",
+        "body": "The sign-in, register and recovery forms share a branded navy form surface with the official palm-lock mark, Outfit headings, Open Sans fields and the established teal links. Field and autofill text use --p2-text. Password visibility is an inset eye icon with an accessible action name. Registration includes confirmation and a visible twelve-character minimum; both the form and server validate matching passwords.",
         "section": "components"
       },
       {
         "name": "The Product Selection Rule",
-        "body": "Brands own collections and products select both. Existing options use native selects; inline Add creates reusable options without leaving the editor. Product photos are uploaded directly into the current editor, with cover, reorder, replace and remove actions. There is no cross-product photo picker.",
+        "body": "Brand → Collection → Products is the durable catalog hierarchy. Admin selects existing categories, colors, sizes, brands and collections; an adjacent inline Add action creates a reusable option without leaving the product form. The product editor groups Product details, Photos, Options & pricing, Advanced and Publish in document flow. Photos belong to the current editor: upload/add, preview, make cover, reorder, replace and remove. There is no cross-product media picker. Upload feedback stays inline, successful partial uploads remain attached, and save is disabled while uploading. Slugs and SKUs are suggested but editable.",
         "section": "components"
       },
       {
         "name": "The Access Point Rule",
-        "body": "Verified access points are separate from destination coordinates and remain protected by Place membership rules. Teal square pins, transport icons and visible text labels distinguish access points from the gold destination pin. Text lists retain access information when map tiles fail.",
+        "body": "Multiple verified access points remain separate from destination coordinates and protected by Place membership rules. Teal square pins and transport icons distinguish them from the gold destination pin. Marker names appear on hover, keyboard focus or touch selection, with an accessible name always available. Text access lists survive map failure; their named Maps actions use each access point, while the Destination section owns destination coordinates, copy and its own Maps action. Raw coordinates are omitted from the jump-off list. Place area/category/facility selection retains native add-option controls with removable selected values; access colors remain owned by --p2-teal and --p2-on-teal.",
         "section": "components"
       },
       {
-        "name": "The Branded Auth Rule",
-        "body": "Auth routes use the official palm-lock mark, established typography and navy surface. Field and autofill text use --p2-text. Password visibility is an inset eye icon with an accessible action name. Registration confirms the password and requires twelve characters on the page and server; email verification and existing access checks remain intact.",
+        "name": "The Dedicated Discovery Rule",
+        "body": "Explore options opens `/itineraries/explore/` with the selected owned trip/day. Categories, filters and photographic cards stay in normal page flow, with a prominent View final itinerary return action. My route remains the saved-stop map. Additions become Added only after the owner/version-checked mutation returns; failed additions retain the form and offer reload of the saved itinerary.",
         "section": "components"
       },
       {
-        "name": "The Compact Discovery Rule",
-        "body": "The planner's right-hand Your day, on the map panel defaults to homepage-style area/category discovery, destination pins and a keyboard/touch list. Day stops switches that same panel to saved numbered stops. The search column has no duplicate map; its map action focuses the right panel (Map view on phones). Search and map share filters and one cancelable catalog load. Categories stay inline, saved additions remain visible, and membership-filtered inventory is authoritative. The admin Collection filter remains visible even with one collection and persists in the list URL.",
+        "name": "The Public Preview Rule",
+        "body": "Published premium cover previews are deliberately bounded, re-encoded images addressed by opaque Place ID. Only explicit editorial Featured cards disclose a premium title; other locked cards retain generic text. Compact destination and feature hooks use the official padlock identity and task-specific copy. Upgrade opens Membership with a safe return target; Back uses a normalized internal browsing target or the homepage map.",
         "section": "components"
       },
       {
         "name": "The Inclusive Trip Rule",
-        "body": "Start and end dates determine the initial day count inclusively. Flexible new trips start with one day. Add day extends the end date; occupied days must be cleared before shortening a trip.",
+        "body": "Trip creation uses start/end dates and an inclusive derived duration. An undated new trip starts with one day. Add day remains in the planner and extends a dated trip’s end date; occupied days cannot be removed by shortening dates. Profile/navigation, photos and native choices retain the shared validation, focus and theme contracts.",
         "section": "components"
       }
     ],

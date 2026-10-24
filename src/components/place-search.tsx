@@ -73,11 +73,11 @@ export function PlaceSearch({
           }}
         >
           <Icon name="Search" size={23} />
-          Search destination
+          Add destination
         </button>
         <button className="p2-button p2-button--quiet" onClick={onExploreMap}>
           <Icon name="Explore" size={23} />
-          Explore options
+          Explore destinations
         </button>
       </div>
       <fieldset

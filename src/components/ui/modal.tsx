@@ -10,11 +10,13 @@ export function Modal({
   onClose,
   children,
   drawer = false,
+  side = "right",
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
   drawer?: boolean;
+  side?: "left" | "right";
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const theme = useAdminTheme();
@@ -43,7 +45,7 @@ export function Modal({
     <dialog
       ref={ref}
       data-admin-theme={theme?.theme}
-      className={`p2-modal${drawer ? " p2-modal--drawer" : ""}`}
+      className={`p2-modal${drawer ? ` p2-modal--drawer p2-modal--${side}` : ""}`}
       aria-labelledby={id}
       onCancel={(e) => {
         e.preventDefault();

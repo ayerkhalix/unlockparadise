@@ -9,14 +9,12 @@ import {
   interests,
   paces,
   styles,
-  travelerReason,
   type TravelAnswers,
   type TravelPreferences,
 } from "@/lib/traveler";
 import { requestJSON } from "@/lib/client-api";
 import { TravelerTitle } from "./traveler-title";
 import { Icon } from "./icon";
-import { TravelerBadges } from "./traveler-identity";
 import { ValidatedForm } from "./ui/validated-form";
 import { useDecision } from "./ui/decision";
 
@@ -142,7 +140,18 @@ export function TravelerDiscovery({
       const response = await requestJSON<{ data: TravelPreferences }>(
         "/api/v1/traveler/",
         "PUT",
-        { op, version, ...(op === "complete" ? { answers } : {}) },
+        {
+          op,
+          version,
+          ...(op === "complete"
+            ? {
+                answers: {
+                  ...answers,
+                  public_badges: initial?.public_badges || false,
+                },
+              }
+            : {}),
+        },
       );
       clearDraft();
       if (op === "complete") {
@@ -185,29 +194,18 @@ export function TravelerDiscovery({
     return (
       <main id="upd-main" className="upd-main td-page">
         <div className="td-result">
-          <Icon name={identity.icon} size={64} />
           <h1 ref={heading} tabIndex={-1}>
             <TravelerTitle selected={result.interests}>
               {identity.label}
             </TravelerTitle>
           </h1>
           <p className="td-lead">{identity.description}</p>
-          <TravelerBadges identity={result} />
-          <p>{travelerReason(result)}</p>
           <p className="td-caption">
             A playful reflection of your preferences, always yours to change.
-          </p>
-          <p className="td-caption">
-            {result.public_badges
-              ? "You chose to show badges on approved public reviews."
-              : "Your badges stay private. You can change this in your account."}
           </p>
           <div className="p2-actions">
             <a className="p2-button" href="/">
               Explore my picks
-            </a>
-            <a className="p2-button p2-button--quiet" href="/account/">
-              View my traveler identity
             </a>
           </div>
         </div>
@@ -366,36 +364,6 @@ export function TravelerDiscovery({
                     We use pace only where recorded travel details support it.
                     It isn’t a difficulty or safety rating.
                   </p>
-                )}
-                {step === 3 && (
-                  <>
-                    <label className="td-sharing">
-                      <input
-                        type="checkbox"
-                        checked={answers.public_badges}
-                        onChange={(e) =>
-                          setAnswers((a) => ({
-                            ...a,
-                            public_badges: e.target.checked,
-                          }))
-                        }
-                      />
-                      <span>
-                        <strong>
-                          Show my traveler badges on public reviews
-                        </strong>
-                        <small>
-                          Share only your traveler type and up to two interests.
-                          Your pace, travel style and companions stay private.
-                          Turn this off any time.
-                        </small>
-                      </span>
-                    </label>
-                    <p className="td-caption">
-                      Companions are a preference, not a destination suitability
-                      recommendation.
-                    </p>
-                  </>
                 )}
               </fieldset>
               {error && (
