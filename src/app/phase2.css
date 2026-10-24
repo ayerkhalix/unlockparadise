@@ -23,14 +23,6 @@
       env(safe-area-inset-bottom, 0px) + var(--p2-consent-clearance, 0px)
   );
 }
-.p2-privacy-preferences {
-  padding: 12px 28px 24px;
-  text-align: center;
-  background: var(--p2-navy);
-}
-.p2-privacy-preferences button {
-  font-size: 13px;
-}
 .p2-preview-status {
   max-width: 1200px;
   margin: 20px auto 0;

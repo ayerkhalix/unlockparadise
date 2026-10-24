@@ -37,11 +37,6 @@ export function AnalyticsPreferences() {
       {value === "unanswered" && !open && (
         <CookieNotice onChoose={choose} onManage={() => setOpen(true)} />
       )}
-      <div className="p2-privacy-preferences">
-        <button type="button" className="p2-back" onClick={() => setOpen(true)}>
-          Privacy preferences
-        </button>
-      </div>
       {error && (
         <p className="p2-cookie-storage-error" role="status">
           {error}

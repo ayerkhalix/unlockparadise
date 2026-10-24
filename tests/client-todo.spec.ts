@@ -175,16 +175,15 @@ test("compact cookie choices preserve consent and keyboard behavior", async ({
   const size = await dialog.boundingBox();
   expect(size!.height).toBeLessThan(650);
   await shot(page, "cookies");
+  await dialog.getByRole("button", { name: "Manage preferences", exact: true }).click();
+  await expect(dialog).toContainText("Optional cookies");
+  await page.keyboard.press("Escape");
   await dialog.getByRole("button", { name: "No thanks", exact: true }).click();
   await expect(dialog).not.toBeVisible();
   await page.reload();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await page
-    .getByRole("button", { name: "Privacy preferences", exact: true })
-    .click();
-  await expect(
-    page.getByRole("dialog", { name: "Cookies & privacy" }),
-  ).toContainText("Optional cookies");
+  await expect(page.getByRole("button", { name: "Privacy preferences", exact: true })).toHaveCount(0);
+  await expect(page.locator(".p2-privacy-preferences")).toHaveCount(0);
 });
 
 test("Explorer card actions show the upgrade hook without granting access", async ({

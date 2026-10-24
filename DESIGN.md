@@ -458,7 +458,7 @@ The profile subsequently removes its separate traveler glyph; review badges and 
 
 ## Task feedback and trip preparation — 24 October 2026
 
-Authentication additions retain the compact navy AuthForm, Outfit headings and existing field geometry. The explicit Google button follows its neutral white brand treatment with a multicolor G; the email form and its submit action precede Google, separated by a quiet divider. The client PDF subsequently replaces the first-visit banner with the compact shared cookie dialog described in Layout; footer preferences use the same consent owner. The dock follows the Fixed Dock Rule. No ambient animation or new visual system is introduced for authentication or privacy.
+Authentication additions retain the compact navy AuthForm, Outfit headings and existing field geometry. The explicit Google button follows its neutral white brand treatment with a multicolor G; the email form and its submit action precede Google, separated by a quiet divider. The client PDF subsequently replaces the first-visit banner with the compact shared cookie dialog described in Layout; the owner subsequently removed the separate footer Privacy preferences button and its spacing; Manage preferences remains within the initial cookie dialog. The dock follows the Fixed Dock Rule. No ambient animation or new visual system is introduced for authentication or privacy.
 
 Shared StudioTable owns loading skeletons, loaded-empty and failed states via StudioDataState; stale request keys cannot paint an old result or clamp a new filter's page. Loading geometry reserves three rows without ambient animation. Readable activity verbs and entity names replace database identifiers in the studio.
 
