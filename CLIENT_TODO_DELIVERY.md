@@ -39,3 +39,8 @@ All PDF implementation batches and scoped verification are complete and deployed
 - `artifacts/client-todo/release-evidence.json`: scoped results and deployment identity.
 
 The first hosted attempts exposed a shared test-output collision and a cold-load export readiness issue. Output directories are isolated, exports now wait for their mounted document, and both final hosted planner cases pass. Temporary synthetic plans were removed and the final exact-marker account check found none remaining. The fresh finish review returned `ship` for the scored fixes; it is not a claim of exhaustive visual/security coverage.
+
+
+## Follow-up refinements — 25 October 2026
+
+[CLIENT_REFINEMENTS_DELIVERY.md](CLIENT_REFINEMENTS_DELIVERY.md) records the subsequent one-area planner, day targeting, photo-list/timeline order, simplified profile/directions/cookies, About crop and responsive image delivery. It supersedes this older packet's coordinate-panel and unscoped planner presentation.

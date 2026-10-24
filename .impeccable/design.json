@@ -979,12 +979,12 @@
       },
       {
         "name": "The Access Point Rule",
-        "body": "Multiple verified access points remain separate from destination coordinates and protected by Place membership rules. Teal square pins and transport icons distinguish them from the gold destination pin. Marker names appear on hover, keyboard focus or touch selection, with an accessible name always available. Text access lists survive map failure; their named Maps actions use each access point, while the Destination section owns destination coordinates, copy and its own Maps action. Raw coordinates are omitted from the jump-off list. Place area/category/facility selection retains native add-option controls with removable selected values; access colors remain owned by --p2-teal and --p2-on-teal.",
+        "body": "Multiple verified access points remain separate from destination coordinates and protected by Place membership rules. Teal square pins and transport icons distinguish them from the gold destination pin. Marker names appear on hover, keyboard focus or touch selection, with an accessible name always available. Getting there survives map failure and groups inline access-type Maps links followed by the destination Maps link. Each link uses its own saved point. Raw coordinate text and the separate copy panel are omitted. Place area/category/facility selection retains native add-option controls with removable selected values; access colors remain owned by --p2-teal and --p2-on-teal.",
         "section": "components"
       },
       {
         "name": "The Dedicated Discovery Rule",
-        "body": "Explore options opens `/itineraries/explore/` with the selected owned trip/day. Categories, filters and photographic cards stay in normal page flow, with a prominent View final itinerary return action. My route remains the saved-stop map. Additions become Added only after the owner/version-checked mutation returns; failed additions retain the form and offer reload of the saved itinerary.",
+        "body": "Explore options opens `/itineraries/explore/` with the selected owned trip/day. Categories, filters and photographic cards stay within the trip's single saved area, with native target-day selectors and a prominent View final itinerary return action. My route remains the saved-stop map. Additions become Added only after the owner/version-checked mutation returns; failed additions retain the form and offer reload of the saved itinerary.",
         "section": "components"
       },
       {

@@ -21,3 +21,8 @@ The additive area migration was transactionally applied to the pinned client pro
 The release target is [unlockparadise-staging](https://unlockparadise-staging.vercel.app). Git/deployment identity and hosted verification are recorded locally in `artifacts/client-refinement/release-evidence.json`. The screenshot packet in that folder contains only curated PNGs and an index, excluding credentials, traces and backups. Temporary synthetic plans are removed by each browser journey.
 
 Google OAuth provider credentials, business SMTP and merchandise payments/fulfillment remain separately pending setup. Membership payment mode and permissions are unchanged; these checks create no real payment or outbound email.
+
+
+## Hosted confirmation
+
+All 22 hosted desktop/mobile journeys passed against the public staging alias on 25 October 2026, including real route tiles, optimized images, day/area behavior and exports. Verified application commit: `274ac1e45f7b8ada474ec7c562d91ecbaa3df447`; Ready Vercel runtime: `unlockparadise-staging-9s3btcupi-ayerkhalidesu-4298s-projects.vercel.app`. The following documentation-only commit changes no application behavior. Hosted About delivery also returns the 66,106-byte WebP. Final database cleanup and deployment details are retained in the local release evidence.
