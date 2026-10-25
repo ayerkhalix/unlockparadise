@@ -76,7 +76,7 @@ test.beforeEach(async ({ page }) => {
   await page.route("https://api.mapbox.com/**", (route) => route.abort());
 });
 
-test("client corrections: passive hero icons, ready category photos and uncropped featured frames", async ({
+test("client corrections: passive hero icons, ready category photos and edge-to-edge featured frames", async ({
   page,
 }) => {
   test.setTimeout(120000);
@@ -102,7 +102,8 @@ test("client corrections: passive hero icons, ready category photos and uncroppe
       { timeout: 45000 },
     )
     .toBe(true);
-  await expect(featured.first()).toHaveCSS("object-fit", "contain");
+  for (const image of await featured.all())
+    await expect(image).toHaveCSS("object-fit", "cover");
   const frame = (await featured.first().boundingBox())!;
   expect(frame.width / frame.height).toBeCloseTo(4 / 3, 1);
   await photo(page, "home-photo-composition");

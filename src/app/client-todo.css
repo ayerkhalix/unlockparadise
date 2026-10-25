@@ -1057,7 +1057,7 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   width: 100%;
   height: auto;
   aspect-ratio: 4/3;
-  object-fit: contain;
+  object-fit: cover;
   background: var(--p2-panel);
   transform: none;
 }

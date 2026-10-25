@@ -2,6 +2,8 @@
 
 ## Scope
 
+Featured-photo follow-up: the client rejected side bars on the featured cards. Their 4:3 frames now use cover fitting edge to edge, retaining focal positioning and the proportional Storage delivery fix. This supersedes the prior contain presentation without changing original files or image access rules.
+
 Approved polish items 2–8: compact phone destination browsing; trip save/draft/error feedback and retry; labeled Delete trip in Trip options; Undo for itinerary, Bucketlist and cart removals; reserved static destination skeletons; compact phone merchandise introduction and ordering-availability copy; persisted admin photo focal points and previews. Item 1 remains excluded: the main homepage Start exploring/map CTA is unchanged.
 
 The later client correction restores the six homepage category icons as passive hover/focus information, distinguishes photographic destination hooks from padlock feature hooks, removes redundant hook logos, fills missing category photos, preserves featured-photo composition and adds resized-image recovery for React and retained HTML.
