@@ -12,7 +12,12 @@ import {
   type TripItem,
   type TravelPlace,
 } from "@/lib/planning";
-import { notify, requestJSON } from "@/lib/client-api";
+import {
+  notify,
+  notifyUndo,
+  requestJSON,
+  RequestFailure,
+} from "@/lib/client-api";
 import { TripForm } from "./trip-form";
 import { useDecision } from "./ui/decision";
 import { Modal } from "./ui/modal";
@@ -44,10 +49,13 @@ function StopTiming({
     start_time: item.start_time?.slice(0, 5) || null,
     end_time: item.end_time?.slice(0, 5) || null,
   };
-  const [time, setTime] = useState<StopTime>(initial),
-    [saved, setSaved] = useState(initial);
+  const [time, setTime] = useState<StopTime>(initial);
   const dirty =
-    time.start_time !== saved.start_time || time.end_time !== saved.end_time;
+    time.start_time !== initial.start_time ||
+    time.end_time !== initial.end_time;
+  useEffect(() => {
+    onDirtyChange(dirty);
+  }, [dirty, onDirtyChange]);
   const [range, duration] = item.start_time
     ? stopTimeLabel(item.start_time, item.end_time).split(" · ")
     : ["Set visit time"];
@@ -63,7 +71,6 @@ function StopTiming({
         onSubmit={async (e) => {
           e.preventDefault();
           if (await onSave(time)) {
-            setSaved(time);
             onDirtyChange(false);
           }
         }}
@@ -73,8 +80,8 @@ function StopTiming({
           onChange={(value) => {
             setTime(value);
             onDirtyChange(
-              value.start_time !== saved.start_time ||
-                value.end_time !== saved.end_time,
+              value.start_time !== initial.start_time ||
+                value.end_time !== initial.end_time,
             );
           }}
         />
@@ -102,8 +109,12 @@ function StopNotes({
   onSave: (notes: string) => Promise<boolean>;
   onDirtyChange: (dirty: boolean) => void;
 }) {
-  const [notes, setNotes] = useState(item.notes),
-    [saved, setSaved] = useState(item.notes);
+  const [notes, setNotes] = useState(item.notes);
+  const saved = item.notes;
+  const dirty = notes !== saved;
+  useEffect(() => {
+    onDirtyChange(dirty);
+  }, [dirty, onDirtyChange]);
   return (
     <details className="p2-stop-notes p3-stop-note-editor">
       <summary>
@@ -115,7 +126,6 @@ function StopNotes({
         onSubmit={async (e) => {
           e.preventDefault();
           if (await onSave(notes)) {
-            setSaved(notes);
             onDirtyChange(false);
           }
         }}
@@ -156,8 +166,24 @@ export function ItineraryPlanner({
   onBusyChange: (busy: boolean) => void;
 }) {
   const dirtyNotes = useRef(new Set<string>());
+  const [hasDrafts, setHasDrafts] = useState(false);
+  const reportDirty = (dirty: boolean) => {
+    setHasDrafts(dirty);
+    onDirtyChange(dirty);
+  };
   const [exportMounted, setExportMounted] = useState(false);
   const [trip, setTrip] = useState(initial);
+  const tripRef = useRef(initial),
+    mutationLock = useRef(false);
+  const failedMutation = useRef<{ action: string; payload: unknown } | null>(
+      null,
+    ),
+    failureText = useRef("");
+  const [saveState, setSaveState] = useState<"saved" | "saving" | "error">(
+      "saved",
+    ),
+    [requiresReload, setRequiresReload] = useState(false),
+    [canRetrySave, setCanRetrySave] = useState(false);
   const mapPanel = useRef<HTMLElement>(null);
   const catalog = usePlanningCatalog(initial.id, trip.area_id);
   const [filters, setFilters] = useState<PlaceSearchFilters>({
@@ -210,6 +236,7 @@ export function ItineraryPlanner({
     const updated = (event: Event) => {
       const next = (event as CustomEvent<Trip>).detail;
       if (next?.id === initial.id) {
+        tripRef.current = next;
         setTrip(next);
         onUpdated(next);
       }
@@ -225,39 +252,59 @@ export function ItineraryPlanner({
     )
       return;
     dirtyNotes.current.clear();
-    onDirtyChange(false);
+    reportDirty(false);
     const url = new URL(location.href);
     url.searchParams.set("trip", trip.id);
     url.searchParams.set("day", id);
     history.replaceState(null, "", url);
   };
-  async function mutate(action: string, payload: unknown) {
-    if (busy) return false;
+  async function mutate(action: string, payload: unknown, quiet = false) {
+    if (mutationLock.current) {
+      failureText.current =
+        "A save is still in progress. Try Undo again when it finishes.";
+      return false;
+    }
+    mutationLock.current = true;
     setBusy(true);
+    setSaveState("saving");
     setError("");
     try {
       const result = await requestJSON<{ data: Trip }>(
         `/api/v1/itineraries/${trip.id}/`,
         "PATCH",
-        { version: trip.version, action, payload },
+        { version: tripRef.current.version, action, payload },
       );
+      tripRef.current = result.data;
       setTrip(result.data);
       onUpdated(result.data);
+      window.dispatchEvent(
+        new CustomEvent("upd:itinerary-saved", { detail: result.data }),
+      );
+      failedMutation.current = null;
+      setSaveState("saved");
+      setRequiresReload(false);
       if (action === "add")
         captureInterest("place_added_to_itinerary", {
           place_id: (payload as { place_id: string }).place_id,
         });
-      notify(
-        action === "add"
-          ? "Place added to your itinerary."
-          : "Itinerary saved.",
-      );
+      if (!quiet)
+        notify(
+          action === "add"
+            ? "Place added to your itinerary."
+            : "Itinerary saved.",
+        );
       return true;
     } catch (e) {
+      failedMutation.current = quiet ? null : { action, payload };
+      setCanRetrySave(!quiet);
+      failureText.current = (e as Error).message;
+      setSaveState("error");
+      setRequiresReload(e instanceof RequestFailure && e.status === 409);
       setError((e as Error).message);
-      notify((e as Error).message, true);
+      if (!quiet) notify((e as Error).message, true);
       return false;
     } finally {
+      mutationLock.current = false;
       setBusy(false);
     }
   }
@@ -291,7 +338,7 @@ export function ItineraryPlanner({
     )
       return;
     dirtyNotes.current.clear();
-    onDirtyChange(false);
+    reportDirty(false);
     router.push(`/itineraries/explore/?trip=${trip.id}&day=${day.id}`);
   };
   const reorder = async (from: number, to: number) => {
@@ -320,7 +367,31 @@ export function ItineraryPlanner({
     if (saved) {
       dirtyNotes.current.delete(item.id);
       dirtyNotes.current.delete(item.id + ":time");
-      onDirtyChange(dirtyNotes.current.size > 0);
+      reportDirty(dirtyNotes.current.size > 0);
+      if (action === "remove")
+        notifyUndo(
+          `${item.place?.title || "Destination"} removed from your itinerary.`,
+          async () => {
+            const restored = await mutate(
+              "restore",
+              {
+                day_id: item.day_id,
+                place_id: item.place_id,
+                position: item.position,
+                notes: item.notes,
+                start_time: item.start_time?.slice(0, 5) || null,
+                end_time: item.end_time?.slice(0, 5) || null,
+              },
+              true,
+            );
+            if (!restored)
+              throw new Error(
+                failureText.current ||
+                  "Could not restore this stop. Try Undo again.",
+              );
+            notify("Destination restored with its notes and visit time.");
+          },
+        );
     }
     return saved;
   };
@@ -341,9 +412,24 @@ export function ItineraryPlanner({
         <div>
           <span className="p2-eyebrow">
             {tripDateLabel(trip.start_date, trip.end_date)} ·{" "}
-            {trip.itinerary_days.length} {trip.itinerary_days.length === 1 ? "day" : "days"}
+            {trip.itinerary_days.length}{" "}
+            {trip.itinerary_days.length === 1 ? "day" : "days"}
           </span>
           <h1>{trip.title}</h1>
+          <p
+            className="p2-save-feedback"
+            role="status"
+            aria-live="polite"
+            data-state={saveState}
+          >
+            {saveState === "saving"
+              ? "Saving changes…"
+              : saveState === "error"
+                ? "Changes not saved"
+                : hasDrafts
+                  ? "Unsaved notes or times"
+                  : "Saved"}
+          </p>
           {trip.areas && <p className="p2-muted">{trip.areas.name}</p>}
           {trip.notes && <p className="p2-trip-notes">{trip.notes}</p>}
         </div>
@@ -375,32 +461,63 @@ export function ItineraryPlanner({
           >
             Edit trip
           </button>
-          <button
-            className="p2-icon"
-            aria-label="Delete itinerary"
-            data-tooltip="Delete itinerary"
-            disabled={busy}
-            onClick={async () => {
-              if (!(await ask(`Delete “${trip.title}” and its stops?`))) return;
-              setBusy(true);
-              try {
-                await requestJSON(`/api/v1/itineraries/${trip.id}/`, "DELETE", {
-                  version: trip.version,
-                });
-                onDeleted();
-              } catch (e) {
-                setError((e as Error).message);
-                setBusy(false);
+          <details
+            className="p2-trip-options"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.currentTarget.open = false;
+                event.currentTarget.querySelector("summary")?.focus();
               }
             }}
           >
-            ×
-          </button>
+            <summary>
+              Trip options <Icon name="Menu" size={16} />
+            </summary>
+            <div>
+              <button
+                type="button"
+                className="p2-trip-delete"
+                disabled={busy}
+                onClick={async () => {
+                  if (!(await ask(`Delete “${trip.title}” and its stops?`)))
+                    return;
+                  setBusy(true);
+                  try {
+                    await requestJSON(
+                      `/api/v1/itineraries/${trip.id}/`,
+                      "DELETE",
+                      {
+                        version: trip.version,
+                      },
+                    );
+                    onDeleted();
+                  } catch (e) {
+                    setError((e as Error).message);
+                    setBusy(false);
+                  }
+                }}
+              >
+                Delete trip
+              </button>
+            </div>
+          </details>
         </div>
       </header>
       {error && (
         <div className="p2-error" role="alert">
           <p>{error}</p>
+          {saveState === "error" && !requiresReload && canRetrySave && (
+            <button
+              className="p2-button p2-button--quiet"
+              disabled={busy}
+              onClick={() => {
+                const failed = failedMutation.current;
+                if (failed) void mutate(failed.action, failed.payload);
+              }}
+            >
+              Retry save
+            </button>
+          )}
           <button
             className="p2-button p2-button--quiet"
             disabled={busy}
@@ -409,7 +526,11 @@ export function ItineraryPlanner({
                 const r = await requestJSON<{ data: Trip }>(
                   `/api/v1/itineraries/${trip.id}/`,
                 );
+                tripRef.current = r.data;
                 setTrip(r.data);
+                failedMutation.current = null;
+                setSaveState("saved");
+                setRequiresReload(false);
                 onUpdated(r.data);
                 setError("");
               } catch (e) {
@@ -532,7 +653,8 @@ export function ItineraryPlanner({
                   <div className="p2-stop-body">
                     <div className="p2-stop-heading">
                       {item.place?.image && (
-                        <ContentImage sizes="96px"
+                        <ContentImage
+                          sizes="96px"
                           src={item.place.image}
                           alt=""
                           loading="lazy"
@@ -571,7 +693,7 @@ export function ItineraryPlanner({
                         const key = item.id + ":time";
                         if (dirty) dirtyNotes.current.add(key);
                         else dirtyNotes.current.delete(key);
-                        onDirtyChange(dirtyNotes.current.size > 0);
+                        reportDirty(dirtyNotes.current.size > 0);
                       }}
                     />
                     <StopNotes
@@ -579,7 +701,7 @@ export function ItineraryPlanner({
                       onDirtyChange={(dirty) => {
                         if (dirty) dirtyNotes.current.add(item.id);
                         else dirtyNotes.current.delete(item.id);
-                        onDirtyChange(dirtyNotes.current.size > 0);
+                        reportDirty(dirtyNotes.current.size > 0);
                       }}
                       onSave={(notes) =>
                         mutate("notes", { item_id: item.id, notes })
@@ -732,6 +854,10 @@ export function ItineraryPlanner({
           <TripForm
             trip={trip}
             onSaved={(t) => {
+              tripRef.current = t;
+              failedMutation.current = null;
+              setSaveState("saved");
+              setError("");
               setTrip(t);
               onUpdated(t);
               setEdit(false);

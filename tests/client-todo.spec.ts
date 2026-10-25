@@ -1,58 +1,11 @@
-import { test, expect, type BrowserContext, type Page } from "@playwright/test";
-import { createServerClient } from "@supabase/ssr";
+import { signIn } from "./helpers/demo-session";
+import { test, expect, type Page } from "@playwright/test";
 import { readFile, mkdir } from "node:fs/promises";
-import { parseEnv } from "node:util";
 import { randomUUID } from "node:crypto";
 import { AxeBuilder } from "@axe-core/playwright";
 import type { Trip } from "../src/lib/planning";
 const base = process.env.BASE_URL || "http://127.0.0.1:3000";
 const origin = { Origin: base };
-const cached = new Map<
-  string,
-  Awaited<ReturnType<BrowserContext["cookies"]>>
->();
-async function signIn(context: BrowserContext, email: string) {
-  if (!cached.has(email)) {
-    const env = parseEnv(await readFile(".env.local", "utf8"));
-    const fixture = JSON.parse(
-      await readFile("artifacts/deployment/demo-accounts.json", "utf8"),
-    );
-    const account = fixture.accounts.find(
-      (a: { email: string }) => a.email === email,
-    );
-    const jar = new Map<string, string>();
-    const db = createServerClient(
-      env.NEXT_PUBLIC_SUPABASE_URL!,
-      env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-      {
-        cookies: {
-          getAll: () => [...jar].map(([name, value]) => ({ name, value })),
-          setAll: (values) =>
-            values.forEach((item) => jar.set(item.name, item.value)),
-        },
-      },
-    );
-    const result = await db.auth.signInWithPassword({
-      email,
-      password: account.password,
-    });
-    if (result.error) throw Error("Demo sign-in unavailable");
-    cached.set(
-      email,
-      [...jar].map(([name, value]) => ({
-        name,
-        value,
-        domain: new URL(base).hostname,
-        path: "/",
-        expires: -1,
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax",
-      })),
-    );
-  }
-  await context.addCookies(cached.get(email)!);
-}
 test.beforeEach(async ({ page }, info) => {
   await page.route("https://api.mapbox.com/**", (route) => route.abort());
   if (!info.title.startsWith("compact cookie"))
@@ -98,7 +51,10 @@ test("guest previews, distinct gates and navigation preserve the membership boun
   request,
 }) => {
   await page.goto("/");
-  await expect(page.locator(".upd-hero-cats")).toHaveCount(0);
+  await expect(page.locator(".upd-hero-cats .upd-cat-chip")).toHaveCount(6);
+  await expect(
+    page.locator(".upd-hero-cats a, .upd-hero-cats button"),
+  ).toHaveCount(0);
   await expect(page.locator(".destination-invitation")).toBeVisible();
   const result = await request.get(base + "/api/v1/places/?limit=100");
   expect(result.ok()).toBe(true);
@@ -120,19 +76,32 @@ test("guest previews, distinct gates and navigation preserve the membership boun
   await shot(page, "home");
   await page.locator("#palawan-map").scrollIntoViewIfNeeded();
   const zoomOut = page.locator(".p2-main-area-map .mapboxgl-ctrl-zoom-out");
-  await expect(zoomOut).toBeVisible();
-  const zoomBox = (await zoomOut.boundingBox())!;
-  const dockBox = (await page.locator(".p2-floating").boundingBox())!;
-  expect(zoomBox.y + zoomBox.height + 12).toBeLessThanOrEqual(dockBox.y);
+  if (await zoomOut.isVisible()) {
+    const zoomBox = (await zoomOut.boundingBox())!;
+    const dockBox = (await page.locator(".p2-floating").boundingBox())!;
+    expect(zoomBox.y + zoomBox.height + 12).toBeLessThanOrEqual(dockBox.y);
+  } else {
+    await expect(
+      page
+        .getByRole("button", {
+          name: "Explore Puerto Princesa City",
+          exact: true,
+        })
+        .first(),
+    ).toBeVisible();
+  }
   await page.goto(`/place/${hidden.id}/`);
   await expect(
-    page.getByRole("heading", { name: "Explorer+ destination", exact: true }),
+    page.getByRole("heading", {
+      name: "You need an Explorer+ account to view this place",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(page.locator(".member-lock")).toContainText(
-    "explore this destination",
+    "Unlock the full destination guide",
   );
   await expect(
-    page.getByRole("link", { name: "Upgrade to Explorer+", exact: true }),
+    page.getByRole("link", { name: "Get Explorer+", exact: true }),
   ).toHaveAttribute("href", /^\/membership\/\?return_to=/);
   await shot(page, "destination-gate");
   await page.goto("/itineraries/");

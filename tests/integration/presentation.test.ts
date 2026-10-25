@@ -44,7 +44,7 @@ test("database summaries preserve card controls, ratings and safe presentation m
   assert.equal((updated.match(/class="upd-card"/g) || []).length, 1);
   assert.ok(updated.includes("upd-toolbar"));
 });
-test("homepage omits the removed category shortcut strip while detail visibility follows settings", () => {
+test("homepage category icons are informational while detail visibility follows settings", () => {
   const templates = JSON.parse(readFileSync("src/data/fragments.json", "utf8"));
   const html = heroMarkup(templates.hero, {
     areas: [],
@@ -52,7 +52,10 @@ test("homepage omits the removed category shortcut strip while detail visibility
     availability: {},
     categoryCounts: { beaches: 123 },
   });
-  assert.ok(!html.includes('class="upd-hero-cats"'));
+  assert.ok(html.includes('class="upd-hero-cats"'));
+  assert.ok(html.includes('data-tooltip="123 Beaches"'));
+  assert.ok(!html.includes('href="/place_category/'));
+  assert.ok(!html.includes("<button"));
   assert.ok(html.includes("upd-hero"));
   assert.equal(fieldVisible({ place_show_gallery: "0" }, "gallery"), false);
   assert.equal(fieldVisible({}, "gallery"), true);

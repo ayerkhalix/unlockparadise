@@ -6,7 +6,7 @@ import { createContext, useContext, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { type Product } from "@/lib/merch-products";
 import { php } from "@/lib/commerce";
-import { notify } from "@/lib/client-api";
+import { notify, notifyUndo } from "@/lib/client-api";
 import { Icon } from "../icon";
 import { captureInterest } from "@/lib/analytics-client";
 import { FlightCount } from "../ui/flight-count";
@@ -120,6 +120,36 @@ export function CartProvider({
 export function useCart() {
   const data = useContext(CartContext);
   const products = useCatalog();
+  const restore = (removed: Entry[]) => {
+    const next = normalize([...snapshot.items, ...removed]);
+    for (const entry of removed) {
+      const current = snapshot.items.find(
+        (item) =>
+          item.productId === entry.productId && item.size === entry.size,
+      );
+      const product = products.find((item) => item.id === entry.productId);
+      const variant = product?.variants?.find(
+        (item) => item.label === entry.size,
+      );
+      const quantity = (current?.quantity || 0) + entry.quantity;
+      if (
+        quantity > 99 ||
+        (variant?.stock != null &&
+          variant.stock > 0 &&
+          quantity > variant.stock)
+      )
+        throw new Error(
+          "This quantity cannot be restored. Adjust the cart quantity and try Undo again.",
+        );
+    }
+    const persistent = save(next);
+    notify(
+      persistent
+        ? "Your cart selection was restored."
+        : "Restored for this visit. Browser storage is unavailable.",
+      !persistent,
+    );
+  };
   const available = (e: Entry) => {
     const p = products.find((p) => p.id === e.productId);
     const v = p?.variants?.find((v) => v.label === e.size);
@@ -220,16 +250,22 @@ export function useCart() {
         );
     },
     remove: (productId: number, size: string) => {
+      const removed = snapshot.items.filter(
+        (item) => item.productId === productId && item.size === size,
+      );
       save(
         snapshot.items.filter(
           (i) => i.productId !== productId || i.size !== size,
         ),
       );
-      notify("Item removed from your cart.");
+      if (removed.length)
+        notifyUndo("Item removed from your cart.", () => restore(removed));
     },
     clear: () => {
+      const removed = [...snapshot.items];
       save([]);
-      notify("Shopping cart cleared.");
+      if (removed.length)
+        notifyUndo("Shopping cart cleared.", () => restore(removed));
     },
   };
 }
@@ -326,7 +362,11 @@ export function CartPage() {
                   tabIndex={-1}
                   aria-hidden="true"
                 >
-                  <ContentImage sizes="96px" src={i.product.displayImage} alt="" />
+                  <ContentImage
+                    sizes="96px"
+                    src={i.product.displayImage}
+                    alt=""
+                  />
                 </Link>
                 <div>
                   <h2>

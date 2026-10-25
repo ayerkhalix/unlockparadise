@@ -22,3 +22,6 @@ Shared card insets, readable native controls and natural editor scrolling. Navy 
 
 FINISH
 Verify six widths, both admin themes, keyboard states, persisted saves and actual flight frames. Reduced motion keeps state feedback. Missing targets get a local flourish.
+## Approved compact phone presentation — 25 October 2026
+
+The mobile hero uses smaller copy beside the actual merchandise image. Product add controls explain that ordering opens soon. Shared cart Undo preserves removed quantities/selections and merges intervening items; no payment activation. The homepage map CTA is outside scope. Product photo crops share the admin focal-point control and preserve original files. Evidence is recorded in UX_POLISH_DELIVERY.md.

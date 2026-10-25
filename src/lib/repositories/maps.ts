@@ -4,6 +4,7 @@ import { findPlaces, taxonomy } from "./places";
 import { serverSupabase } from "@/lib/supabase/server";
 import type { MapConfiguration } from "@/components/palawan-map";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import originalMap from "@/data/map.json";
 function mapTerms(terms: Awaited<ReturnType<typeof taxonomy>>) {
   return {
     areas: terms.areas
@@ -19,7 +20,8 @@ function mapTerms(terms: Awaited<ReturnType<typeof taxonomy>>) {
       slug: c.slug,
       image: mediaAvailable(c.taxonomy_media?.[0]?.media)
         ? `/api/media/${c.taxonomy_media[0].media.id}/`
-        : "",
+        : originalMap.categories.find((category) => category.slug === c.slug)
+            ?.image || "",
     })),
   };
 }

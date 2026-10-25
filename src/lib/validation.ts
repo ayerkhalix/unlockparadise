@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { focalPointInput } from "./focal-point";
 import { accessPointInput } from "./access-points";
 import { nearbyPlacesInput } from "./nearby-places";
 import { archetypes } from "./traveler";
@@ -76,6 +77,13 @@ export const placeInput = z
     category_ids: z.array(uuid),
     gallery: z.array(uuid).max(8),
     cover_id: uuid.nullable(),
+    focal_points: z
+      .record(uuid, focalPointInput)
+      .refine(
+        (points) => Object.keys(points).length <= 9,
+        "Choose up to nine photo focal points.",
+      )
+      .optional(),
     expected_updated_at: z.iso.datetime({ offset: true }).optional(),
     seo: z
       .object({

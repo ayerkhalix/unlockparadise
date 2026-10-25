@@ -2,6 +2,7 @@ import sharp from "sharp";
 import { z } from "zod";
 import { api, ApiError, databaseError } from "@/lib/http";
 import { privilegedSupabase } from "@/lib/supabase/server";
+import { associationFocalPoint, focalCoverRegion } from "@/lib/focal-point";
 
 /** Public, deliberately limited cover preview. Never redirect to a private object or disclose its path. */
 export async function GET(
@@ -23,7 +24,7 @@ export async function GET(
     if (!place.data) throw new ApiError(404, "Preview unavailable.");
     const cover = await db
       .from("place_media")
-      .select("media_id")
+      .select("media_id,focal_x,focal_y")
       .eq("place_id", id)
       .eq("kind", "cover")
       .order("position")
@@ -61,11 +62,19 @@ export async function GET(
       download.data.size > 20 * 1024 * 1024
     )
       throw new ApiError(404, "Preview unavailable.");
-    const image = await sharp(Buffer.from(await download.data.arrayBuffer()), {
+    const source = sharp(Buffer.from(await download.data.arrayBuffer()), {
       limitInputPixels: 60000000,
-    })
-      .rotate()
-      .resize(640, 480, { fit: "cover", withoutEnlargement: true })
+    });
+    const metadata = await source.metadata();
+    const rotated = metadata.orientation != null && metadata.orientation >= 5;
+    const width = (rotated ? metadata.height : metadata.width) || 1,
+      height = (rotated ? metadata.width : metadata.height) || 1;
+    const focus = associationFocalPoint(cover.data);
+    let pipeline = source.rotate();
+    if (focus.x !== 50 || focus.y !== 50)
+      pipeline = pipeline.extract(focalCoverRegion(width, height, focus));
+    const image = await pipeline
+      .resize(640, 480, { fit: "inside", withoutEnlargement: true })
       .webp({ quality: 78 })
       .toBuffer();
     return new Response(new Uint8Array(image), {

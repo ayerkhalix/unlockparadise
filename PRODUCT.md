@@ -42,3 +42,9 @@ Admin keeps its authorized Place workflows, adds a Merchandise library with actu
 ## Client refinements — 25 October 2026
 
 New itineraries require one area, with destination browsing and additions constrained to it. Existing itineraries remain intact and can choose an area before adding more stops. Explore destinations supports choosing the destination's day. Profile removes Areas explored and the Remove photo action; Portfolio and uploaded-photo replacement remain. Photo stop cards precede the timeline. Inline additions use name search only; route controls remain on the map. Cookie labels use plain language. Image delivery uses responsive derivatives without deleting or replacing originals.
+## Approved polish items 2–8 — 25 October 2026
+
+The owner approved compact phone destination browsing and merchandise introduction, explicit itinerary save/retry feedback, a labeled Trip options deletion action, Undo for itinerary/Bucketlist/cart removals, reserved destination loading skeletons, clear ordering-availability copy, and admin photo focal-point editing with previews. Item 1 was excluded: the homepage main map CTA is unchanged. Original photos, saved records, membership/payment boundaries and the established visual identity remain authoritative. UX_POLISH_DELIVERY.md records verification and staging release evidence.
+## Client photo/hook correction — 25 October 2026
+
+The client clarified that homepage category icons should remain visible with hover information and no navigation. Destination hooks should show a photo and the membership comparison, while feature hooks retain their padlock. Both omit the redundant content logo. Category thumbnails, failed-image recovery and featured-photo composition are corrected without relaxing protected original-media or premium-name access. This clarification supersedes the earlier removed icon strip; the homepage map CTA remains unchanged.

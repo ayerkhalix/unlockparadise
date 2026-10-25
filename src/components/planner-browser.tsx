@@ -8,6 +8,7 @@ import { Icon } from "./icon";
 import { Modal } from "./ui/modal";
 import { ValidatedForm } from "./ui/validated-form";
 import { StopTimeFields } from "./stop-time-fields";
+import { DestinationSkeleton } from "./ui/destination-skeleton";
 import {
   dayLabel,
   plannerHref,
@@ -46,6 +47,9 @@ export function PlannerBrowser({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const pending = useRef(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const filterCount =
+    Number(!!mode) + Number(!!duration) + Number(sort !== "name");
   const update = (values: Record<string, string>) => {
     const query = new URLSearchParams(params.toString());
     for (const [key, value] of Object.entries(values)) {
@@ -184,45 +188,97 @@ export function PlannerBrowser({
             placeholder="Search by destination name"
           />
         </label>
-        <label>
-          Accessible by
-          <select
-            value={mode}
-            onChange={(e) => update({ mode: e.target.value })}
-          >
-            <option value="">Any transport</option>
-            {["Motorcycle", "Car", "4x4", "Boat", "Hike"].map((name) => (
-              <option key={name}>{name}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Travel time
-          <select
-            value={duration}
-            onChange={(e) => update({ duration: e.target.value })}
-          >
-            <option value="">Any duration</option>
-            {[15, 30, 60, 120].map((minutes) => (
-              <option key={minutes} value={minutes}>
-                Up to {minutes} min
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Sort by
-          <select
-            value={sort}
-            onChange={(e) => update({ sort: e.target.value })}
-          >
-            <option value="name">Name</option>
-            <option value="time">Travel time</option>
-          </select>
-        </label>
+        <button
+          className="p2-button p2-button--quiet planner-browser-filter-toggle"
+          type="button"
+          aria-expanded={showFilters}
+          aria-controls="planner-browse-options"
+          onClick={() => setShowFilters((open) => !open)}
+        >
+          Filters{filterCount ? ` (${filterCount})` : ""}
+        </button>
+        <div
+          id="planner-browse-options"
+          className="planner-browser-options"
+          data-open={showFilters}
+        >
+          <label>
+            Accessible by
+            <select
+              value={mode}
+              onChange={(e) => update({ mode: e.target.value })}
+            >
+              <option value="">Any transport</option>
+              {["Motorcycle", "Car", "4x4", "Boat", "Hike"].map((name) => (
+                <option key={name}>{name}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Travel time
+            <select
+              value={duration}
+              onChange={(e) => update({ duration: e.target.value })}
+            >
+              <option value="">Any duration</option>
+              {[15, 30, 60, 120].map((minutes) => (
+                <option key={minutes} value={minutes}>
+                  Up to {minutes} min
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Sort by
+            <select
+              value={sort}
+              onChange={(e) => update({ sort: e.target.value })}
+            >
+              <option value="name">Name</option>
+              <option value="time">Travel time</option>
+            </select>
+          </label>
+        </div>
       </div>
+      {filterCount > 0 && (
+        <div
+          className="planner-active-filters"
+          aria-label="Active destination filters"
+        >
+          {mode && (
+            <button
+              type="button"
+              className="p2-back"
+              onClick={() => update({ mode: "" })}
+              aria-label={`Clear transport filter: ${mode}`}
+            >
+              {mode} ×
+            </button>
+          )}
+          {duration && (
+            <button
+              type="button"
+              className="p2-back"
+              onClick={() => update({ duration: "" })}
+              aria-label={`Clear travel time filter: Up to ${duration} min`}
+            >
+              Up to {duration} min ×
+            </button>
+          )}
+          {sort !== "name" && (
+            <button
+              type="button"
+              className="p2-back"
+              onClick={() => update({ sort: "name" })}
+              aria-label="Clear filter: Travel time order"
+            >
+              Travel time order ×
+            </button>
+          )}
+        </div>
+      )}
       {catalog.loading ? (
-        <p role="status">Loading destinations…</p>
+        <DestinationSkeleton />
       ) : catalog.error ? (
         <div className="p2-error" role="alert">
           <p>{catalog.error}</p>

@@ -36,8 +36,8 @@ export async function GET(request: Request, { params }: Context) {
         .from("places")
         .select(
           id
-            ? "*,place_details(*),place_areas(area_id),place_categories(category_id),place_media(kind,position,media_id)"
-            : `id,title,slug,status,vip_content,premium_content,updated_at,place_areas${url.searchParams.get("area") ? "!inner" : ""}(area_id,areas(name)),place_categories${url.searchParams.get("category") ? "!inner" : ""}(category_id,categories(name)),place_media(kind,position,media_id)`,
+            ? "*,place_details(*),place_areas(area_id),place_categories(category_id),place_media(kind,position,media_id,focal_x,focal_y)"
+            : `id,title,slug,status,vip_content,premium_content,updated_at,place_areas${url.searchParams.get("area") ? "!inner" : ""}(area_id,areas(name)),place_categories${url.searchParams.get("category") ? "!inner" : ""}(category_id,categories(name)),place_media(kind,position,media_id,focal_x,focal_y)`,
           { count: "exact" },
         );
       if (id) {

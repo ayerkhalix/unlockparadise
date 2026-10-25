@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { focalPointInput } from "./focal-point";
 
 export const centavos = (value: string): number => {
   if (!/^\d{1,7}(\.\d{1,2})?$/.test(value))
@@ -43,6 +44,7 @@ export const productInput = z
               /^\/(?:merch\/images\/[a-zA-Z0-9_-]+\.(?:png|webp|jpe?g)|api\/media\/[0-9a-f-]{36}\/)$/,
             ),
             alt: text(300),
+            focal: focalPointInput.optional(),
           })
           .strict(),
       )

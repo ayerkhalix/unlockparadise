@@ -86,6 +86,17 @@ export const planMutation = z
       payload: z.object({ item_id: id }),
     }),
     z.object({
+      action: z.literal("restore"),
+      payload: z
+        .object({
+          day_id: id,
+          place_id: id,
+          position: z.number().int().min(0).max(49),
+          notes: z.string().max(2000),
+        })
+        .and(stopTimeInput),
+    }),
+    z.object({
       action: z.literal("move"),
       payload: z.object({ item_id: id, day_id: id }),
     }),

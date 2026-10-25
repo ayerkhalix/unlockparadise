@@ -16,6 +16,8 @@ import { notify } from "@/lib/client-api";
 import { TravelerTargeting } from "./traveler-targeting";
 import { NearbyPlaceEditor } from "./nearby-place-editor";
 import type { NearbyPlace } from "@/lib/nearby-places";
+import { PhotoFocalPoint } from "./ui/photo-focal-point";
+import { associationFocalPoint, type FocalPoint } from "@/lib/focal-point";
 type Row = Record<string, unknown>;
 export function PlaceEditor({
   initial,
@@ -95,6 +97,23 @@ export function PlaceEditor({
   const originalCover = (
     (initial?.place_media || []) as { kind: string; media_id: string }[]
   ).find((m) => m.kind === "cover")?.media_id;
+  const [coverId, setCoverId] = useState(String(originalCover || ""));
+  const [focalPoints, setFocalPoints] = useState<Record<string, FocalPoint>>(
+    () =>
+      Object.fromEntries(
+        ((initial?.place_media || []) as Row[]).map((photo) => [
+          String(photo.media_id),
+          associationFocalPoint(
+            photo as { focal_x?: number; focal_y?: number },
+          ),
+        ]),
+      ),
+  );
+  const focusPhoto = (id: string, point: FocalPoint) => {
+    setFocalPoints((points) => ({ ...points, [id]: point }));
+    setDirty(true);
+    onDirtyChange?.(true);
+  };
   useEffect(() => {
     let disposed = false;
     void Promise.all([
@@ -216,6 +235,11 @@ export function PlaceEditor({
             category_ids: list("category_ids"),
             cover_id: data.get("cover_id") || null,
             gallery,
+            focal_points: Object.fromEntries(
+              [...new Set([coverId, ...gallery])]
+                .filter(Boolean)
+                .map((id) => [id, focalPoints[id] || { x: 50, y: 50 }]),
+            ),
           };
           try {
             if (
@@ -643,7 +667,11 @@ export function PlaceEditor({
           </label>
           <label>
             Public featured image
-            <select name="cover_id" defaultValue={String(originalCover || "")}>
+            <select
+              name="cover_id"
+              value={coverId}
+              onChange={(event) => setCoverId(event.target.value)}
+            >
               <option value="">No cover</option>
               {originalCover && !media.some((m) => m.id === originalCover) && (
                 <option value={originalCover}>Current saved cover</option>
@@ -659,6 +687,14 @@ export function PlaceEditor({
                 ))}
             </select>
           </label>
+          {coverId && (
+            <PhotoFocalPoint
+              disabled={busy}
+              src={`/api/media/${coverId}/`}
+              value={focalPoints[coverId]}
+              onChange={(point) => focusPhoto(coverId, point)}
+            />
+          )}
           <fieldset>
             <legend>Gallery (ordered, up to eight photos)</legend>
             <label>
@@ -691,6 +727,12 @@ export function PlaceEditor({
                         `Saved photo ${i + 1}`,
                     )}
                   </span>{" "}
+                  <PhotoFocalPoint
+                    disabled={busy}
+                    src={`/api/media/${id}/`}
+                    value={focalPoints[id]}
+                    onChange={(point) => focusPhoto(id, point)}
+                  />
                   <button
                     type="button"
                     disabled={!i}

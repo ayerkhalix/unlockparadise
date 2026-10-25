@@ -26,6 +26,8 @@ import { ZodError } from "zod";
 import type { Product, SizeGuideRow } from "@/lib/merch-products";
 import { ProductCard, ProductDetail } from "../merch/store";
 import { Modal } from "../ui/modal";
+import { PhotoFocalPoint } from "../ui/photo-focal-point";
+import { withFocalPoint, type FocalPoint } from "@/lib/focal-point";
 
 type Variant = {
   id?: string;
@@ -35,7 +37,7 @@ type Variant = {
   stock: string;
   active: boolean;
 };
-type Image = { src: string; alt: string };
+type Image = { src: string; alt: string; focal?: FocalPoint };
 export function ProductEditor({
   initial,
   onClose,
@@ -230,8 +232,10 @@ export function ProductEditor({
       descriptor: draftText.descriptor,
       shortDescription: draftText.shortDescription || draftText.description,
       about: draftText.description,
-      images: images.map((i) => i.src),
-      displayImage: images[0]?.src || "",
+      images: images.map((i) => withFocalPoint(i.src, i.focal)),
+      displayImage: images[0]
+        ? withFocalPoint(images[0].src, images[0].focal)
+        : "",
       sizes: active.map((v) => v.label),
       inStock: active.some((v) => v.stock === "" || Number(v.stock) > 0),
       details: {
@@ -615,12 +619,26 @@ export function ProductEditor({
               {images.map((image, i) => (
                 <div className="product-photo" key={image.src + ":" + i}>
                   <ContentImage
-                    src={image.src}
+                    src={withFocalPoint(image.src, image.focal)}
                     alt={image.alt || "Product preview"}
                     width={240}
                     height={240}
                   />
                   <strong>{i === 0 ? "Cover photo" : `Photo ${i + 1}`}</strong>
+                  <PhotoFocalPoint
+                    disabled={locked}
+                    src={image.src}
+                    value={image.focal}
+                    aspect="4 / 5"
+                    onChange={(focal) => {
+                      setImages((rows) =>
+                        rows.map((row, index) =>
+                          index === i ? { ...row, focal } : row,
+                        ),
+                      );
+                      mark();
+                    }}
+                  />
                   <label>
                     Photo description
                     <input

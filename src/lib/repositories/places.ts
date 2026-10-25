@@ -20,6 +20,7 @@ export interface PlaceSummary {
   saved?: boolean;
   visited?: boolean;
   preview_id?: string;
+  preview_version?: string;
   place_details?: {
     hike_minutes: number | null;
     transport_minutes: Record<string, number | null>;
@@ -31,6 +32,8 @@ export interface PlaceSummary {
   place_media: {
     kind: string;
     position: number;
+    focal_x?: number;
+    focal_y?: number;
     media: { id: string; status: string; alt: string } | null;
   }[];
 }
@@ -52,7 +55,7 @@ export async function findPlaces(
     ? db
         .rpc("traveler_featured", { max_results: filters.limit || 4 })
         .select(
-          "id,legacy_id,slug,title,vip_content,travel_minutes,accessibility,assets,published_at,featured,feature_order,place_areas(areas(id,slug,name)),place_categories(categories(id,slug,name)),place_media(kind,position,media(id,status,alt)),reviews(rating,status),place_details(hike_minutes,transport_minutes)",
+          "id,legacy_id,slug,title,vip_content,travel_minutes,accessibility,assets,published_at,featured,feature_order,place_areas(areas(id,slug,name)),place_categories(categories(id,slug,name)),place_media(kind,position,focal_x,focal_y,media(id,status,alt)),reviews(rating,status),place_details(hike_minutes,transport_minutes)",
         )
     : db.rpc("browse_places", {
         area_slug: filters.area || null,
@@ -73,7 +76,7 @@ export async function findPlaces(
   if (hidden.length) {
     const previews = await privilegedSupabase()
       .from("places")
-      .select("id,title,featured")
+      .select("id,title,featured,updated_at")
       .in(
         "id",
         hidden.map((p) => p.id),
@@ -85,6 +88,7 @@ export async function findPlaces(
       const preview = previews.data?.find((p) => p.id === place.id);
       if (!preview) continue;
       place.preview_id = place.id;
+      place.preview_version = String(Date.parse(preview.updated_at));
       if (filters.featured && preview.featured) place.title = preview.title;
     }
   }

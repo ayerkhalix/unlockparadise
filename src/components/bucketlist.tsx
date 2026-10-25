@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { requestJSON } from "@/lib/client-api";
 import type { TravelPlace } from "@/lib/planning";
 import { ContentImage } from "./ui/content-image";
+import { DestinationSkeleton } from "./ui/destination-skeleton";
 export type SavedRecord = {
   place_id: string;
   saved_at: string | null;
@@ -201,7 +202,7 @@ export function SavedPlacesPage({
         </div>
       )}
       {loading ? (
-        <p role="status">Loading your Places…</p>
+        <DestinationSkeleton count={3} />
       ) : error ? (
         <div className="p2-error" role="alert">
           <p>{error}</p>

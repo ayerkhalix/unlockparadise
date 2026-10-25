@@ -1,3 +1,4 @@
+import { withFocalPoint, associationFocalPoint } from "./focal-point";
 import { mediaAvailable } from "@/lib/media-availability";
 import "server-only";
 import { readFile } from "node:fs/promises";
@@ -81,7 +82,7 @@ export const destinationRepository = {
       const result = await db
         .from("places")
         .select(
-          "*,place_details(*),place_areas(areas(slug,name)),place_categories(categories(slug,name)),place_media(kind,position,media(id,bucket,object_path,status)),reviews(id,user_id,author_name,rating,title,body,created_at,status)",
+          "*,place_details(*),place_areas(areas(slug,name)),place_categories(categories(slug,name)),place_media(kind,position,focal_x,focal_y,media(id,bucket,object_path,status)),reviews(id,user_id,author_name,rating,title,body,created_at,status)",
         )
         .eq(z.uuid().safeParse(slug).success ? "id" : "slug", slug)
         .maybeSingle();
@@ -133,8 +134,11 @@ export const destinationRepository = {
             m.kind === "gallery" && mediaAvailable(m.media),
         )
         .map(
-          (m: { media: { id: string } }) =>
-            `/api/media/${m.media.id}/?variant=large`,
+          (m: { media: { id: string }; focal_x?: number; focal_y?: number }) =>
+            withFocalPoint(
+              `/api/media/${m.media.id}/?variant=large`,
+              associationFocalPoint(m),
+            ),
         );
       const cover = media.find(
         (m: { kind: string; media: { status: string } | null }) =>
@@ -152,7 +156,10 @@ export const destinationRepository = {
         requiredTier: p.vip_content ? "explorer-plus" : "explorer",
         accessible: Boolean(details),
         cover: cover
-          ? `/api/media/${cover.media.id}/?variant=large`
+          ? withFocalPoint(
+              `/api/media/${cover.media.id}/?variant=large`,
+              associationFocalPoint(cover),
+            )
           : undefined,
         travelTime: p.travel_minutes,
         isMountain: p.place_categories?.some(
@@ -186,7 +193,12 @@ export const destinationRepository = {
         gallery: gallery.length
           ? gallery
           : cover
-            ? [`/api/media/${cover.media.id}/?variant=large`]
+            ? [
+                withFocalPoint(
+                  `/api/media/${cover.media.id}/?variant=large`,
+                  associationFocalPoint(cover),
+                ),
+              ]
             : [],
         coordinates:
           details?.longitude != null && details?.latitude != null

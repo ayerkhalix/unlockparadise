@@ -18,25 +18,37 @@ export async function GET(
       .eq("id", id)
       .maybeSingle();
     databaseError(result.error);
-    if (!result.data)
+    if (!result.data) throw new ApiError(404, "Image unavailable.");
+    if (!mediaAvailable(result.data))
       throw new ApiError(404, "Image unavailable.");
-    if (!mediaAvailable(result.data)) throw new ApiError(404, "Image unavailable.");
     const variant = new URL(request.url).searchParams.get("variant");
     if (variant) {
-      z.string().regex(/^[a-z0-9_-]{1,40}$/).parse(variant);
-      const file = await db.from("media_files").select("bucket,object_path,status,original_path,mime_type,checksum").eq("media_id", id).eq("variant", variant).in("bucket", ["destination-public", "destination-private"]).maybeSingle();
+      z.string()
+        .regex(/^[a-z0-9_-]{1,40}$/)
+        .parse(variant);
+      const file = await db
+        .from("media_files")
+        .select("bucket,object_path,status,original_path,mime_type,checksum")
+        .eq("media_id", id)
+        .eq("variant", variant)
+        .in("bucket", ["destination-public", "destination-private"])
+        .maybeSingle();
       databaseError(file.error);
       if (file.data && result.data.original_path) {
-        if (file.data.status === "ready") result.data = { ...result.data, ...file.data };
+        if (file.data.status === "ready")
+          result.data = { ...result.data, ...file.data };
         else if (file.data.status === "pending") return legacyImage(file.data);
       }
     }
     if (result.data.status === "legacy") return legacyImage(result.data);
-    if (result.data.status !== "ready") throw new ApiError(404, "Image unavailable.");
+    if (result.data.status !== "ready")
+      throw new ApiError(404, "Image unavailable.");
     const width = Number(new URL(request.url).searchParams.get("width"));
-    const transform = imageWidths.includes(width as (typeof imageWidths)[number]) &&
+    const transform =
+      imageWidths.includes(width as (typeof imageWidths)[number]) &&
       /image\/(jpeg|png|webp|avif)/.test(result.data.mime_type || "")
-      ? { width, quality: 75 } : undefined;
+        ? { width, quality: 75, resize: "contain" as const }
+        : undefined;
     if (result.data.bucket === "destination-public") {
       const { data } = db.storage
         .from(result.data.bucket)

@@ -515,7 +515,14 @@ export function AreaMap({
       }}
     >
       {cat.image && (
-        <ContentImage sizes="128px" className="category-thumb" src={cat.image} alt="" loading="lazy" />
+        <ContentImage
+          sizes="(max-width: 767px) 28vw, (max-width: 1199px) 16vw, 180px"
+          className="category-thumb"
+          src={cat.image}
+          alt=""
+          loading="eager"
+          fetchPriority="low"
+        />
       )}
       <span className="category-label">{cat.name}</span>
     </button>
@@ -549,9 +556,19 @@ export function AreaMap({
             <>
               Browse an area:{" "}
               {mapData.areas.map((area) => (
-                <a key={area.slug} href={`/area/${area.slug}/`}>
+                <button
+                  type="button"
+                  className="map-fallback-area"
+                  key={area.slug}
+                  aria-label={`Explore ${area.name}`}
+                  onClick={() =>
+                    selectAreaRef.current
+                      ? selectAreaRef.current(area)
+                      : setSelected(area)
+                  }
+                >
                   {area.name}
-                </a>
+                </button>
               ))}
             </>
           )}

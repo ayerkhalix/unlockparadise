@@ -153,6 +153,11 @@ function AddToBag({
       >
         {p.inStock ? "Add to cart" : "Currently unavailable"}
       </button>
+      <p className="p2-merch-availability">
+        {compact
+          ? "Preview only · Ordering opens soon"
+          : "Ordering opens soon. You can save items in your cart."}
+      </p>
     </ValidatedForm>
   );
 }
@@ -331,7 +336,10 @@ export function ProductDetail({
             aria-label={`Enlarge ${p.name} photo ${photo + 1}`}
             onClick={() => setZoom(true)}
           >
-            <ContentImage src={p.images[photo]} alt={`${p.name}, view ${photo + 1}`} />
+            <ContentImage
+              src={p.images[photo]}
+              alt={`${p.name}, view ${photo + 1}`}
+            />
           </button>
           <div className="p2-product-thumbs">
             {p.images.map((src, i) => (

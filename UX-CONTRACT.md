@@ -208,3 +208,23 @@ Create trip requires exactly one saved area. Native day selectors in Explore des
 Final itinerary shows photo stop cards before Daily timeline. Add destination contains name search only. My route omits Open main map and places Route stops 8px from the map's upper-left corner, below measured loading/error notices while those exist.
 
 ContentImage uses responsive derivatives, lazy loading below the fold, eager loading for high-priority imagery, and a retry with the original source before its readable unavailable fallback. Private media remains on the authenticated API route; only its server-authorized Storage URL carries a signed resize. Public local photographs use Next's image cache. Unknown remote and vector sources stay unchanged, and originals remain available for deliberate full-photo viewing.
+## Reversible actions and photo crops — 25 October 2026
+
+The approved 2–8 polish keeps the homepage map CTA unchanged. Phone destination browsing collapses secondary native filters behind Filters, retains query/day/area context, and exposes clearable active chips. Desktop filters stay visible. Destination loading reserves the same card grid geometry and announces Loading destinations without pretending placeholder data is real.
+
+The itinerary's authoritative save state sits beside its title. Drafts remain distinct from a confirmed saved server response. Retry save resends the failed payload using the current owned version; HTTP 409 offers reload instead. Existing dirty-work/export guards remain. Trip options contains labeled Delete trip with the canonical confirmation, replacing the ambiguous close-style deletion button.
+
+Removal notifications offer Undo for 15 seconds and pause while hovered, focused, hidden or restoring. Failed Undo stays available with Retry Undo. Stop restoration validates current membership, ownership, version, area/day, duplicates, capacity and times, then restores saved notes and ordering atomically. Bucketlist restoration uses its canonical save operation; cart restoration merges with intervening selections, enforces quantity constraints and preserves unavailable-item feedback. Undo never publishes content or opens purchasing.
+
+Failed Undo owns Retry Undo; it does not also expose the ordinary Retry save control. Conflict recovery remains Reload saved itinerary. Shared tooltips render in the active dialog or a named contextual-help region at the document root, preserving both viewport positioning and landmark semantics.
+
+Photo focal-point controls support pointer/touch and arrow keys, a visual preview, explicit center reset and busy locking. Place crop metadata is versioned with the Place save; product metadata remains in its versioned images JSON. Server validation rejects out-of-bounds or malformed points transactionally. No original media is deleted or overwritten. A bounded premium preview applies its crop internally and returns image bytes only.
+## Destination hooks and image recovery correction — 25 October 2026
+
+Storage image delivery explicitly uses proportional `contain` resizing. Width-only default cover transforms were cropping originals into narrow strips, so the shared request URL also changes to avoid cached old redirects. Both public and signed private delivery keep the same authorization and cache boundaries. UI focal cropping happens against the proportional source rather than an already-cropped strip.
+
+Homepage category items are passive information, not navigation. They expose their icon, visible short label and accessible count tooltip on hover/focus; neither pointer activation nor keyboard activation navigates. This supersedes the earlier removed strip. The main map CTA stays unchanged.
+
+DestinationGate is distinct from FeatureLock: it shows an already-authorized cover preview and reuses the membership comparison and safe return flow. It never serializes a protected original or premium destination name. FeatureLock keeps its padlock and upgrade action. Neither hook adds a second brand lockup below the header.
+
+Map category photos use existing public thumbnail fallbacks when the current RLS projection has no visible image association. Eager, low-priority requests warm these small previews before opening the category panel. Featured photos reserve 4:3 geometry and show the full composition unless an admin has deliberately selected focal cropping. OriginalMarkup and ContentImage each retry a failed resized source once through its original authorized route, then show the same readable fallback. The retained-HTML recovery adapter runs once at the app root and handles images that failed before hydration as well as later route content.

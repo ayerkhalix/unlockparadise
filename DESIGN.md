@@ -53,13 +53,13 @@ typography:
     fontWeight: 500
   display:
     fontFamily: "Outfit, Quicksand, sans-serif"
-    fontSize: "clamp(44px, 5vw, 72px)"
+    fontSize: "72px"
     fontWeight: 500
     lineHeight: 1.02
     letterSpacing: "-0.03em"
   headline:
     fontFamily: "Outfit, Quicksand, sans-serif"
-    fontSize: "clamp(32px, 4vw, 56px)"
+    fontSize: "56px"
     fontWeight: 500
     lineHeight: 1.12
     letterSpacing: "-0.035em"
@@ -84,12 +84,12 @@ typography:
     lineHeight: 1.5
   editorial:
     fontFamily: "Georgia, serif"
-    fontSize: "clamp(26px, 3vw, 38px)"
+    fontSize: "38px"
     fontWeight: 500
     lineHeight: 1.2
   studio-heading:
     fontFamily: "Outfit, sans-serif"
-    fontSize: "clamp(30px, 3vw, 40px)"
+    fontSize: "40px"
     fontWeight: 500
     lineHeight: 1.15
     letterSpacing: "-0.035em"
@@ -480,3 +480,23 @@ Profile statistics use two equal columns: Bucketlisted and In Portfolio; the edi
 
 
 The itinerary destination browser uses the same white Places cards as regular browsing, retaining the shared 4:3 photo, dark title, travel-time and teal transport metadata, with its itinerary action over the photograph. The phone grid is one column. The canonical title selector also supports section-level headings inside the planner shell.
+## Approved UX polish — 25 October 2026
+
+The scalar frontmatter font sizes describe the existing desktop ceilings. Runtime fluid sizes remain display `clamp(44px, 5vw, 72px)`, headline `clamp(32px, 4vw, 56px)`, editorial `clamp(26px, 3vw, 38px)` and studio heading `clamp(30px, 3vw, 40px)` in their established CSS owners; this representation keeps the machine-readable dimension schema valid without changing those styles.
+
+Scope is the owner's accepted items 2–8. The homepage's main map/Start exploring CTA retains its current wording, placement and behavior. Keep the incumbent navy, teal, gold, Outfit/Open Sans and canonical white Places cards.
+
+On phones, the destination browser uses a compact photographic heading and day/return toolbar. Search and categories remain directly available; transport, duration and sort use a single Filters disclosure with removable active-filter chips. Desktop retains the full filter row. Loading uses static, reserved card skeletons and a readable status; avoid shimmer or invented destination information.
+
+Trip-title feedback distinguishes Saving changes, Saved, unsaved drafts and failed saves. Failed requests retain their draft and offer Retry save; version conflicts require reloading the saved plan. Delete trip is a labeled danger action inside Trip options and retains the existing confirmation. Stop, Bucketlist and cart removals use the shared Undo notification. Itinerary Undo restores the saved day, position, notes and visit time through a versioned server transaction. Notifications pause dismissal during interaction and keep failed Undo available for retry.
+
+The phone merchandise introduction keeps its real image alongside smaller text so products appear sooner. Product actions state that ordering opens soon. Cart and membership payment capabilities retain their existing boundaries.
+
+Place cover/gallery and product photo editors use one shared focal-point disclosure: choose on the uncropped image, adjust with arrows or Home, inspect a card preview, and reset to center. The selected crop is metadata, never a rewritten original. Retained images keep their crop through older-client saves. Public, protected, planner and preview images honor that metadata through their existing delivery and access paths.
+## Client photo and hook correction — 25 October 2026
+
+This supersedes the earlier removal of homepage category icons. Restore the original six icon/label items as informational spans: hover/focus gives the current count, with no link or click action. The main Start exploring/map CTA is unchanged.
+
+Destination access hooks are photographic: the authorized cover preview, concise account requirement and the existing Guest/Explorer/Explorer+ comparison. Feature hooks retain the padlock treatment. Both omit the redundant in-content logo; the shared site header remains. Premium destination names, originals and guides keep their existing restrictions.
+
+Category tiles eagerly request their bounded image sizes before the map overlay opens. If an association is hidden from the viewer, use the established public category thumbnail rather than a blank tile. Featured photographs use real image elements in a 4:3 frame with contain by default; explicit admin focal points opt into cover cropping. This replaces the short fixed-height background crop. Bounded public previews preserve photo composition by default and apply explicit focal cropping when selected. React images and retained HTML each have one canonical retry-to-original adapter, then a readable unavailable state. Original assets remain intact.

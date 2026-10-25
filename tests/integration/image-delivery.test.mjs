@@ -10,6 +10,7 @@ test("image delivery keeps private images on the authenticated route and leaves 
   const response = responsiveImage(media);
   assert.ok(response.src.startsWith("/api/media/"));
   assert.ok(response.src.includes("variant=medium_large&width=640"));
+  assert.ok(response.src.includes("resize=contain"));
   assert.ok(!response.srcSet.includes("/_next/image"));
   assert.equal(imageDeliveryUrl(media, 99999), media);
   for (const src of [

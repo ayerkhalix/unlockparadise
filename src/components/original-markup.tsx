@@ -1,4 +1,9 @@
 import { imageDeliveryUrl, responsiveImage } from "@/lib/image-delivery";
+import {
+  sourceFocalPoint,
+  focalPosition,
+  stripFocalPoint,
+} from "@/lib/focal-point";
 
 /** Static public markup, sanitized at import time. No WordPress scripts execute here. */
 export function OriginalMarkup({ html }: { html: string }) {
@@ -11,13 +16,21 @@ export function OriginalMarkup({ html }: { html: string }) {
         ?.replaceAll("&amp;", "&");
       if (!source) return tag;
       const delivery = responsiveImage(source);
-      if (!delivery.srcSet) return tag;
+      const focal = sourceFocalPoint(source);
+      const recovery =
+        source.startsWith("/") && !source.startsWith("//")
+          ? ` data-image-original="${escape(stripFocalPoint(source))}"`
+          : "";
+      if (!delivery.srcSet && !focal)
+        return tag.replace(/\/?\s*>$/, `${recovery} />`);
       const sizes = tag.match(/\bsizes="([^"]+)"/)?.[1] || "100vw";
+      const style = tag.match(/\bstyle="([^"]*)"/)?.[1] || "";
       return tag
         .replace(/\s+(?:src|srcset|sizes)="[^"]*"/gi, "")
+        .replace(focal ? /\s+style="[^"]*"/gi : /$^/, "")
         .replace(
           /\/?\s*>$/,
-          ` src="${escape(delivery.src)}" srcset="${escape(delivery.srcSet)}" sizes="${sizes}" />`,
+          ` src="${escape(delivery.src)}"${delivery.srcSet ? ` srcset="${escape(delivery.srcSet)}" sizes="${sizes}"` : ""}${focal ? ` style="${escape(style)};object-position:${focalPosition(focal)};object-fit:cover"` : ""}${recovery} />`,
         );
     })
     .replace(

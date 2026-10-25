@@ -3,9 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { ApiError, databaseError } from "@/lib/http";
 import { mediaAvailable } from "@/lib/media-availability";
 import type { TravelPlace, Trip } from "@/lib/planning";
+import { withFocalPoint, associationFocalPoint } from "@/lib/focal-point";
 
 export const planningPlaceSelect =
-  "id,slug,title,vip_content,status,accessibility,travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,media(id,status)),place_details(latitude,longitude,access_points)";
+  "id,slug,title,vip_content,status,accessibility,travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,focal_x,focal_y,media(id,status)),place_details(latitude,longitude,access_points)";
 type PlaceRow = {
   id: string;
   slug: string;
@@ -16,7 +17,12 @@ type PlaceRow = {
   travel_minutes: number | null;
   place_areas: { areas: { id: string; name: string; slug: string } }[];
   place_categories: { categories: { name: string; slug: string } }[];
-  place_media: { kind: string; media: { id: string; status: string } | null }[];
+  place_media: {
+    kind: string;
+    focal_x?: number;
+    focal_y?: number;
+    media: { id: string; status: string } | null;
+  }[];
   place_details: {
     latitude: number | null;
     longitude: number | null;
@@ -28,7 +34,7 @@ export function planningPlace(row: unknown): TravelPlace | null {
   if (!p || p.status !== "publish" || !p.place_details) return null;
   const photo = p.place_media.find(
     (m) => m.kind === "cover" && mediaAvailable(m.media),
-  )?.media;
+  );
   return {
     id: p.id,
     areaIds: p.place_areas.map((a) => a.areas.id),
@@ -38,7 +44,12 @@ export function planningPlace(row: unknown): TravelPlace | null {
     title: p.title,
     area: p.place_areas.map((a) => a.areas.name).join(" · "),
     category: p.place_categories.map((c) => c.categories.name).join(" · "),
-    image: photo ? `/api/media/${photo.id}/?variant=medium_large` : null,
+    image: photo?.media
+      ? withFocalPoint(
+          `/api/media/${photo.media.id}/?variant=medium_large`,
+          associationFocalPoint(photo),
+        )
+      : null,
     accessPoints: p.place_details.access_points || [],
     coordinates:
       p.place_details.longitude != null && p.place_details.latitude != null

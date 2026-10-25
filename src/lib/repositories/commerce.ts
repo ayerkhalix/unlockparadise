@@ -2,6 +2,7 @@ import "server-only";
 import { serverSupabase } from "@/lib/supabase/server";
 import { databaseError } from "@/lib/http";
 import type { Product } from "@/lib/merch-products";
+import { withFocalPoint, type FocalPoint } from "@/lib/focal-point";
 
 export type Variant = {
   id: string;
@@ -13,7 +14,11 @@ export type Variant = {
 };
 export function publicProduct(row: Record<string, unknown>): Product {
   const content = (row.content as Partial<Product>) || {};
-  const images = row.images as { src: string; alt: string }[];
+  const images = row.images as {
+    src: string;
+    alt: string;
+    focal?: FocalPoint;
+  }[];
   const variants = (row.merch_variants as Variant[]).filter((v) => v.active);
   return {
     ...content,
@@ -45,8 +50,8 @@ export function publicProduct(row: Record<string, unknown>): Product {
     details: content.details || { material: "", fit: "", weight: "", care: "" },
     highlights: content.highlights || [],
     related: content.related || [],
-    displayImage: images[0].src,
-    images: images.map((i) => i.src),
+    displayImage: withFocalPoint(images[0].src, images[0].focal),
+    images: images.map((i) => withFocalPoint(i.src, i.focal)),
     imageAlts: images.map((i) => i.alt),
     variants,
   };

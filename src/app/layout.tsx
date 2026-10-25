@@ -20,6 +20,7 @@ import { cookies } from "next/headers";
 import { AdminThemeScope } from "@/components/admin-theme";
 import { FlightLifecycle } from "@/components/flight-lifecycle";
 import { BrowsingTrail } from "@/components/gate-navigation";
+import { StaticImageRecovery } from "@/components/ui/static-image-recovery";
 
 export const metadata: Metadata = {
   title: { default: "Unlock Paradise", template: "%s - Unlock Paradise" },
@@ -95,6 +96,7 @@ export default async function RootLayout({
             <AnalyticsPreferences />
           </div>
           <SiteBehavior />
+          <StaticImageRecovery />
           <BrowsingTrail />
           <BackendForms />
           <MemberActions />

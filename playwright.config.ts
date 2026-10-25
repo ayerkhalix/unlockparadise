@@ -22,6 +22,7 @@ export default defineConfig({
         "**/admin-redesign.spec.ts",
         "**/planner-client-update.spec.ts",
         "**/client-todo.spec.ts",
+        "**/ux-polish-next.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

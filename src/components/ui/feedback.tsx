@@ -1,39 +1,123 @@
 "use client";
 import { useEffect, useState } from "react";
-export function Feedback() {
-  const [notice, setNotice] = useState<{
-    message: string;
-    error: boolean;
-  } | null>(null);
+import type { NoticeAction } from "@/lib/client-api";
+type Notice = {
+  id: string;
+  message: string;
+  error: boolean;
+  action?: NoticeAction;
+};
+function NoticeItem({
+  notice,
+  dismiss,
+}: {
+  notice: Notice;
+  dismiss: () => void;
+}) {
+  const [hover, setHover] = useState(false),
+    [focus, setFocus] = useState(false),
+    [hidden, setHidden] = useState(false);
+  const [busy, setBusy] = useState(false),
+    [failure, setFailure] = useState("");
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
+    const change = () => setHidden(document.hidden);
+    change();
+    document.addEventListener("visibilitychange", change);
+    return () => document.removeEventListener("visibilitychange", change);
+  }, []);
+  useEffect(() => {
+    if (notice.error || failure || hover || focus || hidden || busy) return;
+    const timer = setTimeout(dismiss, notice.action ? 15000 : 7000);
+    return () => clearTimeout(timer);
+  }, [notice, failure, hover, focus, hidden, busy, dismiss]);
+  return (
+    <div
+      className={`p2-notice${notice.error || failure ? " p2-notice--error" : ""}`}
+      role={notice.error || failure ? "alert" : "status"}
+      aria-atomic="true"
+      onPointerEnter={() => setHover(true)}
+      onPointerLeave={() => setHover(false)}
+      onFocusCapture={() => setFocus(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocus(false);
+      }}
+    >
+      <span>{failure || notice.message}</span>
+      {notice.action && (
+        <button
+          type="button"
+          className="p2-notice-undo"
+          aria-label={
+            busy
+              ? "Restoring removed item"
+              : failure
+                ? "Retry Undo removal"
+                : "Undo removal"
+          }
+          disabled={busy}
+          aria-busy={busy}
+          onClick={async () => {
+            if (busy) return;
+            setBusy(true);
+            setFailure("");
+            try {
+              await notice.action!.run();
+              dismiss();
+            } catch (error) {
+              setFailure(
+                (error as Error).message ||
+                  "Could not restore this item. Try Undo again.",
+              );
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          {busy ? "Restoring…" : failure ? "Retry Undo" : notice.action.label}
+        </button>
+      )}
+      <button
+        type="button"
+        className="p2-icon"
+        aria-label="Dismiss notification"
+        disabled={busy}
+        onClick={dismiss}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+export function Feedback() {
+  const [notices, setNotices] = useState<Notice[]>([]);
+  useEffect(() => {
     const show = (event: Event) => {
-      clearTimeout(timer);
-      setNotice((event as CustomEvent).detail);
-      if (!(event as CustomEvent).detail.error)
-        timer = setTimeout(() => setNotice(null), 7000);
+      const detail = (event as CustomEvent<Omit<Notice, "id">>).detail;
+      setNotices((current) =>
+        [
+          ...current.filter((item) => item.action || item.error),
+          { ...detail, id: crypto.randomUUID() },
+        ].slice(-5),
+      );
     };
     window.addEventListener("upd:notice", show);
     return () => {
-      clearTimeout(timer);
       window.removeEventListener("upd:notice", show);
     };
   }, []);
   return (
-    <div className="p2-notices" aria-live="polite" aria-atomic="true">
-      {notice && (
-        <div className={`p2-notice${notice.error ? " p2-notice--error" : ""}`}>
-          <span>{notice.message}</span>
-          <button
-            type="button"
-            className="p2-icon"
-            aria-label="Dismiss notification"
-            onClick={() => setNotice(null)}
-          >
-            ×
-          </button>
-        </div>
-      )}
+    <div className="p2-notices" role="region" aria-label="Notifications">
+      {notices.map((notice) => (
+        <NoticeItem
+          key={notice.id}
+          notice={notice}
+          dismiss={() =>
+            setNotices((current) =>
+              current.filter((item) => item.id !== notice.id),
+            )
+          }
+        />
+      ))}
     </div>
   );
 }
@@ -46,6 +130,11 @@ export function Tooltips() {
     tip.role = "tooltip";
     tip.className = "p2-tooltip";
     tip.hidden = true;
+    const help = document.createElement("div");
+    help.setAttribute("role", "region");
+    help.setAttribute("aria-label", "Context help");
+    help.hidden = true;
+    document.body.appendChild(help);
     let target: HTMLElement | null = null,
       oldDescription: string | null = null,
       timer: ReturnType<typeof setTimeout>,
@@ -54,6 +143,7 @@ export function Tooltips() {
       clearTimeout(timer);
       clearTimeout(hideTimer);
       tip.hidden = true;
+      help.hidden = true;
       if (target) {
         if (oldDescription)
           target.setAttribute("aria-describedby", oldDescription);
@@ -74,7 +164,8 @@ export function Tooltips() {
       oldDescription = element.getAttribute("aria-describedby");
       timer = setTimeout(() => {
         if (!element.isConnected) return;
-        const host = element.closest("dialog[open]") || document.body;
+        const host = element.closest("dialog[open]") || help;
+        help.hidden = host !== help;
         const theme =
           element.closest<HTMLElement>("[data-admin-theme]")?.dataset
             .adminTheme;
@@ -146,6 +237,7 @@ export function Tooltips() {
     return () => {
       hide();
       tip.remove();
+      help.remove();
       document.removeEventListener("pointerover", over);
       document.removeEventListener("pointerout", out);
       document.removeEventListener("focusin", focus);

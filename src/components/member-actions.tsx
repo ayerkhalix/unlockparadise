@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import { captureInterest } from "@/lib/analytics-client";
 import { useRouter } from "next/navigation";
-import { notify, requestJSON } from "@/lib/client-api";
+import { notify, notifyUndo, requestJSON } from "@/lib/client-api";
 import { travelFlight, cancelFlights } from "@/lib/travel-motion";
 export function MemberActions() {
   const router = useRouter();
@@ -72,15 +72,67 @@ export function MemberActions() {
         if (op === "save" && result.data.saved)
           travelFlight({ kind: "bucketlist", control: button, key: pid });
         if (op === "unsave") cancelFlights(pid);
-        notify(
+        const message =
           op === "save"
             ? "Added to your Bucketlist."
             : op === "unsave"
               ? "Removed from your Bucketlist."
               : op === "visit"
                 ? "Added to your Portfolio."
-                : "Removed from your Portfolio.",
-        );
+                : "Removed from your Portfolio.";
+        if (op === "unsave" || op === "unvisit") {
+          notifyUndo(message, async () => {
+            if (pending.has(pid))
+              throw new Error(
+                "This destination is still updating. Try Undo again.",
+              );
+            pending.add(pid);
+            try {
+              const restored = await requestJSON<{
+                data: { saved: boolean; visited: boolean };
+              }>("/api/v1/bucketlist/", "POST", {
+                place_id: pid,
+                op: op === "unsave" ? "save" : "visit",
+              });
+              document
+                .querySelectorAll<HTMLButtonElement>(
+                  `[data-member-op][data-place-uuid="${pid}"]`,
+                )
+                .forEach((control) => {
+                  const saved = ["save", "unsave"].includes(
+                    control.dataset.memberOp || "",
+                  );
+                  const active = saved
+                    ? restored.data.saved
+                    : restored.data.visited;
+                  const label = `${active ? "Remove from" : "Add to"} ${saved ? "Bucketlist" : "Portfolio"}`;
+                  control.dataset.memberOp = saved
+                    ? active
+                      ? "unsave"
+                      : "save"
+                    : active
+                      ? "unvisit"
+                      : "visit";
+                  control.setAttribute("aria-pressed", String(active));
+                  control.setAttribute("aria-label", label);
+                  control.dataset.tooltip = label;
+                  control.classList.toggle(
+                    saved ? "is-saved" : "is-visited",
+                    active,
+                  );
+                });
+              window.dispatchEvent(new Event("upd:member-places"));
+              router.refresh();
+              notify(
+                op === "unsave"
+                  ? "Destination restored to your Bucketlist."
+                  : "Destination restored to your Portfolio.",
+              );
+            } finally {
+              pending.delete(pid);
+            }
+          });
+        } else notify(message);
         window.dispatchEvent(new Event("upd:member-places"));
         if (op === "save" || op === "unsave")
           captureInterest(

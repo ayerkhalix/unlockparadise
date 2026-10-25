@@ -13,6 +13,7 @@ import { TravelerInvitation } from "@/components/traveler-invitation";
 import { HomeMerch } from "@/components/merch/home-merch";
 import { catalog } from "@/lib/repositories/commerce";
 import { products as originalProducts } from "@/lib/merch-products";
+import originalMap from "@/data/map.json";
 
 export const metadata: Metadata = { title: "Home" };
 export default async function HomePage() {
@@ -54,7 +55,7 @@ export default async function HomePage() {
       <div className="upd-container">
         <div className="upd-home">
           <OriginalMarkup
-            html={map ? heroMarkup(fragment("hero")!, map) : fragment("hero")!}
+            html={heroMarkup(fragment("hero")!, map || originalMap)}
           />
           <PalawanMap data={map} />
           <OriginalMarkup html={featured} />
