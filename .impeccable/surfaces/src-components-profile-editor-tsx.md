@@ -18,3 +18,6 @@ Edit profile uses the canonical scrolling Modal, grouped into Display name, Prof
 ## Evidence and limits
 
 Desktop/390px profile and editor captures are indexed in artifacts/client-todo/screenshots.json; lower-dialog captures at 375/430/768px supplement them. The finish reviewer identified the shared-lock and stale-preference recovery fixes, now present in the sampled source. Final test/release status belongs to CLIENT_TODO_DELIVERY.md. Existing navy/teal/gold, Outfit/Open Sans and scoped traveler lettering remain authoritative.
+
+## Current mobile profile and navigation — 25 October 2026
+Preserve the compact identity header, account settings and membership colors. Show the chosen featured place as a visible photo with its selected star. Account Bucketlist/Portfolio collections use native horizontal snap on phones with keyboard and previous/next alternatives. The left menu leads with account photo/name, omits Bucketlist, and places My Portfolio then Log out after Itinerary Planner. Shared dialog focus/Escape/backdrop behavior stays authoritative.

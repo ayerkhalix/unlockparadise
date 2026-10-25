@@ -7,12 +7,14 @@ const clientSnapshot = () => true;
 const serverSnapshot = () => false;
 export function Modal({
   title,
+  heading,
   onClose,
   children,
   drawer = false,
   side = "right",
 }: {
   title: string;
+  heading?: React.ReactNode;
   onClose: () => void;
   children: React.ReactNode;
   drawer?: boolean;
@@ -65,7 +67,7 @@ export function Modal({
       }}
     >
       <div className="p2-modal__head">
-        <h2 id={id}>{title}</h2>
+        <h2 id={id}>{heading || title}</h2>
         <button
           type="button"
           className="p2-icon"

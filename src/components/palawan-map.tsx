@@ -9,6 +9,7 @@ import staticMapData from "@/data/map.json";
 import { PlanningMap, type PlanningMapProps } from "./planning-map";
 import { labelMapControls } from "@/lib/map-accessibility";
 import { MapFeedback } from "./map-feedback";
+import { useSearchParams } from "next/navigation";
 
 export interface MapConfiguration {
   areas: { name: string; slug: string; coords: number[]; desc: string }[];
@@ -61,6 +62,18 @@ export function AreaMap({
   const [unavailable, setUnavailable] = useState(false);
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const query = useSearchParams();
+  const returnArea = query.get("map_area");
+  const returnPage = query.get("map_page");
+  useEffect(() => {
+    if (compact || !returnArea) return;
+    const area = mapData.areas.find((item) => item.slug === returnArea);
+    if (!area) return;
+    void Promise.resolve().then(() => {
+      setSelected(area);
+      setPage(returnPage === "1" ? 1 : 0);
+    });
+  }, [compact, returnArea, returnPage, mapData]);
   const drag = useRef({ x: 0, y: 0, dy: 0, axis: "", active: false });
 
   useEffect(() => {
@@ -420,6 +433,12 @@ export function AreaMap({
 
   function close() {
     setSelected(null);
+    if (!compact) {
+      const url = new URL(location.href);
+      url.searchParams.delete("map_area");
+      url.searchParams.delete("map_page");
+      history.replaceState(null, "", url);
+    }
     setTimeout(() => {
       const map = mapRef.current,
         saved = savedView.current;
@@ -444,11 +463,20 @@ export function AreaMap({
     if (!selected) return;
     const previous = document.activeElement as HTMLElement | null;
     if (!compact) document.body.style.overflow = "hidden";
-    rail.current?.scrollTo({ left: 0 });
+    rail.current?.scrollTo({
+      left: !compact && returnPage === "1" ? rail.current.clientWidth : 0,
+      behavior: "instant",
+    });
     panel.current?.focus();
     function keys(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setSelected(null);
+        if (!compact) {
+          const url = new URL(location.href);
+          url.searchParams.delete("map_area");
+          url.searchParams.delete("map_page");
+          history.replaceState(null, "", url);
+        }
         const map = mapRef.current,
           saved = savedView.current;
         if (map && saved) {
@@ -487,7 +515,7 @@ export function AreaMap({
       document.removeEventListener("keydown", keys);
       previous?.focus({ preventScroll: true });
     };
-  }, [selected, compact]);
+  }, [selected, compact, returnPage]);
 
   const available = selected
     ? (mapData.availability as Record<string, Record<string, number>>)[
@@ -510,7 +538,14 @@ export function AreaMap({
       onClick={() => {
         if (selected) {
           if (onChooseCategory) onChooseCategory(selected, cat);
-          else window.location.assign(`/area/${selected.slug}/${cat.slug}/`);
+          else {
+            const url = new URL(location.href);
+            url.searchParams.set("map_area", selected.slug);
+            if (page) url.searchParams.set("map_page", String(page));
+            else url.searchParams.delete("map_page");
+            history.replaceState(null, "", url);
+            window.location.assign(`/area/${selected.slug}/${cat.slug}/`);
+          }
         }
       }}
     >

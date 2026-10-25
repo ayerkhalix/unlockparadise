@@ -6,6 +6,8 @@ import { useRef, useState } from "react";
 import { Icon } from "./icon";
 import type { TravelPlace } from "@/lib/planning";
 import type { PlanningCatalog } from "./use-planning-catalog";
+import { useSavedPlaces } from "./bucketlist";
+import { BucketlistButton } from "./bucketlist-button";
 
 export type PlaceSearchFilters = {
   search: string;
@@ -33,6 +35,10 @@ export function PlaceSearch({
   onExploreMap: () => void;
 }) {
   const section = useRef<HTMLElement>(null);
+  const bucketlist = useSavedPlaces(true);
+  const saved = new Set(
+    bucketlist.rows.filter((row) => row.saved_at).map((row) => row.place_id),
+  );
   const { loading } = catalog;
   const [error, setError] = useState("");
   const [limit, setLimit] = useState(6);
@@ -73,11 +79,11 @@ export function PlaceSearch({
           }}
         >
           <Icon name="Search" size={23} />
-          Add destination
+          Search destination
         </button>
         <button className="p2-button p2-button--quiet" onClick={onExploreMap}>
           <Icon name="Explore" size={23} />
-          Explore destinations
+          Explore options
         </button>
       </div>
       <fieldset
@@ -166,7 +172,12 @@ export function PlaceSearch({
                   return (
                     <li key={p.id}>
                       {p.image && (
-                        <ContentImage sizes="96px" src={p.image} alt="" loading="lazy" />
+                        <ContentImage
+                          sizes="96px"
+                          src={p.image}
+                          alt=""
+                          loading="lazy"
+                        />
                       )}
                       <div>
                         <strong>{p.title}</strong>
@@ -188,6 +199,11 @@ export function PlaceSearch({
                       >
                         {added ? "Added" : "+ Add"}
                       </button>
+                      <BucketlistButton
+                        placeId={p.id}
+                        saved={saved.has(p.id)}
+                        loading={bucketlist.loading || !!bucketlist.error}
+                      />
                     </li>
                   );
                 })}
@@ -205,6 +221,14 @@ export function PlaceSearch({
           </>
         )}
       </fieldset>
+      {bucketlist.error && (
+        <p className="p2-error" role="status">
+          Bucketlist is unavailable.{" "}
+          <button type="button" onClick={() => void bucketlist.reload()}>
+            Retry Bucketlist
+          </button>
+        </p>
+      )}
     </section>
   );
 }

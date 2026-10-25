@@ -303,7 +303,6 @@ test("accepted polish: save retry, exact Undo, safer trip menu and compact desti
       page.getByRole("button", { name: "Delete trip", exact: true }),
     ).not.toBeVisible();
     const stop = page.locator(".p2-stop").first();
-    await stop.locator(".p3-stop-note-editor > summary").click();
     const notes = stop.locator("textarea");
     await notes.fill("Bring water and leave no trace.");
     await expect(status).toHaveText("Unsaved notes or times");
@@ -393,31 +392,13 @@ test("accepted polish: save retry, exact Undo, safer trip menu and compact desti
     await expect(
       page.locator(".planner-destination-card").first(),
     ).toBeVisible();
-    const transport = page.getByRole("combobox", {
-      name: "Accessible by",
-      exact: true,
-    });
     await photo(page, "explore-compact");
-    if (page.viewportSize()!.width < 600) {
-      await expect(transport).not.toBeVisible();
-      expect(
-        (await page.locator(".planner-browser-hero").boundingBox())!.height,
-      ).toBeLessThanOrEqual(100);
-      expect(
-        (await page.locator(".planner-destination-card").first().boundingBox())!
-          .y,
-      ).toBeLessThan(760);
-      await page.getByRole("button", { name: "Filters", exact: true }).click();
-    }
-    await transport.selectOption("Car");
-    await expect(
-      page.getByRole("button", {
-        name: "Clear transport filter: Car",
-        exact: true,
-      }),
-    ).toBeVisible();
+    await expect(page.getByRole("searchbox")).toHaveCount(0);
+    await page.locator(".planner-filter-disclosure > summary").click();
+    await page.getByRole("checkbox", { name: "Car", exact: true }).check();
+    await expect(page).toHaveURL(/access=Car/);
     await page
-      .getByRole("button", { name: "Clear transport filter: Car", exact: true })
+      .getByRole("button", { name: "Clear filters (1)", exact: true })
       .click();
     await photo(page, "explore-filters");
     expect(

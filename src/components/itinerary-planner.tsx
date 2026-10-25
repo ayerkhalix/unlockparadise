@@ -116,11 +116,7 @@ function StopNotes({
     onDirtyChange(dirty);
   }, [dirty, onDirtyChange]);
   return (
-    <details className="p2-stop-notes p3-stop-note-editor">
-      <summary>
-        <Icon name="Notes" size={20} />
-        <span>Notes{saved ? " · Added" : ""}</span>
-      </summary>
+    <div className="p2-stop-notes p3-stop-note-editor">
       <ValidatedForm
         data-backend="true"
         onSubmit={async (e) => {
@@ -130,12 +126,15 @@ function StopNotes({
           }
         }}
       >
-        <label htmlFor={`stop-notes-${item.id}`}>Notes for this stop</label>
+        <label htmlFor={`stop-notes-${item.id}`}>
+          <Icon name="Notes" size={14} /> Notes for this stop
+        </label>
         <textarea
           id={`stop-notes-${item.id}`}
           className="resize-none"
           maxLength={2000}
-          rows={3}
+          rows={2}
+          placeholder="What would you like to remember?"
           value={notes}
           onChange={(e) => {
             setNotes(e.target.value);
@@ -149,7 +148,7 @@ function StopNotes({
           Save note
         </button>
       </ValidatedForm>
-    </details>
+    </div>
   );
 }
 export function ItineraryPlanner({
@@ -208,13 +207,26 @@ export function ItineraryPlanner({
       ),
     [catalog.places, filters],
   );
-  const requestedDay = useSearchParams().get("day");
+  const searchParams = useSearchParams();
+  const requestedDay = searchParams.get("day");
+  const requestedView = searchParams.get("view");
   const { ask, dialog } = useDecision();
   const [edit, setEdit] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [view, setView] = useState("plan"),
+    [view, updateView] = useState(
+      requestedView === "map" || requestedView === "schedule"
+        ? requestedView
+        : "plan",
+    ),
     [drag, setDrag] = useState<{ id: string; over: string } | null>(null);
+  const [draftRevision, setDraftRevision] = useState(0);
+  const setView = (next: string) => {
+    updateView(next);
+    const url = new URL(location.href);
+    url.searchParams.set("view", next);
+    history.replaceState(null, "", url);
+  };
   const day =
     trip.itinerary_days.find((d) => d.id === requestedDay) ||
     trip.itinerary_days[0];
@@ -308,21 +320,6 @@ export function ItineraryPlanner({
       setBusy(false);
     }
   }
-  const findDestinations = () => {
-    setView("plan");
-    requestAnimationFrame(() => {
-      const searchToggle = document.getElementById(
-        "planner-search-destination",
-      );
-      if (searchToggle?.getAttribute("aria-expanded") === "false")
-        searchToggle.click();
-      const finder = document.getElementById("find-destinations");
-      finder?.scrollIntoView({ block: "start" });
-      finder
-        ?.querySelector<HTMLInputElement>('input[type="search"]')
-        ?.focus({ preventScroll: true });
-    });
-  };
   const exploreMap = async () => {
     if (busy) return;
     if (!trip.area_id) {
@@ -343,6 +340,17 @@ export function ItineraryPlanner({
   };
   const reorder = async (from: number, to: number) => {
     if (from < 0 || to < 0 || to >= stops.length || from === to) return false;
+    if (dirtyNotes.current.size) {
+      if (
+        !(await ask(
+          "Discard unsaved notes or times before rearranging? Destinations will use their new position’s time slot.",
+        ))
+      )
+        return false;
+      dirtyNotes.current.clear();
+      reportDirty(false);
+      setDraftRevision((n) => n + 1);
+    }
     const order = stops.map((s) => s.id);
     order.splice(to, 0, order.splice(from, 1)[0]);
     return mutate("reorder", { day_id: day.id, item_ids: order });
@@ -581,7 +589,14 @@ export function ItineraryPlanner({
           aria-pressed={view === "plan"}
           onClick={() => setView("plan")}
         >
-          Final itinerary
+          Itinerary
+        </button>
+        <button
+          className="p2-button p2-button--quiet"
+          aria-pressed={view === "schedule"}
+          onClick={() => setView("schedule")}
+        >
+          Schedule
         </button>
         <button
           className="p2-button p2-button--quiet"
@@ -595,6 +610,7 @@ export function ItineraryPlanner({
       </div>
       <div className={`p2-planner p2-planner--${view} p2-planner--focused`}>
         <section
+          hidden={view !== "plan"}
           className="p2-day-plan"
           aria-label={dayLabel(day, trip.start_date)}
         >
@@ -684,6 +700,7 @@ export function ItineraryPlanner({
                       </div>
                     </div>
                     <StopTiming
+                      key={`${item.id}:${item.start_time}:${item.end_time}:${draftRevision}`}
                       item={item}
                       conflicts={stops.filter((s) => s.id !== item.id)}
                       onSave={(time) =>
@@ -697,6 +714,7 @@ export function ItineraryPlanner({
                       }}
                     />
                     <StopNotes
+                      key={`${item.id}:${draftRevision}`}
                       item={item}
                       onDirtyChange={(dirty) => {
                         if (dirty) dirtyNotes.current.add(item.id);
@@ -712,84 +730,83 @@ export function ItineraryPlanner({
               ))}
             </ol>
           </fieldset>
-          <DaySchedule
-            stops={stops}
-            onStop={(id) => {
-              const el = document.getElementById(`stop-${id}`);
-              el?.scrollIntoView({ block: "center" });
-              el?.focus({ preventScroll: true });
-            }}
-          />
           {!stops.length && (
             <p className="p2-muted">
               No stops yet. Find your first destination below. Your plan saves
               as you go.
             </p>
           )}
-          {!trip.area_id ? (
-            <div className="p2-empty">
-              <h3>Choose your trip area</h3>
-              <p>
-                Your existing stops are saved. Choose one area before adding
-                destinations.
-              </p>
-              <button className="p2-button" onClick={() => setEdit(true)}>
-                Choose area
-              </button>
-            </div>
-          ) : (
-            <PlaceSearch
-              catalog={catalog}
-              filtered={filteredPlaces}
-              filters={filters}
-              onFiltersChange={(values) =>
-                setFilters((current) => ({ ...current, ...values }))
-              }
-              onExploreMap={exploreMap}
-              day={dayLabel(day, trip.start_date)}
-              busy={busy}
-              addedPlaceIds={stops.map((s) => s.place_id)}
-              onAdd={async (p) => {
-                chooseStop(p);
-                return true;
-              }}
-            />
-          )}
+        </section>
+        <section
+          hidden={view !== "schedule"}
+          className="planner-schedule-panel"
+        >
+          <DaySchedule
+            stops={stops}
+            onStop={(id) => {
+              setView("plan");
+              requestAnimationFrame(() => {
+                const el = document.getElementById(`stop-${id}`);
+                el?.scrollIntoView({ block: "center" });
+                el?.focus({ preventScroll: true });
+              });
+            }}
+          />
         </section>
         <aside
+          hidden={view !== "map"}
           ref={mapPanel}
           tabIndex={-1}
           className="p2-plan-map p2-plan-map--stops"
           aria-label="Selected day map"
         >
           <h2>My route</h2>
-          <div className="p2-plan-map-actions">
-            <button
-              className="p2-button p2-button--quiet"
-              onClick={findDestinations}
-            >
-              Add destination
-            </button>
-          </div>
-          {
-            <PalawanMap
-              planning={{
-                places: locations,
-                numbered: true,
-                onSelect: (p) => {
-                  setView("plan");
-                  const item = stops.find((s) => s.place_id === p.id);
-                  setTimeout(() => {
-                    const el = document.getElementById(`stop-${item?.id}`);
-                    el?.scrollIntoView({ block: "center" });
-                    el?.focus();
-                  }, 0);
-                },
-              }}
-            />
-          }
+          <PalawanMap
+            planning={{
+              places: locations,
+              numbered: true,
+              onSelect: (p) => {
+                setView("plan");
+                const item = stops.find((s) => s.place_id === p.id);
+                requestAnimationFrame(() => {
+                  const el = document.getElementById(`stop-${item?.id}`);
+                  el?.scrollIntoView({ block: "center" });
+                  el?.focus({ preventScroll: true });
+                });
+              },
+            }}
+          />
         </aside>
       </div>
+      {!trip.area_id ? (
+        <div className="p2-empty">
+          <h3>Choose your trip area</h3>
+          <p>
+            Your existing stops are saved. Choose one area before adding
+            destinations.
+          </p>
+          <button className="p2-button" onClick={() => setEdit(true)}>
+            Choose area
+          </button>
+        </div>
+      ) : (
+        <PlaceSearch
+          catalog={catalog}
+          filtered={filteredPlaces}
+          filters={filters}
+          onFiltersChange={(values) =>
+            setFilters((current) => ({ ...current, ...values }))
+          }
+          onExploreMap={exploreMap}
+          day={dayLabel(day, trip.start_date)}
+          busy={busy}
+          addedPlaceIds={stops.map((s) => s.place_id)}
+          onAdd={async (p) => {
+            chooseStop(p);
+            return true;
+          }}
+        />
+      )}
       {adding && (
         <Modal
           title={`Add ${adding.title}`}

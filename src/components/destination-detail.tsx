@@ -1,3 +1,4 @@
+import { DestinationReturn } from "./destination-return";
 import type { Destination, Tier } from "@/lib/destinations";
 import { Gallery } from "./gallery";
 import { DestinationLocation } from "./destination-location";
@@ -126,16 +127,13 @@ export async function DestinationDetail({
       {place.uuid && <InterestView placeId={place.uuid} />}
       <div className="upd-container">
         <article className="place-single">
-          <a
-            className="upd-place-return upd-place-return--plain"
-            href={
+          <DestinationReturn
+            fallback={
               area
                 ? `/area/${place.area}/${place.category ? place.category + "/" : ""}`
-                : "/"
+                : "/#palawan-map"
             }
-          >
-            ‹ Return
-          </a>
+          />
           <div className="place-eyebrow">
             {area?.name}
             {area && category ? " › " : ""}
@@ -251,7 +249,9 @@ export async function DestinationDetail({
               />
             </section>
           )}
-          {place.uuid && backendConfigured() && <NearbyPlaces placeId={place.uuid} />}
+          {place.uuid && backendConfigured() && (
+            <NearbyPlaces placeId={place.uuid} />
+          )}
           <section className="upd-reviews-section" id="reviews">
             <h2 className="upd-reviews-section__title">Reviews</h2>
             {place.reviews.length ? (

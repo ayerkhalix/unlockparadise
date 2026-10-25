@@ -352,7 +352,7 @@ test("mini homepage map browses area, category and real destinations without lea
       "1 mapped Place",
     );
     await panel
-      .getByRole("button", { name: "Explore destinations", exact: true })
+      .getByRole("button", { name: "Explore options", exact: true })
       .click();
     await mini
       .getByRole("group", { name: "Choose an area", exact: true })

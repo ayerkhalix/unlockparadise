@@ -334,11 +334,11 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
     await page.unroute(scripts);
     await expect(exportButton).toBeEnabled();
     await page
-      .getByRole("button", { name: "Explore destinations", exact: true })
+      .getByRole("button", { name: "Explore options", exact: true })
       .click();
     await page.waitForURL((url) => url.pathname === "/itineraries/explore/");
     await expect(
-      page.getByRole("link", { name: "View final itinerary", exact: true }),
+      page.getByRole("link", { name: "View itinerary", exact: true }),
     ).toHaveAttribute("href", new RegExp(day.id));
     await expect(
       page.locator(".planner-destination-card").first(),
@@ -377,7 +377,7 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
     await expect(dayChoice).toHaveValue(day.id);
     await dayChoice.selectOption(trip.itinerary_days[0].id);
     await expect(
-      page.getByRole("link", { name: "View final itinerary", exact: true }),
+      page.getByRole("link", { name: "View itinerary", exact: true }),
     ).toHaveAttribute("href", new RegExp(trip.itinerary_days[0].id));
     const category = page.locator(".planner-category-tabs button").nth(1);
     await category.hover();
@@ -386,15 +386,14 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       background: getComputedStyle(el).backgroundColor,
     }));
     expect(contrast.text).not.toBe(contrast.background);
-    await page
-      .getByLabel("Search destinations", { exact: true })
-      .fill("Tagkawayan");
+    await page.getByRole("button", { name: "Beaches", exact: true }).click();
+
     await expect(
       page.locator(".planner-destination-card").first(),
     ).toContainText("Tagkawayan");
     await page
       .locator(".planner-destination-card")
-      .first()
+      .filter({ hasText: "Tagkawayan" })
       .getByRole("button", { name: "Add to itinerary", exact: true })
       .click();
     const modal = page.getByRole("dialog");
@@ -415,15 +414,15 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
     await shot(page, "planner-browser");
     await page.reload();
     await expect(
-      page.getByLabel("Search destinations", { exact: true }),
-    ).toHaveValue("Tagkawayan");
+      page.getByRole("button", { name: "Beaches", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
     await expect(
       page
         .getByRole("button", { name: "Added to itinerary", exact: true })
         .first(),
     ).toBeDisabled();
     await page
-      .getByRole("link", { name: "View final itinerary", exact: true })
+      .getByRole("link", { name: "View itinerary", exact: true })
       .click();
     await expect(page.locator(".p2-stop")).toHaveCount(1);
     await expect(page.locator(".p2-stop")).toContainText("8:00 AM");
@@ -488,9 +487,7 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
       }),
     ).toBe(true);
     await shot(page, "planner-route");
-    await page
-      .getByRole("button", { name: "Final itinerary", exact: true })
-      .click();
+    await page.getByRole("button", { name: "Itinerary", exact: true }).click();
     await shot(page, "planner-plan");
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   } finally {

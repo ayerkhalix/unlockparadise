@@ -114,6 +114,10 @@ export const planMutation = z
 export type TravelPlace = {
   areaIds?: string[];
   accessibility?: string[];
+  assets?: string[];
+  vip?: boolean;
+  publishedAt?: string;
+  rating?: number | null;
   travelMinutes?: number | null;
   id: string;
   slug: string;

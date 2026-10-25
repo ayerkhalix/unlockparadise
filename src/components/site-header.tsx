@@ -61,7 +61,11 @@ function AccountMenu({ tier, name, photo }: Props) {
     <ProfileDisclosure>
       <summary aria-label="Profile" data-tooltip="Your account">
         <span className="p2-avatar" aria-hidden="true">
-          {photo ? <ContentImage sizes="96px" src={photo} alt="" /> : <ProfileIcon />}
+          {photo ? (
+            <ContentImage sizes="96px" src={photo} alt="" />
+          ) : (
+            <ProfileIcon />
+          )}
         </span>
       </summary>
       <nav className="p2-account__menu" aria-label="Account">
@@ -114,6 +118,7 @@ function GuestProfile() {
 export function SiteHeader(props: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const nav = (
     <>
       <a href="/about/">About</a>
@@ -140,7 +145,8 @@ export function SiteHeader(props: Props) {
                   href="/"
                   aria-label="Unlock Paradise home"
                 >
-                  <ContentImage sizes="96px"
+                  <ContentImage
+                    sizes="96px"
                     width="300"
                     height="300"
                     src="/original/wp-content/uploads/2026/07/upd-mark-white-header-300x300.png"
@@ -191,7 +197,30 @@ export function SiteHeader(props: Props) {
       </header>
       {open && (
         <Modal
-          title="Explore Unlock Paradise"
+          title="Menu"
+          heading={
+            props.tier !== "public" ? (
+              <a className="mobile-menu-identity" href="/account/">
+                <span className="p2-avatar">
+                  {props.photo ? (
+                    <ContentImage src={props.photo} alt="" sizes="64px" />
+                  ) : (
+                    <ProfileIcon />
+                  )}
+                </span>
+                <span>
+                  <strong>{props.name || "Explorer"}</strong>
+                  <small
+                    className={`membership-text--${props.tier === "explorer-plus" ? "plus" : "explorer"}`}
+                  >
+                    {props.tier === "explorer-plus" ? "Explorer+" : "Explorer"}
+                  </small>
+                </span>
+              </a>
+            ) : (
+              "Unlock Paradise"
+            )
+          }
           onClose={() => setOpen(false)}
           drawer
           side="left"
@@ -206,35 +235,33 @@ export function SiteHeader(props: Props) {
                 </>
               ) : (
                 <>
-                  <strong>{props.name || "Your account"}</strong>
-                  {accountLinks
-                    .filter(
-                      ([label]) =>
-                        !["Membership", "Itinerary Planner"].includes(label),
-                    )
-                    .map(([label, href]) => (
-                      <a key={href} href={href}>
-                        {label}
-                      </a>
-                    ))}
+                  <a href="/portfolio/">My Portfolio</a>
                   <button
                     type="button"
+                    disabled={signingOut}
                     onClick={async () => {
+                      setSigningOut(true);
                       try {
                         await requestJSON("/api/auth/logout/", "POST", {});
                         location.assign("/");
                       } catch (error) {
                         notify((error as Error).message, true);
+                        setSigningOut(false);
                       }
                     }}
                   >
-                    Log out
+                    {signingOut ? "Signing out…" : "Log out"}
                   </button>
                 </>
               )}
             </div>
           </nav>
           <p className="p2-muted">The side of Palawan they don’t tell you.</p>
+          <nav className="mobile-menu-legal" aria-label="Menu legal links">
+            <a href="/privacy-policy/">Privacy</a>
+            <a href="/terms/">Terms</a>
+            <a href="/refunds/">Refunds</a>
+          </nav>
         </Modal>
       )}
     </>

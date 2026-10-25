@@ -48,3 +48,8 @@ The owner approved compact phone destination browsing and merchandise introducti
 ## Client photo/hook correction — 25 October 2026
 
 The client clarified that homepage category icons should remain visible with hover information and no navigation. Destination hooks should show a photo and the membership comparison, while feature hooks retain their padlock. Both omit the redundant content logo. Category thumbnails, failed-image recovery and featured-photo composition are corrected without relaxing protected original-media or premium-name access. This clarification supersedes the earlier removed icon strip; the homepage map CTA remains unchanged.
+
+
+### 25 October 2026 — Planner hierarchy and return flow
+
+The selected day now separates editable photo cards, Schedule and My route. Notes are visible, add/search/explore entry points share a card below each view, and position-based time slots follow reordered destinations. Explore options reuses normal Places filters without search/travel-time or the All destinations tab, adds Bucketlist actions, and retains exact browse return state. Mobile navigation leads with account identity and includes My Portfolio after Itinerary Planner. Account collections swipe on phones and the selected featured photo is visible. Membership discount copy is removed without changing prices. See PLANNER_REFINEMENT_DELIVERY.md for verification and deployment evidence.

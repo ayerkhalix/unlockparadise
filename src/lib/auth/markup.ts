@@ -1,5 +1,12 @@
 import "server-only";
 export function membershipMarkup(html: string, signedIn: boolean) {
+  html = html
+    .replace(/<span class="upd-plans__note">Save[^<]*<\/span>/g, "")
+    .replace(/, save \d+%/g, "")
+    .replace(
+      /<p[^>]*>\s*Or <a href="\/join\/">create a free Explorer account<\/a>[\s\S]*?<\/p>/g,
+      "",
+    );
   let column = 0;
   html = html.replace(
     /(<ul class="upd-plans__features">)([\s\S]*?)(<\/ul>)/g,

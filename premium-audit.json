@@ -21,7 +21,7 @@
     {
       "category": "violation",
       "file": "src/components/destination-detail.tsx",
-      "line": 53,
+      "line": 54,
       "message": "Enabled literal button has no detectable action or submit behavior.",
       "remediation": "Connect the button to a real action, make it a submit button, or disable/remove it.",
       "ruleId": "affordance.actionless-button",
@@ -48,7 +48,7 @@
     {
       "category": "violation",
       "file": "src/components/member-page.tsx",
-      "line": 292,
+      "line": 309,
       "message": "Enabled literal button has no detectable action or submit behavior.",
       "remediation": "Connect the button to a real action, make it a submit button, or disable/remove it.",
       "ruleId": "affordance.actionless-button",

@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePlanningCatalog } from "./use-planning-catalog";
-import { SearchInput } from "./ui/search-input";
+import { useSavedPlaces } from "./bucketlist";
+import { BucketlistButton } from "./bucketlist-button";
 import { ContentImage } from "./ui/content-image";
 import { Icon } from "./icon";
 import { Modal } from "./ui/modal";
@@ -19,7 +20,6 @@ import {
 import { notify, requestJSON } from "@/lib/client-api";
 import { captureInterest } from "@/lib/analytics-client";
 import { overlappingStops } from "@/lib/itinerary-schedule";
-
 export function PlannerBrowser({
   initial,
   dayId,
@@ -35,21 +35,24 @@ export function PlannerBrowser({
     trip.itinerary_days[0];
   const catalog = usePlanningCatalog(trip.id, trip.area_id);
   const params = useSearchParams();
-  const search = params.get("search") || "",
-    area = trip.areas?.name || "",
-    category = params.get("category") || "",
-    mode = params.get("mode") || "",
-    duration = params.get("duration") || "",
-    sort = params.get("sort") || "name";
-  const [limit, setLimit] = useState(24),
-    [adding, setAdding] = useState<TravelPlace | null>(null),
+  const area = trip.areas?.name || "";
+  const access = (params.get("access") || "").split("|").filter(Boolean);
+  const assets = (params.get("assets") || "").split("|").filter(Boolean);
+  const vip = params.get("vip") === "1";
+  const sort = ["date", "rating"].includes(params.get("sort") || "")
+    ? params.get("sort")!
+    : "name";
+  const limit = Math.max(24, Math.min(1000, Number(params.get("shown")) || 24));
+  const [adding, setAdding] = useState<TravelPlace | null>(null),
     [time, setTime] = useState<StopTime>({ start_time: null, end_time: null });
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const pending = useRef(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const filterCount =
-    Number(!!mode) + Number(!!duration) + Number(sort !== "name");
+  const bucketlist = useSavedPlaces(true);
+  const saved = new Set(
+    bucketlist.rows.filter((row) => row.saved_at).map((row) => row.place_id),
+  );
+  const filterCount = access.length + assets.length + Number(vip);
   const update = (values: Record<string, string>) => {
     const query = new URLSearchParams(params.toString());
     for (const [key, value] of Object.entries(values)) {
@@ -58,9 +61,10 @@ export function PlannerBrowser({
     }
     query.set("trip", trip.id);
     query.set("day", values.day || day.id);
-    query.delete("area");
+    for (const obsolete of ["area", "search", "duration", "mode"])
+      query.delete(obsolete);
+    if (!("shown" in values)) query.delete("shown");
     history.replaceState(null, "", `?${query}`);
-    setLimit(24);
   };
   const stops = trip.items.filter((item) => item.day_id === day.id);
   const targetStops = trip.items.filter((item) => item.day_id === addingDayId);
@@ -75,27 +79,41 @@ export function PlannerBrowser({
     [...new Set(catalog.places.flatMap((p) => p.category.split(" · ")))]
       .filter(Boolean)
       .sort();
-  const filtered = useMemo(
-    () =>
-      catalog.places
-        .filter(
-          (p) =>
-            (!category || p.category.split(" · ").includes(category)) &&
-            p.title
-              .toLocaleLowerCase()
-              .includes(search.toLocaleLowerCase().trim()) &&
-            (!mode || p.accessibility?.includes(mode)) &&
-            (!duration ||
-              (p.travelMinutes != null && p.travelMinutes <= Number(duration))),
-        )
-        .sort((a, b) =>
-          sort === "time"
-            ? (a.travelMinutes ?? Infinity) - (b.travelMinutes ?? Infinity) ||
-              a.title.localeCompare(b.title)
-            : a.title.localeCompare(b.title),
-        ),
-    [catalog.places, category, search, mode, duration, sort],
-  );
+  const requestedCategory = params.get("category") || "";
+  const category = categories.includes(requestedCategory)
+    ? requestedCategory
+    : categories[0] || "";
+  const toggleFacet = (key: "access" | "assets", value: string) => {
+    const current = key === "access" ? access : assets;
+    update({
+      [key]: (current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value]
+      ).join("|"),
+    });
+  };
+  const filtered = catalog.places
+    .filter(
+      (place) =>
+        place.category.split(" · ").includes(category) &&
+        (!access.length ||
+          access.some((mode) => place.accessibility?.includes(mode))) &&
+        (!assets.length ||
+          assets.some((asset) => place.assets?.includes(asset))) &&
+        (!vip || place.vip),
+    )
+    .sort((a, b) => {
+      if (sort === "rating")
+        return (
+          (b.rating ?? -1) - (a.rating ?? -1) || a.title.localeCompare(b.title)
+        );
+      if (sort === "date")
+        return (
+          (b.publishedAt || "").localeCompare(a.publishedAt || "") ||
+          a.title.localeCompare(b.title)
+        );
+      return a.title.localeCompare(b.title);
+    });
   const cover = filtered.find((place) => place.image)?.image;
   const reloadTrip = async () => {
     if (pending.current) return;
@@ -146,20 +164,13 @@ export function PlannerBrowser({
           </label>
         </div>
         <a className="p2-button" href={plannerHref(trip.id, day.id)}>
-          View final itinerary
+          View itinerary
         </a>
       </div>
       <nav
         className="planner-category-tabs"
         aria-label="Destination categories"
       >
-        <button
-          type="button"
-          aria-pressed={!category}
-          onClick={() => update({ category: "" })}
-        >
-          All destinations
-        </button>
         {categories.map((name) => (
           <button
             type="button"
@@ -178,104 +189,84 @@ export function PlannerBrowser({
           <p>{area || "Explore Palawan"}</p>
         </div>
       </header>
-      <div className="planner-browser-filters">
+      <div
+        className="planner-original-filters"
+        aria-label="Destination filters"
+      >
         <label>
-          Search destinations
-          <SearchInput
-            label="Search destinations"
-            value={search}
-            onValueChange={(search) => update({ search })}
-            placeholder="Search by destination name"
-          />
+          Sort by
+          <select
+            value={sort}
+            onChange={(event) => update({ sort: event.target.value })}
+          >
+            <option value="name">Name</option>
+            <option value="date">Date added</option>
+            <option value="rating">Top rated</option>
+          </select>
         </label>
-        <button
-          className="p2-button p2-button--quiet planner-browser-filter-toggle"
-          type="button"
-          aria-expanded={showFilters}
-          aria-controls="planner-browse-options"
-          onClick={() => setShowFilters((open) => !open)}
-        >
-          Filters{filterCount ? ` (${filterCount})` : ""}
-        </button>
-        <div
-          id="planner-browse-options"
-          className="planner-browser-options"
-          data-open={showFilters}
-        >
-          <label>
-            Accessible by
-            <select
-              value={mode}
-              onChange={(e) => update({ mode: e.target.value })}
-            >
-              <option value="">Any transport</option>
+        <details className="planner-filter-disclosure">
+          <summary>Filters{filterCount ? ` (${filterCount})` : ""}</summary>
+          <div className="planner-filter-facets">
+            <fieldset>
+              <legend>Accessible by</legend>
               {["Motorcycle", "Car", "4x4", "Boat", "Hike"].map((name) => (
-                <option key={name}>{name}</option>
+                <label key={name}>
+                  <input
+                    type="checkbox"
+                    checked={access.includes(name)}
+                    onChange={() => toggleFacet("access", name)}
+                  />{" "}
+                  <Icon name={name} size={18} />
+                  {name}
+                </label>
               ))}
-            </select>
-          </label>
-          <label>
-            Travel time
-            <select
-              value={duration}
-              onChange={(e) => update({ duration: e.target.value })}
-            >
-              <option value="">Any duration</option>
-              {[15, 30, 60, 120].map((minutes) => (
-                <option key={minutes} value={minutes}>
-                  Up to {minutes} min
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Sort by
-            <select
-              value={sort}
-              onChange={(e) => update({ sort: e.target.value })}
-            >
-              <option value="name">Name</option>
-              <option value="time">Travel time</option>
-            </select>
-          </label>
-        </div>
+            </fieldset>
+            <fieldset>
+              <legend>Assets</legend>
+              {[
+                ...new Set(
+                  catalog.places.flatMap((place) => place.assets || []),
+                ),
+              ]
+                .sort()
+                .map((name) => (
+                  <label key={name}>
+                    <input
+                      type="checkbox"
+                      checked={assets.includes(name)}
+                      onChange={() => toggleFacet("assets", name)}
+                    />
+                    {name}
+                  </label>
+                ))}
+            </fieldset>
+            <label className="planner-vip-filter">
+              <input
+                type="checkbox"
+                checked={vip}
+                onChange={() => update({ vip: vip ? "" : "1" })}
+              />{" "}
+              Explorer+ destinations
+            </label>
+          </div>
+        </details>
+        {filterCount > 0 && (
+          <button
+            className="p2-back"
+            type="button"
+            onClick={() => update({ access: "", assets: "", vip: "" })}
+          >
+            Clear filters ({filterCount})
+          </button>
+        )}
       </div>
-      {filterCount > 0 && (
-        <div
-          className="planner-active-filters"
-          aria-label="Active destination filters"
-        >
-          {mode && (
-            <button
-              type="button"
-              className="p2-back"
-              onClick={() => update({ mode: "" })}
-              aria-label={`Clear transport filter: ${mode}`}
-            >
-              {mode} ×
-            </button>
-          )}
-          {duration && (
-            <button
-              type="button"
-              className="p2-back"
-              onClick={() => update({ duration: "" })}
-              aria-label={`Clear travel time filter: Up to ${duration} min`}
-            >
-              Up to {duration} min ×
-            </button>
-          )}
-          {sort !== "name" && (
-            <button
-              type="button"
-              className="p2-back"
-              onClick={() => update({ sort: "name" })}
-              aria-label="Clear filter: Travel time order"
-            >
-              Travel time order ×
-            </button>
-          )}
-        </div>
+      {bucketlist.error && (
+        <p className="p2-error" role="status">
+          Bucketlist is unavailable.{" "}
+          <button type="button" onClick={() => void bucketlist.reload()}>
+            Retry Bucketlist
+          </button>
+        </p>
       )}
       {catalog.loading ? (
         <DestinationSkeleton />
@@ -304,8 +295,6 @@ export function PlannerBrowser({
                     <a
                       className="upd-card__link"
                       href={`/place/${place.slug}/?trip=${trip.id}&day=${day.id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
                     >
                       <div className="upd-card__photo">
                         {place.image ? (
@@ -353,6 +342,11 @@ export function PlannerBrowser({
                       </div>
                     </a>
                     <div className="upd-card__save">
+                      <BucketlistButton
+                        placeId={place.id}
+                        saved={saved.has(place.id)}
+                        loading={bucketlist.loading || !!bucketlist.error}
+                      />
                       <button
                         type="button"
                         className="p2-card-plan"
@@ -381,7 +375,7 @@ export function PlannerBrowser({
                 <button
                   type="button"
                   className="p2-button p2-button--quiet"
-                  onClick={() => setLimit((n) => n + 24)}
+                  onClick={() => update({ shown: String(limit + 24) })}
                 >
                   Show more destinations
                 </button>
@@ -399,10 +393,10 @@ export function PlannerBrowser({
                 className="p2-button p2-button--quiet"
                 onClick={() =>
                   update({
-                    search: "",
+                    access: "",
                     category: "",
-                    mode: "",
-                    duration: "",
+                    assets: "",
+                    vip: "",
                   })
                 }
               >
@@ -412,6 +406,20 @@ export function PlannerBrowser({
           )}
         </>
       )}
+      <div className="planner-browser-return">
+        <a
+          className="p2-button p2-button--quiet"
+          href={`${plannerHref(trip.id, day.id)}&view=map`}
+        >
+          My route <Icon name="Explore" size={18} />
+        </a>
+        <a
+          className="p2-back"
+          href={`${plannerHref(trip.id, day.id)}&view=schedule`}
+        >
+          View schedule
+        </a>
+      </div>
       {adding && (
         <Modal
           title={`Add ${adding.title}`}

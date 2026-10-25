@@ -129,7 +129,7 @@
   function init() {
     var grid = document.querySelector('.upd-grid');
     var toolbar = document.querySelector('.upd-toolbar');
-    if (!grid || !toolbar) return;
+    if (!grid || !toolbar || grid.dataset.updArchiveReady === 'true') return;
 
     var cards = Array.prototype.slice.call(grid.querySelectorAll('.upd-card')).map(cardData);
     var total = cards.length;
@@ -352,30 +352,10 @@
     }
 
     render();
+    grid.dataset.updArchiveReady = 'true';
 
-    // Back-to-feed restore. render() re-appends every card, which defeats
-    // the browser's own scroll restoration, so we do it ourselves: the card link
-    // click stores the place ID; on load (incl. bfcache pageshow) we scroll that
-    // card into view once, then forget it.
-    var RETURN_KEY = 'updReturnTo';
-    function storeReturn(e) {
-      var link = e.target.closest && e.target.closest('.upd-card__link');
-      if (!link) return;
-      var card = link.closest('.upd-card');
-      if (!card || !card.getAttribute('data-place-id')) return;
-      try { sessionStorage.setItem(RETURN_KEY, card.getAttribute('data-place-id')); } catch (err) {}
-    }
-    function restoreReturn() {
-      var id = null;
-      try { id = sessionStorage.getItem(RETURN_KEY); sessionStorage.removeItem(RETURN_KEY); } catch (err) {}
-      if (!id) return;
-      var card = document.getElementById('place-' + id);
-      if (!card || card.classList.contains('is-hidden')) return;
-      card.scrollIntoView({ block: 'center', behavior: 'instant' });
-    }
-    grid.addEventListener('click', storeReturn);
-    restoreReturn();
-    window.addEventListener('pageshow', function (e) { if (e.persisted) restoreReturn(); });
+    // Exact browse restoration is shared with itinerary browsing in BrowsingTrail.
+
   }
 
   // Exported for the Node sanity check; harmless in browser.
@@ -384,7 +364,7 @@
   }
 
   if (typeof window !== 'undefined') {
-    window.UPDAreaFilter = { cardData: cardData, applyFilters: applyFilters, sortCards: sortCards, parseState: parseState, serializeState: serializeState };
+    window.UPDAreaFilter = { init: init, cardData: cardData, applyFilters: applyFilters, sortCards: sortCards, parseState: parseState, serializeState: serializeState };
     if (document.readyState !== 'loading') init();
     else document.addEventListener('DOMContentLoaded', init);
   }

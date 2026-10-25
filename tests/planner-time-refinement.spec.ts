@@ -74,8 +74,7 @@ test("selected planner days, timed visits and refined profile persist on staging
     );
     const stop = page.locator(".p2-stop").first();
     const notes = stop.getByLabel("Notes for this stop", { exact: true });
-    await expect(notes).toBeHidden();
-    await stop.locator(".p3-stop-note-editor > summary").click();
+    await expect(notes).toBeVisible();
     await expect(notes).toBeVisible();
     const timeBox = await timing.boundingBox();
     const stopBody = await stop.locator(".p2-stop-body").boundingBox();
@@ -106,7 +105,6 @@ test("selected planner days, timed visits and refined profile persist on staging
       stop.getByRole("button", { name: "Save note", exact: true }),
     ).toBeDisabled();
     await page.reload();
-    await stop.locator(".p3-stop-note-editor > summary").click();
     await expect(notes).toHaveValue("Bring water and a camera.");
     await expect(timing.locator("summary")).toContainText(
       "8:00 AM – 12:00 PM · 4h",

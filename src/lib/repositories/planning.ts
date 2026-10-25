@@ -6,7 +6,7 @@ import type { TravelPlace, Trip } from "@/lib/planning";
 import { withFocalPoint, associationFocalPoint } from "@/lib/focal-point";
 
 export const planningPlaceSelect =
-  "id,slug,title,vip_content,status,accessibility,travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,focal_x,focal_y,media(id,status)),place_details(latitude,longitude,access_points)";
+  "id,slug,title,vip_content,status,accessibility,assets,published_at,reviews(rating,status),travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,focal_x,focal_y,media(id,status)),place_details(latitude,longitude,access_points)";
 type PlaceRow = {
   id: string;
   slug: string;
@@ -14,6 +14,9 @@ type PlaceRow = {
   status: string;
   vip_content: boolean;
   accessibility: string[];
+  assets?: string[];
+  published_at?: string;
+  reviews?: { rating: number; status: string }[];
   travel_minutes: number | null;
   place_areas: { areas: { id: string; name: string; slug: string } }[];
   place_categories: { categories: { name: string; slug: string } }[];
@@ -39,6 +42,15 @@ export function planningPlace(row: unknown): TravelPlace | null {
     id: p.id,
     areaIds: p.place_areas.map((a) => a.areas.id),
     accessibility: p.accessibility,
+    assets: p.assets || [],
+    vip: p.vip_content,
+    publishedAt: p.published_at,
+    rating: (() => {
+      const approved = (p.reviews || []).filter((r) => r.status === "approved");
+      return approved.length
+        ? approved.reduce((sum, r) => sum + r.rating, 0) / approved.length
+        : null;
+    })(),
     travelMinutes: p.travel_minutes,
     slug: p.slug,
     title: p.title,

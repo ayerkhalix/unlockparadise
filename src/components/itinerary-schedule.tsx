@@ -28,11 +28,11 @@ export function DaySchedule({
       (a, b) =>
         a.start_time!.localeCompare(b.start_time!) || a.position - b.position,
     );
-  if (!scheduled.length) return null;
+  const flexible = stops.filter((stop) => !stop.start_time || !stop.end_time);
   return (
-    <section className="p2-day-schedule" aria-label="Daily timeline">
+    <section className="p2-day-schedule" aria-label="Schedule">
       <div className="p2-schedule-heading">
-        <h3>Daily timeline</h3>
+        <h3>Schedule</h3>
         <span>
           {scheduled.length} of {stops.length} stops timed
         </span>
@@ -40,17 +40,24 @@ export function DaySchedule({
       <p className="p2-muted">
         Palawan local time · Allow time to travel between stops.
       </p>
+      {!stops.length && (
+        <p>No stops yet. Add a destination below to start your schedule.</p>
+      )}
       {conflicts.size > 0 && (
         <p className="p2-schedule-warning" role="status">
           Some visit times overlap. Review the highlighted stops below.
         </p>
       )}
       <ol>
-        {scheduled.map((stop) => (
+        {[...scheduled, ...flexible].map((stop) => (
           <li key={stop.id}>
             <button type="button" onClick={() => onStop(stop.id)}>
               <span>
-                {stopTimeLabel(stop.start_time, stop.end_time).split(" · ")[0]}
+                {stop.start_time
+                  ? stopTimeLabel(stop.start_time, stop.end_time).split(
+                      " · ",
+                    )[0]
+                  : "Flexible time"}
               </span>
               <strong>{stop.place?.title || "Place unavailable"}</strong>
               {conflicts.has(stop.id) && <small>Overlapping time</small>}

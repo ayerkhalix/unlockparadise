@@ -10,7 +10,10 @@ export function AreaNavigation({
 }) {
   return (
     <nav className="area-navigation" aria-label={`${area.name} categories`}>
-      <Link className="area-navigation__back" href={`/area/${area.slug}/`}>
+      <Link
+        className="area-navigation__back"
+        href={`/?map_area=${area.slug}${selected === "restaurants" || selected === "coffee" ? "&map_page=1" : ""}#palawan-map`}
+      >
         ← All {area.name} categories
       </Link>
       <div className="area-navigation__categories">

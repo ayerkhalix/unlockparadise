@@ -1,3 +1,5 @@
+import { ProfileRail } from "./profile-rail";
+import { withFocalPoint, associationFocalPoint } from "@/lib/focal-point";
 import { ContentImage } from "@/components/ui/content-image";
 import { mediaAvailable } from "@/lib/media-availability";
 import { redirect } from "next/navigation";
@@ -55,7 +57,7 @@ export async function MemberPage({ kind }: { kind: string }) {
   const records = await current.db
     .from("member_places")
     .select(
-      "saved_at,visited_at,places(id,legacy_id,slug,title,vip_content,travel_minutes,accessibility,assets,published_at,featured,feature_order,place_details(hike_minutes,transport_minutes),place_areas(areas(id,slug,name)),place_categories(categories(id,slug,name)),place_media(kind,position,media(id,status,alt)))",
+      "saved_at,visited_at,places(id,legacy_id,slug,title,vip_content,travel_minutes,accessibility,assets,published_at,featured,feature_order,place_details(hike_minutes,transport_minutes),place_areas(areas(id,slug,name)),place_categories(categories(id,slug,name)),place_media(kind,position,focal_x,focal_y,media(id,status,alt)))",
     )
     .eq("user_id", current.user.id)
     .order("visited_at", { ascending: false, nullsFirst: false })
@@ -90,7 +92,7 @@ export async function MemberPage({ kind }: { kind: string }) {
           kind === "account" ? "account-preview" : "default",
         ).replace(
           "</a>",
-          `</a><div class="upd-card__featurewrap"><button type="button" class="upd-action upd-action--icon upd-card__feature" data-profile-feature="${p.id}" aria-label="Set as account featured place" data-tooltip="Set as account featured place">☆</button></div>`,
+          `</a><div class="upd-card__featurewrap"><button type="button" class="upd-action upd-action--icon upd-card__feature" data-profile-feature="${p.id}" aria-pressed="${p.id === profile.data.featured_place_id}" aria-label="${p.id === profile.data.featured_place_id ? "Featured on your profile" : "Set as account featured place"}" data-tooltip="${p.id === profile.data.featured_place_id ? "Featured on your profile" : "Set as account featured place"}">${p.id === profile.data.featured_place_id ? "★" : "☆"}</button></div>`,
         );
       })
       .join("");
@@ -117,9 +119,10 @@ export async function MemberPage({ kind }: { kind: string }) {
     visited[0] ||
     saved[0]
   )?.places as unknown as PlaceSummary | undefined;
-  const hero = featured?.place_media.find(
+  const heroAssociation = featured?.place_media.find(
     (m) => m.kind === "cover" && mediaAvailable(m.media),
-  )?.media;
+  );
+  const hero = heroAssociation?.media;
   return (
     <main className="upd-main p2-account-page" id="upd-main">
       <div className="upd-container">
@@ -134,20 +137,12 @@ export async function MemberPage({ kind }: { kind: string }) {
                 : undefined
             }
           >
-            {hero && featured ? (
-              <a
-                className="upd-profile__band"
-                href={`/place/${featured.slug}/`}
-                aria-label={`Featured place: ${featured.title}`}
-              />
-            ) : (
-              <div className="upd-profile__band" aria-hidden="true" />
-            )}
             <header className="upd-profile__id">
               <div className="profile-avatar-stack">
                 <div className="profile-avatar-static">
                   {photo?.status === "ready" ? (
-                    <ContentImage sizes="96px"
+                    <ContentImage
+                      sizes="96px"
                       src={`/api/media/${photo.id}/`}
                       alt="Your profile"
                       width={96}
@@ -232,6 +227,26 @@ export async function MemberPage({ kind }: { kind: string }) {
                     <strong>{visited.length}</strong> In Portfolio
                   </li>
                 </ul>
+                {hero && featured && (
+                  <a
+                    className="profile-featured-place"
+                    href={`/place/${featured.slug}/`}
+                  >
+                    <ContentImage
+                      src={withFocalPoint(
+                        `/api/media/${hero.id}/?variant=medium_large`,
+                        associationFocalPoint(heroAssociation),
+                      )}
+                      alt=""
+                      sizes="(max-width: 680px) 90vw, 800px"
+                    />
+                    <span>
+                      <small>Your featured place</small>
+                      <strong>{featured.title} ↗</strong>
+                    </span>
+                  </a>
+                )}
+
                 {current.premium ? (
                   <>
                     {[
@@ -257,9 +272,11 @@ export async function MemberPage({ kind }: { kind: string }) {
                           </a>
                         </div>
                         {section.rows.length ? (
-                          <OriginalMarkup
-                            html={`<div class="upd-rail">${render(section.rows.slice(0, 6))}</div>`}
-                          />
+                          <ProfileRail label={section.title}>
+                            <OriginalMarkup
+                              html={`<div class="upd-rail">${render(section.rows.slice(0, 6))}</div>`}
+                            />
+                          </ProfileRail>
                         ) : (
                           <div className="upd-bucketlist-empty">
                             <p>

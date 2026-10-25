@@ -1,5 +1,4 @@
 "use client";
-import { membershipSavings } from "@/lib/membership-savings";
 import { useState } from "react";
 import { ValidatedForm } from "./ui/validated-form";
 type Plan = {
@@ -23,7 +22,6 @@ export function MembershipPlanPicker({
   approved: boolean;
 }) {
   const [selected, setSelected] = useState(plans[0]?.id || "");
-  const monthly = plans.find((p) => p.months === 1);
   const plan = plans.find((p) => p.id === selected);
   return (
     <ValidatedForm
@@ -56,13 +54,6 @@ export function MembershipPlanPicker({
                     : `${p.months} months`}
               </strong>
               <small>Pay once · No automatic renewal</small>
-              {membershipSavings(p, monthly) && (
-                <small className="membership-saving">
-                  Save{" "}
-                  {money(membershipSavings(p, monthly)!.amount, p.currency)} ·{" "}
-                  {membershipSavings(p, monthly)!.percent}% versus monthly
-                </small>
-              )}
             </span>
             <b>{money(p.amount_centavos, p.currency)}</b>
           </label>
@@ -78,13 +69,6 @@ export function MembershipPlanPicker({
             </small>
           </span>
           <strong>{money(plan.amount_centavos, plan.currency)}</strong>
-          {membershipSavings(plan, monthly) && (
-            <span className="membership-saving">
-              You save{" "}
-              {money(membershipSavings(plan, monthly)!.amount, plan.currency)}{" "}
-              compared with paying monthly.
-            </span>
-          )}
         </div>
       ) : (
         <p role="status">

@@ -184,11 +184,11 @@ test("client layout keeps stop options, notes, exports and maps functional", asy
     await page.goto(`/itineraries/?trip=${trip.id}`);
     const views = page.getByRole("group", { name: "Planner view" });
     await expect(
-      views.getByRole("button", { name: "Final itinerary", exact: true }),
+      views.getByRole("button", { name: "Itinerary", exact: true }),
     ).toHaveAttribute("aria-pressed", "true");
     const stops = page.locator(".p2-stop");
     await expect(stops).toHaveCount(3);
-    await expect(stops.first().getByLabel("Notes for this stop")).toBeHidden();
+    await expect(stops.first().getByLabel("Notes for this stop")).toBeVisible();
     await expect(
       stops.first().getByRole("button", { name: "Move down", exact: true }),
     ).toBeHidden();
@@ -214,7 +214,6 @@ test("client layout keeps stop options, notes, exports and maps functional", asy
       "open",
       "",
     );
-    await stops.first().locator(".p3-stop-note-editor > summary").click();
     const notes = stops.first().getByLabel("Notes for this stop");
     await notes.fill("Bring water and a camera.");
     await stops
@@ -246,7 +245,6 @@ test("client layout keeps stop options, notes, exports and maps functional", asy
     await expect(stops.first()).toContainText(places[2].title);
     const days = page.getByRole("navigation", { name: "Itinerary days" });
     await days.getByRole("button", { name: /^Day 2/ }).click();
-    await stops.first().locator(".p3-stop-note-editor > summary").click();
     await expect(stops.first().getByLabel("Notes for this stop")).toHaveValue(
       "Bring water and a camera.",
     );
@@ -285,9 +283,7 @@ test("client layout keeps stop options, notes, exports and maps functional", asy
       views.getByRole("button", { name: "My route", exact: true }),
     ).toHaveAttribute("aria-pressed", "true");
     await capture(page, "route");
-    await views
-      .getByRole("button", { name: "Final itinerary", exact: true })
-      .click();
+    await views.getByRole("button", { name: "Itinerary", exact: true }).click();
     const finder = page.locator("#find-destinations");
     await finder
       .getByRole("button", { name: "Search destination", exact: true })
