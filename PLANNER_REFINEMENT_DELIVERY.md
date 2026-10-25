@@ -31,3 +31,10 @@ The baseline at migration time was 16 trips, 2,930 photo associations, 7 merchan
 ## Release
 
 Source is published to `main` and `codex/staging-release` in `ayerkhalix/unlockparadise`. Vercel builds `main` for [unlockparadise-staging.vercel.app](https://unlockparadise-staging.vercel.app/). Commit, deployment/alias confirmation and hosted acceptance output are retained in the private artifact directory. Hosted browser acceptance uses the canonical staging alias. No real payment or outbound-email transaction is part of verification.
+
+
+## Safari visit-time follow-up — 26 October 2026
+
+The client identified Safari hour/minute editing as the problem. The shared picker now uses independent native hour, minute and AM/PM selects, preserving the complete HH:mm model. Both add flows and saved-stop editing use the same component. Drag/reorder behavior and database state are unchanged. Native selectors retain standard keyboard and OS behavior without browser detection or a custom popup.
+
+Regression journeys cover field-to-field Tab navigation, repeated minute/AM-PM changes without resets, invalid ranges, save/reload, 12 AM / 12 PM conversion, clearing to flexible time, and adding through Explore options. Evidence is under ignored artifacts/safari-time; Chromium and WebKit run at desktop/phone widths. A physical Mac remains a client verification step.

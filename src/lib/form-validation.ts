@@ -1,4 +1,30 @@
 // Shared accessible validation for retained HTML fragments and React forms.
+export function clearValidFieldError(
+  field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
+) {
+  if (!field.validity.valid) return;
+  field.removeAttribute("aria-invalid");
+  const remaining = (field.getAttribute("aria-describedby") || "")
+    .split(" ")
+    .filter((id) => {
+      if (!id.startsWith("p2-error-")) return Boolean(id);
+      document.getElementById(id)?.remove();
+      return false;
+    });
+  if (remaining.length)
+    field.setAttribute("aria-describedby", remaining.join(" "));
+  else field.removeAttribute("aria-describedby");
+  const form = field.form;
+  if (
+    form &&
+    Array.from(
+      form.querySelectorAll<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >("input,select,textarea"),
+    ).every((control) => !control.willValidate || control.validity.valid)
+  )
+    form.querySelector(".p2-form-summary")?.remove();
+}
 export function validateFields(form: HTMLFormElement) {
   form
     .querySelectorAll<HTMLInputElement>("input[data-match-password]")

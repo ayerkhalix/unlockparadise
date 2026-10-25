@@ -509,3 +509,8 @@ The selected day has three views: Itinerary for photo cards and editing, Schedul
 Explore options retains the normal white Places cards. Category tabs omit All destinations. The standard transport, assets, Explorer+ and name/date/rating filters remain; search and travel-time filters are absent here. Bucketlist controls share the normal Places mutation/Undo behavior, including inline search results. Return preserves the source URL, filters, displayed result count and clicked position; Back to categories reopens the correct home map area.
 
 The mobile drawer leads with the account photo/name, followed by primary links, Itinerary Planner, My Portfolio and Log out. Bucketlist stays in the floating companion and account page. Profile collections swipe horizontally on phones with snap points and keyboard/previous/next alternatives. The selected featured place has a visible photo and selected star. Discount/savings claims are hidden; prices remain unchanged.
+
+
+## Visit-time compatibility — 26 October 2026
+
+The shared Visit time control uses platform-native Hour, Minute and AM/PM selects for both start and end. Native segmented time inputs are replaced across adding, exploring and editing destinations. Choosing an hour creates a complete HH:mm value with minutes defaulting to 00; minute and AM/PM selectors become available then. All 60 minute values, midnight/noon, paired optionality, same-day end-after-start validation, clear-to-flexible, draft protection and saved-time behavior remain. The popup remains OS-owned under the existing native Select ownership. No browser sniffing, custom popup, stored-time conversion or server migration is introduced.

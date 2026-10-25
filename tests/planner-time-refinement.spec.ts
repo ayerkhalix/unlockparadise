@@ -1,3 +1,4 @@
+import { setVisitTime } from "./helpers/visit-time";
 import { test, expect, type Page } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { mkdir } from "node:fs/promises";
@@ -62,8 +63,8 @@ test("selected planner days, timed visits and refined profile persist on staging
     await finder.locator("button[data-place-choice]").first().click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
-    await dialog.getByLabel("Start time", { exact: true }).fill("08:00");
-    await dialog.getByLabel("End time", { exact: true }).fill("12:00");
+    await setVisitTime(dialog, "Start", "08:00");
+    await setVisitTime(dialog, "End", "12:00");
     await dialog
       .getByRole("button", { name: "Add Place", exact: true })
       .click();
@@ -120,7 +121,7 @@ test("selected planner days, timed visits and refined profile persist on staging
     await confirm.getByRole("button", { name: "Cancel", exact: true }).click();
     await expect(notes).toHaveValue("Unsaved reminder");
     await notes.fill("Bring water and a camera.");
-    await timing.getByLabel("End time", { exact: true }).fill("13:30");
+    await setVisitTime(timing, "End", "13:30");
     await timing
       .getByRole("button", { name: "Save time", exact: true })
       .click();

@@ -31,3 +31,7 @@ Preserve the white Places cards and homepage map CTA. Phone secondary filters mo
 
 ## Superseding planner batch — 25 October 2026
 The Current contract above supersedes historical Final itinerary/Daily timeline/Notes disclosure and no-Bucketlist descriptions below. Evidence is indexed in PLANNER_REFINEMENT_DELIVERY.md and artifacts/planner-refinement.
+
+## Safari time control — 26 October 2026
+
+Use the shared StopTimeFields native Hour/Minute/AM-PM selectors in every add/edit entry point. Keep complete HH:mm state, optional flexible visits, all minutes and same-day range validation. Match the current navy/teal fields, 16px text, visible focus, 44px controls and responsive grouping. Regression coverage is tests/safari-time.spec.ts in Chromium and the opt-in playwright.webkit.config.ts. WebKit on Windows verifies the engine; it does not constitute a physical Mac Safari test.

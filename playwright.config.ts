@@ -24,6 +24,7 @@ export default defineConfig({
         "**/client-todo.spec.ts",
         "**/ux-polish-next.spec.ts",
         "**/planner-refinement.spec.ts",
+        "**/safari-time.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

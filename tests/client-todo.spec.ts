@@ -1,3 +1,4 @@
+import { setVisitTime } from "./helpers/visit-time";
 import { signIn } from "./helpers/demo-session";
 import { test, expect, type Page } from "@playwright/test";
 import { readFile, mkdir } from "node:fs/promises";
@@ -400,8 +401,8 @@ test("planner browsing keeps the selected day, saved times, route and branded ex
     await modal
       .getByRole("combobox", { name: "Add to day", exact: true })
       .selectOption(day.id);
-    await modal.locator('input[type="time"]').nth(0).fill("08:00");
-    await modal.locator('input[type="time"]').nth(1).fill("10:00");
+    await setVisitTime(modal, "Start", "08:00");
+    await setVisitTime(modal, "End", "10:00");
     await modal
       .getByRole("button", { name: "Add destination", exact: true })
       .click();

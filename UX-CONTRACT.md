@@ -241,3 +241,8 @@ Map category photos use existing public thumbnail fallbacks when the current RLS
 - **Mobile menu** puts linked account identity first, then primary links, Itinerary Planner, My Portfolio and Log out. Desktop account links stay unchanged. The original drawer, tagline and legal footer remain.
 - **Profile** collections use horizontal snap rails on phones, with keyboard and previous/next alternatives. Setting the featured place updates the visible cover and pressed star.
 - **Membership** explicitly lists the itinerary planner. The redundant account prompt and discount/savings wording are removed; amounts and payment behavior stay unchanged.
+
+
+## Visit-time compatibility — 26 October 2026
+
+The shared Visit time control uses platform-native Hour, Minute and AM/PM selects for both start and end. Native segmented time inputs are replaced across adding, exploring and editing destinations. Choosing an hour creates a complete HH:mm value with minutes defaulting to 00; minute and AM/PM selectors become available then. All 60 minute values, midnight/noon, paired optionality, same-day end-after-start validation, clear-to-flexible, draft protection and saved-time behavior remain. The popup remains OS-owned under the existing native Select ownership. No browser sniffing, custom popup, stored-time conversion or server migration is introduced.

@@ -53,3 +53,8 @@ The client clarified that homepage category icons should remain visible with hov
 ### 25 October 2026 — Planner hierarchy and return flow
 
 The selected day now separates editable photo cards, Schedule and My route. Notes are visible, add/search/explore entry points share a card below each view, and position-based time slots follow reordered destinations. Explore options reuses normal Places filters without search/travel-time or the All destinations tab, adds Bucketlist actions, and retains exact browse return state. Mobile navigation leads with account identity and includes My Portfolio after Itinerary Planner. Account collections swipe on phones and the selected featured photo is visible. Membership discount copy is removed without changing prices. See PLANNER_REFINEMENT_DELIVERY.md for verification and deployment evidence.
+
+
+### 26 October 2026 — Safari visit-time editing
+
+Start and end time now have explicit hour, minute and AM/PM controls in the shared add/edit form. This avoids editing a partially entered segmented time value in Safari while retaining exact minutes, validation and the existing saved itinerary format.

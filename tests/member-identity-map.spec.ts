@@ -1,3 +1,4 @@
+import { setVisitTime } from "./helpers/visit-time";
 import { test, expect, type Page } from "@playwright/test";
 import { AxeBuilder } from "@axe-core/playwright";
 import { mkdir } from "node:fs/promises";
@@ -359,8 +360,8 @@ test("planner category browsing and destination preview stay inside the map", as
     await capture(page, "planner-destination-preview");
     await map.getByRole("button", { name: /^Add to Day/ }).click();
     const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Start time", { exact: true }).fill("08:00");
-    await dialog.getByLabel("End time", { exact: true }).fill("10:00");
+    await setVisitTime(dialog, "Start", "08:00");
+    await setVisitTime(dialog, "End", "10:00");
     await dialog
       .getByRole("button", { name: "Add Place", exact: true })
       .click();
