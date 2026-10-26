@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CategoryReturn } from "./category-return";
 export function AreaNavigation({
   area,
   categories,
@@ -10,12 +11,10 @@ export function AreaNavigation({
 }) {
   return (
     <nav className="area-navigation" aria-label={`${area.name} categories`}>
-      <Link
-        className="area-navigation__back"
+      <CategoryReturn
+        name={area.name}
         href={`/?map_area=${area.slug}${selected === "restaurants" || selected === "coffee" ? "&map_page=1" : ""}#palawan-map`}
-      >
-        ← All {area.name} categories
-      </Link>
+      />
       <div className="area-navigation__categories">
         {categories.map((c) => (
           <Link

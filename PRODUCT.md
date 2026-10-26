@@ -58,3 +58,9 @@ The selected day now separates editable photo cards, Schedule and My route. Note
 ### 26 October 2026 — Safari visit-time editing
 
 Start and end time now have explicit hour, minute and AM/PM controls in the shared add/edit form. This avoids editing a partially entered segmented time value in Safari while retaining exact minutes, validation and the existing saved itinerary format.
+
+## Approved client plan - 26 October 2026
+
+The owner approved CLIENT_PLAN_2026_10_26.md and the proposed delete-day date policy. Planner exploration uses the reference transport/Explorer+/sort/reset toolbar without search, travel-time filtering, Assets disclosure or Show more. The inline add card has one persistent name search and complete results. Schedule covers the whole trip with day/date groups, flexible/empty states and readable Notes disclosures; editable card notes remain visible. Itinerary and My route remain day-specific.
+
+Confirmed day deletion removes that day's stops, notes and visit times, preserves surviving day/stop identities and time values, renumbers later days, retains the start date and shortens the end date. The final day cannot be deleted. The existing owner/premium/version transaction remains authoritative. Profile previews remain visible for Explorer, with protected actions opening the compact gold feature hook. The real membership section precedes Settings on phones; redundant shortcuts are removed. Active Explorer+ membership shows actual access status, while free-account acquisition links go directly to checkout. Destination hooks retain photo previews/comparison. Public phone navigation opens from the right.

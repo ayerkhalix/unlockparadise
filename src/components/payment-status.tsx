@@ -1,13 +1,15 @@
 "use client";
-/* eslint-disable @next/next/no-location-assign-relative-destination -- Reload the account and shared header after verified membership activation. */
 import { useCallback, useEffect, useState } from "react";
 import { requestJSON } from "@/lib/client-api";
+import { membershipReturnTarget } from "@/lib/membership-navigation";
 
 type Props = {
   transactionId: string;
   initialStatus: string;
   canCheck: boolean;
   autoCheck: boolean;
+  returnTo?: string;
+  ownerId?: string;
 };
 type Result = { status: string; message: string };
 
@@ -16,7 +18,25 @@ export function PaymentStatus({
   initialStatus,
   canCheck,
   autoCheck,
+  returnTo,
+  ownerId,
 }: Props) {
+  const [destination, setDestination] = useState(
+    membershipReturnTarget(returnTo),
+  );
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(
+        sessionStorage.getItem(`upd:payment-return:${transactionId}`) || "null",
+      );
+      if (saved?.owner === ownerId && saved?.expires > Date.now()) {
+        const target = membershipReturnTarget(saved.target);
+        void Promise.resolve().then(() => setDestination(target));
+      }
+    } catch {
+      /* Keep the server-validated return. */
+    }
+  }, [transactionId, ownerId]);
   const [status, setStatus] = useState(initialStatus);
   const [busy, setBusy] = useState(
     autoCheck && canCheck && initialStatus !== "paid",
@@ -61,11 +81,17 @@ export function PaymentStatus({
   useEffect(() => {
     if (seconds === null) return;
     const timer = window.setTimeout(() => {
-      if (seconds <= 1) window.location.assign("/account/");
-      else setSeconds(seconds - 1);
+      if (seconds <= 1) {
+        try {
+          sessionStorage.removeItem(`upd:payment-return:${transactionId}`);
+        } catch {
+          /* Optional browsing memory. */
+        }
+        window.location.assign(destination);
+      } else setSeconds(seconds - 1);
     }, 1000);
     return () => window.clearTimeout(timer);
-  }, [seconds]);
+  }, [seconds, destination, transactionId]);
 
   async function checkPayment() {
     setBusy(true);
@@ -107,7 +133,13 @@ export function PaymentStatus({
                   : "Complete payment on Xendit, then check its status here.")}
       </p>
       {seconds !== null && (
-        <p aria-live="off">Returning to your account in {seconds} seconds.</p>
+        <p aria-live="off">
+          Returning{" "}
+          {destination === "/account/"
+            ? "to your account"
+            : "to your place in Paradise"}{" "}
+          in {seconds} seconds.
+        </p>
       )}
       {canCheck && ["pending", "creating"].includes(status) && (
         <button
@@ -122,6 +154,12 @@ export function PaymentStatus({
       {status === "paid" && (
         <p>
           <a href="/account/">View membership</a>
+          {destination !== "/account/" && (
+            <>
+              {" "}
+              · <a href={destination}>Continue exploring</a>
+            </>
+          )}
         </p>
       )}
       {seconds !== null && (

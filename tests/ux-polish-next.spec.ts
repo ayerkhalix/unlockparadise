@@ -241,7 +241,7 @@ test("client corrections: destination hooks show a photo and memberships while f
   );
 });
 
-test("accepted polish: save retry, exact Undo, safer trip menu and compact destination filters", async ({
+test("accepted polish: save retry, exact Undo, edit-trip deletion and reference destination filters", async ({
   page,
   context,
 }) => {
@@ -294,10 +294,11 @@ test("accepted polish: save retry, exact Undo, safer trip menu and compact desti
     await expect(
       page.getByRole("button", { name: "Delete itinerary", exact: true }),
     ).toHaveCount(0);
-    await page.locator(".p2-trip-options > summary").click();
+    await page.getByRole("button", { name: "Edit trip", exact: true }).click();
     await expect(
       page.getByRole("button", { name: "Delete trip", exact: true }),
     ).toBeVisible();
+    await page.getByRole("button", { name: "Cancel", exact: true }).click();
     await page.keyboard.press("Escape");
     await expect(
       page.getByRole("button", { name: "Delete trip", exact: true }),
@@ -394,11 +395,10 @@ test("accepted polish: save retry, exact Undo, safer trip menu and compact desti
     ).toBeVisible();
     await photo(page, "explore-compact");
     await expect(page.getByRole("searchbox")).toHaveCount(0);
-    await page.locator(".planner-filter-disclosure > summary").click();
-    await page.getByRole("checkbox", { name: "Car", exact: true }).check();
+    await page.getByRole("button", { name: "Car", exact: true }).click();
     await expect(page).toHaveURL(/access=Car/);
     await page
-      .getByRole("button", { name: "Clear filters (1)", exact: true })
+      .getByRole("button", { name: "Reset destination filters", exact: true })
       .click();
     await photo(page, "explore-filters");
     expect(

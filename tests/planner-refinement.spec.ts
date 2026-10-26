@@ -152,7 +152,7 @@ test("planner views retain notes, show flexible schedule, and reorder into posit
     await shot(page, "itinerary-notes");
     await page.getByRole("button", { name: "Schedule", exact: true }).click();
     const schedule = page.getByRole("region", {
-      name: "Schedule",
+      name: "Whole-trip schedule",
       exact: true,
     });
     await expect(schedule).toBeVisible();
@@ -168,22 +168,22 @@ test("planner views retain notes, show flexible schedule, and reorder into posit
     ).toBeVisible();
     const finder = page.getByRole("region", { name: "Find destinations" });
     await expect(
-      finder.getByRole("button", { name: "Search destination", exact: true }),
+      finder.getByRole("searchbox", {
+        name: "Search destinations",
+        exact: true,
+      }),
     ).toBeVisible();
     expect((await finder.boundingBox())!.y).toBeGreaterThan(
       (await page.locator(".p2-plan-map").boundingBox())!.y,
     );
     await shot(page, "route-add-card");
-    await finder
-      .getByRole("button", { name: "Search destination", exact: true })
-      .click();
     await expect(
       finder.getByLabel("Search destinations", { exact: true }),
     ).toBeVisible();
     await expect(finder.locator("[data-member-op]").first()).toBeVisible();
-    await page.getByRole("button", { name: /Day 2/ }).click();
+    await page.getByRole("button", { name: /^Day 2/ }).click();
     await page.getByRole("button", { name: "Schedule", exact: true }).click();
-    await expect(schedule).toContainText("No stops yet");
+    await expect(schedule).toContainText("No stops planned for this day.");
     expect(
       (await new AxeBuilder({ page }).include("main").analyze()).violations,
     ).toEqual([]);
@@ -192,7 +192,7 @@ test("planner views retain notes, show flexible schedule, and reorder into posit
   }
 });
 
-test("explore has original facets, Bucketlist and exact destination return including shown count", async ({
+test("explore has reference facets, Bucketlist and exact destination return", async ({
   page,
   context,
 }) => {
@@ -214,11 +214,14 @@ test("explore has original facets, Bucketlist and exact destination return inclu
     await expect(
       page.getByRole("combobox", { name: "Travel time", exact: true }),
     ).toHaveCount(0);
-    await page.locator(".planner-filter-disclosure > summary").click();
-    await page.getByRole("checkbox", { name: "Car", exact: true }).check();
+    await page.getByRole("button", { name: "Car", exact: true }).click();
     await expect(page).toHaveURL(/access=Car/);
-    await page.getByRole("button", { name: /Clear filters/ }).click();
-    await page.locator(".planner-filter-disclosure > summary").click();
+    await page
+      .getByRole("button", { name: "Reset destination filters", exact: true })
+      .click();
+    await page
+      .getByRole("combobox", { name: "Sort by", exact: true })
+      .selectOption("date");
     const card = page.locator(".planner-destination-card").first();
     const save = card.locator("[data-member-op]");
     await expect(save).toBeEnabled();

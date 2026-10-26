@@ -5,6 +5,7 @@ import {
   tripDateLabel,
   type Trip,
   type TripItem,
+  type TripDay,
 } from "@/lib/planning";
 import { itineraryBrand } from "@/lib/itinerary-brand";
 import { overlappingStops } from "@/lib/itinerary-schedule";
@@ -17,9 +18,11 @@ const serverSnapshot = () => false;
 export function DaySchedule({
   stops,
   onStop,
+  heading = "Schedule",
 }: {
   stops: TripItem[];
   onStop: (id: string) => void;
+  heading?: string;
 }) {
   const conflicts = overlappingStops(stops);
   const scheduled = stops
@@ -30,19 +33,14 @@ export function DaySchedule({
     );
   const flexible = stops.filter((stop) => !stop.start_time || !stop.end_time);
   return (
-    <section className="p2-day-schedule" aria-label="Schedule">
+    <section className="p2-day-schedule" aria-label={heading}>
       <div className="p2-schedule-heading">
-        <h3>Schedule</h3>
+        <h3>{heading}</h3>
         <span>
           {scheduled.length} of {stops.length} stops timed
         </span>
       </div>
-      <p className="p2-muted">
-        Palawan local time · Allow time to travel between stops.
-      </p>
-      {!stops.length && (
-        <p>No stops yet. Add a destination below to start your schedule.</p>
-      )}
+      {!stops.length && <p>No stops planned for this day.</p>}
       {conflicts.size > 0 && (
         <p className="p2-schedule-warning" role="status">
           Some visit times overlap. Review the highlighted stops below.
@@ -62,9 +60,44 @@ export function DaySchedule({
               <strong>{stop.place?.title || "Place unavailable"}</strong>
               {conflicts.has(stop.id) && <small>Overlapping time</small>}
             </button>
+            {stop.notes && (
+              <details className="schedule-notes">
+                <summary>Notes</summary>
+                <p>{stop.notes}</p>
+              </details>
+            )}
           </li>
         ))}
       </ol>
+    </section>
+  );
+}
+
+export function TripSchedule({
+  trip,
+  onStop,
+}: {
+  trip: Trip;
+  onStop: (day: TripDay, id: string) => void;
+}) {
+  return (
+    <section className="p2-trip-schedule" aria-label="Whole-trip schedule">
+      <header>
+        <h2>Schedule</h2>
+        <p className="p2-muted">
+          Your whole trip · {trip.itinerary_days.length}{" "}
+          {trip.itinerary_days.length === 1 ? "day" : "days"} · Palawan local
+          time. Allow time to travel between stops.
+        </p>
+      </header>
+      {trip.itinerary_days.map((day) => (
+        <DaySchedule
+          key={day.id}
+          heading={dayLabel(day, trip.start_date)}
+          stops={trip.items.filter((stop) => stop.day_id === day.id)}
+          onStop={(id) => onStop(day, id)}
+        />
+      ))}
     </section>
   );
 }

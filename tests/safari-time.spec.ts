@@ -77,9 +77,6 @@ test("visit times stay editable through hour, minute and AM/PM changes, validati
     ).data;
   await page.goto(`/itineraries/?trip=${trip.id}`);
   await page
-    .getByRole("button", { name: "Search destination", exact: true })
-    .click();
-  await page
     .getByRole("searchbox", { name: "Search destinations", exact: true })
     .fill(place.title);
   await page.locator("button[data-place-choice]").first().click();

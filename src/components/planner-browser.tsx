@@ -37,12 +37,13 @@ export function PlannerBrowser({
   const params = useSearchParams();
   const area = trip.areas?.name || "";
   const access = (params.get("access") || "").split("|").filter(Boolean);
-  const assets = (params.get("assets") || "").split("|").filter(Boolean);
   const vip = params.get("vip") === "1";
   const sort = ["date", "rating"].includes(params.get("sort") || "")
     ? params.get("sort")!
     : "name";
-  const limit = Math.max(24, Math.min(1000, Number(params.get("shown")) || 24));
+  const descending =
+    params.get("dir") === "desc" ||
+    (params.get("dir") !== "asc" && sort !== "name");
   const [adding, setAdding] = useState<TravelPlace | null>(null),
     [time, setTime] = useState<StopTime>({ start_time: null, end_time: null });
   const [busy, setBusy] = useState(false),
@@ -52,7 +53,6 @@ export function PlannerBrowser({
   const saved = new Set(
     bucketlist.rows.filter((row) => row.saved_at).map((row) => row.place_id),
   );
-  const filterCount = access.length + assets.length + Number(vip);
   const update = (values: Record<string, string>) => {
     const query = new URLSearchParams(params.toString());
     for (const [key, value] of Object.entries(values)) {
@@ -61,9 +61,15 @@ export function PlannerBrowser({
     }
     query.set("trip", trip.id);
     query.set("day", values.day || day.id);
-    for (const obsolete of ["area", "search", "duration", "mode"])
+    for (const obsolete of [
+      "area",
+      "search",
+      "duration",
+      "mode",
+      "assets",
+      "shown",
+    ])
       query.delete(obsolete);
-    if (!("shown" in values)) query.delete("shown");
     history.replaceState(null, "", `?${query}`);
   };
   const stops = trip.items.filter((item) => item.day_id === day.id);
@@ -83,8 +89,8 @@ export function PlannerBrowser({
   const category = categories.includes(requestedCategory)
     ? requestedCategory
     : categories[0] || "";
-  const toggleFacet = (key: "access" | "assets", value: string) => {
-    const current = key === "access" ? access : assets;
+  const toggleFacet = (key: "access", value: string) => {
+    const current = access;
     update({
       [key]: (current.includes(value)
         ? current.filter((item) => item !== value)
@@ -98,18 +104,17 @@ export function PlannerBrowser({
         place.category.split(" · ").includes(category) &&
         (!access.length ||
           access.some((mode) => place.accessibility?.includes(mode))) &&
-        (!assets.length ||
-          assets.some((asset) => place.assets?.includes(asset))) &&
         (!vip || place.vip),
     )
-    .sort((a, b) => {
+    .sort((first, second) => {
+      const [a, b] = descending ? [second, first] : [first, second];
       if (sort === "rating")
         return (
-          (b.rating ?? -1) - (a.rating ?? -1) || a.title.localeCompare(b.title)
+          (a.rating ?? -1) - (b.rating ?? -1) || a.title.localeCompare(b.title)
         );
       if (sort === "date")
         return (
-          (b.publishedAt || "").localeCompare(a.publishedAt || "") ||
+          (a.publishedAt || "").localeCompare(b.publishedAt || "") ||
           a.title.localeCompare(b.title)
         );
       return a.title.localeCompare(b.title);
@@ -190,75 +195,64 @@ export function PlannerBrowser({
         </div>
       </header>
       <div
-        className="planner-original-filters"
+        className="planner-original-filters planner-reference-toolbar"
         aria-label="Destination filters"
       >
-        <label>
+        <fieldset className="planner-transport">
+          <legend>Accessible by</legend>
+          <div className="planner-transport-options">
+            {["Motorcycle", "Car", "4x4", "Boat", "Hike"].map((name) => (
+              <button
+                type="button"
+                key={name}
+                aria-pressed={access.includes(name)}
+                onClick={() => toggleFacet("access", name)}
+              >
+                <Icon name={name} size={18} /> {name}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <label className="planner-reference-sort">
           Sort by
           <select
             value={sort}
-            onChange={(event) => update({ sort: event.target.value })}
+            onChange={(event) => update({ sort: event.target.value, dir: "" })}
           >
             <option value="name">Name</option>
             <option value="date">Date added</option>
             <option value="rating">Top rated</option>
           </select>
         </label>
-        <details className="planner-filter-disclosure">
-          <summary>Filters{filterCount ? ` (${filterCount})` : ""}</summary>
-          <div className="planner-filter-facets">
-            <fieldset>
-              <legend>Accessible by</legend>
-              {["Motorcycle", "Car", "4x4", "Boat", "Hike"].map((name) => (
-                <label key={name}>
-                  <input
-                    type="checkbox"
-                    checked={access.includes(name)}
-                    onChange={() => toggleFacet("access", name)}
-                  />{" "}
-                  <Icon name={name} size={18} />
-                  {name}
-                </label>
-              ))}
-            </fieldset>
-            <fieldset>
-              <legend>Assets</legend>
-              {[
-                ...new Set(
-                  catalog.places.flatMap((place) => place.assets || []),
-                ),
-              ]
-                .sort()
-                .map((name) => (
-                  <label key={name}>
-                    <input
-                      type="checkbox"
-                      checked={assets.includes(name)}
-                      onChange={() => toggleFacet("assets", name)}
-                    />
-                    {name}
-                  </label>
-                ))}
-            </fieldset>
-            <label className="planner-vip-filter">
-              <input
-                type="checkbox"
-                checked={vip}
-                onChange={() => update({ vip: vip ? "" : "1" })}
-              />{" "}
-              Explorer+ destinations
-            </label>
-          </div>
-        </details>
-        {filterCount > 0 && (
+        <button
+          className="planner-sort-direction"
+          type="button"
+          aria-label={descending ? "Sort ascending" : "Sort descending"}
+          aria-pressed={descending}
+          onClick={() => update({ dir: descending ? "asc" : "desc" })}
+        >
+          <Icon name="Sort" size={22} />
+        </button>
+        <div className="planner-reference-secondary">
           <button
-            className="p2-back"
+            className="planner-premium-chip"
             type="button"
-            onClick={() => update({ access: "", assets: "", vip: "" })}
+            aria-pressed={vip}
+            onClick={() => update({ vip: vip ? "" : "1" })}
           >
-            Clear filters ({filterCount})
+            <Icon name="Lock" size={15} /> Explorer+
           </button>
-        )}
+          <button
+            className="planner-reset"
+            type="button"
+            aria-label="Reset destination filters"
+            data-tooltip="Reset filters"
+            disabled={!access.length && !vip && sort === "name" && !descending}
+            onClick={() => update({ access: "", vip: "", sort: "", dir: "" })}
+          >
+            <Icon name="Reset" size={20} />
+          </button>
+        </div>
       </div>
       {bucketlist.error && (
         <p className="p2-error" role="status">
@@ -287,7 +281,7 @@ export function PlannerBrowser({
           {filtered.length ? (
             <>
               <div className="planner-destination-grid upd-grid">
-                {filtered.slice(0, limit).map((place) => (
+                {filtered.map((place, index) => (
                   <article
                     className="planner-destination-card upd-card"
                     key={place.id}
@@ -301,7 +295,8 @@ export function PlannerBrowser({
                           <ContentImage
                             src={place.image || ""}
                             alt={place.title}
-                            loading="lazy"
+                            loading={index < 3 ? "eager" : "lazy"}
+                            sizes="(max-width: 600px) 92vw, (max-width: 900px) 46vw, 400px"
                           />
                         ) : (
                           <span className="upd-card__coming-soon">
@@ -371,15 +366,6 @@ export function PlannerBrowser({
                   </article>
                 ))}
               </div>
-              {filtered.length > limit && (
-                <button
-                  type="button"
-                  className="p2-button p2-button--quiet"
-                  onClick={() => update({ shown: String(limit + 24) })}
-                >
-                  Show more destinations
-                </button>
-              )}
             </>
           ) : (
             <div className="p2-empty">

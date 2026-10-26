@@ -7,22 +7,29 @@ import { paymentProvider } from "@/lib/payments/provider";
 import { xenditTestUser } from "@/lib/payments/xendit-core";
 import { PaymentStatus } from "./payment-status";
 import { z } from "zod";
+import { membershipReturnTarget } from "@/lib/membership-navigation";
 export async function Checkout({
   paymentReturn = false,
   transactionId,
+  returnTo,
 }: {
   paymentReturn?: boolean;
   transactionId?: string;
+  returnTo?: string;
 }) {
   const current = await currentSession();
   const returnId = z.string().uuid().safeParse(transactionId);
+  const returnTarget = membershipReturnTarget(returnTo);
   if (!current) {
     if (paymentReturn && returnId.success) {
       const destination = `/checkout/?payment=return&transaction_id=${returnId.data}`;
       redirect(`/login/?redirect_to=${encodeURIComponent(destination)}`);
     }
-    redirect("/login/?redirect_to=/checkout/");
+    redirect(
+      `/login/?redirect_to=${encodeURIComponent(`/checkout/?return_to=${encodeURIComponent(returnTarget)}`)}`,
+    );
   }
+  if (current.premium && !paymentReturn) redirect("/membership/");
   const xendit = paymentProvider() === "xendit";
   const approvedTestAccount = !xendit || xenditTestUser(current.user.id);
   let paymentQuery = current.db
@@ -68,6 +75,8 @@ export async function Checkout({
               initialStatus={recent.data.status}
               canCheck={Boolean(recent.data.provider_session_id)}
               autoCheck={paymentReturn}
+              returnTo={returnTarget}
+              ownerId={current.user.id}
             />
           )}
           <ul className="p3-checkout-inclusions">
@@ -125,6 +134,8 @@ export async function Checkout({
           <MembershipPlanPicker
             plans={plans.data || []}
             approved={approvedTestAccount}
+            returnTo={returnTarget}
+            ownerId={current.user.id}
           />
           <p className="p3-checkout-support">
             A question before you go? <a href="/contact/">Contact us</a>

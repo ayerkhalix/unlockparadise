@@ -1,3 +1,4 @@
+import { upgradeHref } from "@/lib/membership-navigation";
 import { ProfileRail } from "./profile-rail";
 import { withFocalPoint, associationFocalPoint } from "@/lib/focal-point";
 import { ContentImage } from "@/components/ui/content-image";
@@ -96,15 +97,6 @@ export async function MemberPage({ kind }: { kind: string }) {
         );
       })
       .join("");
-  const upsell = (
-    <div className="upd-upgrade">
-      <h2>Explore with Explorer+</h2>
-      <p>Save and track destinations across Palawan with Explorer+.</p>
-      <a className="upd-btn upd-btn--vip" href="/membership/">
-        Get Explorer+
-      </a>
-    </div>
-  );
   const data = profile.data;
   const preferences = await travelPreferences(current.db, current.user.id);
   const photo = data.profile_media?.media;
@@ -184,40 +176,6 @@ export async function MemberPage({ kind }: { kind: string }) {
               </div>
             </header>
             <div className="p3-profile-workspace">
-              <aside
-                className="p3-profile-sidebar"
-                aria-label="Your explorer profile"
-              >
-                <section className="p3-profile-membership">
-                  <h2>Your membership</h2>
-                  <strong
-                    className={`membership-text membership-text--${current.premium ? "plus" : "explorer"}`}
-                  >
-                    {current.premium ? "Explorer+" : "Explorer"}
-                  </strong>
-                  <p>
-                    {current.premium
-                      ? active?.paid_through
-                        ? `Active until ${new Date(active.paid_through).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" })}`
-                        : "Your destinations are unlocked."
-                      : "Your free Palawan explorer account."}
-                  </p>
-                  <a href="/membership/">
-                    {current.premium
-                      ? "Membership details"
-                      : "Explore Explorer+"}
-                  </a>
-                </section>
-
-                <nav
-                  className="p3-profile-links"
-                  aria-label="Profile shortcuts"
-                >
-                  <a href="/bucketlist/">My Bucketlist</a>
-                  <a href="/portfolio/">My Portfolio</a>
-                  <a href="#account-settings">Account settings</a>
-                </nav>
-              </aside>
               <div className="p3-profile-content">
                 <ul className="upd-stats">
                   <li>
@@ -247,61 +205,98 @@ export async function MemberPage({ kind }: { kind: string }) {
                   </a>
                 )}
 
-                {current.premium ? (
-                  <>
-                    {[
-                      {
-                        title: "My Bucketlist",
-                        href: "/bucketlist/",
-                        rows: saved,
-                      },
-                      {
-                        title: "My Portfolio",
-                        href: "/portfolio/",
-                        rows: visited,
-                      },
-                    ].map((section) => (
-                      <section
-                        className="upd-profile__section"
-                        key={section.href}
-                      >
-                        <div className="upd-profile__sectionhead">
-                          <h2>{section.title}</h2>
-                          <a href={section.href}>
-                            View all ({section.rows.length}) ›
+                <>
+                  {[
+                    {
+                      title: "My Bucketlist",
+                      href: "/bucketlist/",
+                      rows: saved,
+                    },
+                    {
+                      title: "My Portfolio",
+                      href: "/portfolio/",
+                      rows: visited,
+                    },
+                  ].map((section) => (
+                    <section
+                      className="upd-profile__section"
+                      key={section.href}
+                    >
+                      <div className="upd-profile__sectionhead">
+                        <h2>{section.title}</h2>
+                        <a href={section.href}>
+                          View all ({section.rows.length}) ›
+                        </a>
+                      </div>
+                      {section.rows.length ? (
+                        <ProfileRail label={section.title}>
+                          <OriginalMarkup
+                            html={`<div class="upd-rail">${render(section.rows.slice(0, 6))}</div>`}
+                          />
+                        </ProfileRail>
+                      ) : (
+                        <div className="upd-bucketlist-empty">
+                          <p>
+                            {current.premium
+                              ? section.title === "My Portfolio"
+                                ? "Your portfolio is empty. Your visited destinations will appear here."
+                                : "Your bucketlist is empty — start exploring Palawan."
+                              : section.title === "My Portfolio"
+                                ? "Keep the destinations you’ve visited in your travel portfolio."
+                                : "Keep the places you want to explore together."}
+                          </p>
+                          <a
+                            className="upd-btn upd-btn--primary"
+                            href={current.premium ? "/" : section.href}
+                          >
+                            {current.premium
+                              ? "Explore places"
+                              : section.title === "My Portfolio"
+                                ? "View portfolio"
+                                : "View bucketlist"}
                           </a>
                         </div>
-                        {section.rows.length ? (
-                          <ProfileRail label={section.title}>
-                            <OriginalMarkup
-                              html={`<div class="upd-rail">${render(section.rows.slice(0, 6))}</div>`}
-                            />
-                          </ProfileRail>
-                        ) : (
-                          <div className="upd-bucketlist-empty">
-                            <p>
-                              {section.title === "My Portfolio"
-                                ? "Your portfolio is empty. Your visited destinations will appear here."
-                                : "Your bucketlist is empty — start exploring Palawan."}
-                            </p>
-                            <a className="upd-btn upd-btn--primary" href="/">
-                              Explore places
-                            </a>
-                          </div>
-                        )}
-                      </section>
-                    ))}
-                  </>
-                ) : (
-                  upsell
-                )}
+                      )}
+                    </section>
+                  ))}
+                </>
+                <aside
+                  className="p3-profile-sidebar"
+                  aria-label="Your explorer profile"
+                >
+                  <section className="p3-profile-membership">
+                    <h2>Your membership</h2>
+                    <strong
+                      className={`membership-text membership-text--${current.premium ? "plus" : "explorer"}`}
+                    >
+                      {current.premium ? "Explorer+" : "Explorer"}
+                    </strong>
+                    <p>
+                      {current.premium
+                        ? active?.paid_through
+                          ? `Active until ${new Date(active.paid_through).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric", timeZone: "Asia/Manila" })}`
+                          : "Your destinations are unlocked."
+                        : "Your free Palawan explorer account."}
+                    </p>
+                    <a
+                      href={
+                        current.premium
+                          ? "/membership/"
+                          : upgradeHref("explorer", "/account/")
+                      }
+                    >
+                      {current.premium
+                        ? "Membership details"
+                        : "Explore Explorer+"}
+                    </a>
+                  </section>
+                </aside>
                 <section
                   className="upd-profile__section upd-profile__section--settings"
                   id="account-settings"
                 >
                   <div className="upd-profile__sectionhead">
                     <h2>Settings</h2>
-                    <a href="/itineraries/">Itinerary Planner →</a>
                   </div>
                   <div className="upd-profile__settings">
                     {data.featured_place_id && (
@@ -403,8 +398,17 @@ export async function MemberPage({ kind }: { kind: string }) {
                               : "Your Explorer account is free."}
                           </p>
                         )}
-                        <a className="upd-btn upd-btn--vip" href="/checkout/">
-                          {current.premium ? "Renew" : "Get Explorer+"}
+                        <a
+                          className="upd-btn upd-btn--vip"
+                          href={
+                            current.premium
+                              ? "/membership/"
+                              : upgradeHref("explorer", "/account/")
+                          }
+                        >
+                          {current.premium
+                            ? "Membership details"
+                            : "Get Explorer+"}
                         </a>
                       </div>
                     </details>

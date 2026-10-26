@@ -8,10 +8,12 @@ export function TripForm({
   trip,
   onSaved,
   onCancel,
+  onDelete,
 }: {
   trip?: Trip;
   onSaved: (trip: Trip) => void;
   onCancel?: () => void;
+  onDelete?: () => Promise<void>;
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -192,6 +194,25 @@ export function TripForm({
           </button>
         )}
       </div>
+      {onDelete && (
+        <div className="planner-edit-danger">
+          <button
+            type="button"
+            className="p2-button p2-button--quiet"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await onDelete();
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            Delete trip
+          </button>
+        </div>
+      )}
     </ValidatedForm>
   );
 }

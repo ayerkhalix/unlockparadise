@@ -57,14 +57,21 @@ export function AreaMap({
   const panel = useRef<HTMLDivElement>(null);
   const rail = useRef<HTMLDivElement>(null);
   const escapeLink = useRef<HTMLAnchorElement>(null);
-  const [selected, setSelected] = useState<Area | null>(initialArea || null);
-  const [page, setPage] = useState(0);
-  const [unavailable, setUnavailable] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [attempt, setAttempt] = useState(0);
   const query = useSearchParams();
   const returnArea = query.get("map_area");
   const returnPage = query.get("map_page");
+  const [selected, setSelected] = useState<Area | null>(
+    () =>
+      initialArea ||
+      (!compact && returnArea
+        ? mapData.areas.find((area) => area.slug === returnArea)
+        : null) ||
+      null,
+  );
+  const [page, setPage] = useState(!compact && returnPage === "1" ? 1 : 0);
+  const [unavailable, setUnavailable] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     if (compact || !returnArea) return;
     const area = mapData.areas.find((item) => item.slug === returnArea);
@@ -462,6 +469,8 @@ export function AreaMap({
   useEffect(() => {
     if (!selected) return;
     const previous = document.activeElement as HTMLElement | null;
+    if (!compact && returnArea)
+      container.current?.scrollIntoView({ block: "start" });
     if (!compact) document.body.style.overflow = "hidden";
     rail.current?.scrollTo({
       left: !compact && returnPage === "1" ? rail.current.clientWidth : 0,
@@ -515,7 +524,7 @@ export function AreaMap({
       document.removeEventListener("keydown", keys);
       previous?.focus({ preventScroll: true });
     };
-  }, [selected, compact, returnPage]);
+  }, [selected, compact, returnPage, returnArea]);
 
   const available = selected
     ? (mapData.availability as Record<string, Record<string, number>>)[

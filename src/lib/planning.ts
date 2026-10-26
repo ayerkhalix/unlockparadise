@@ -74,6 +74,10 @@ export const planMutation = z
     z.object({ action: z.literal("update"), payload: tripInput }),
     z.object({ action: z.literal("add_day"), payload: z.object({}) }),
     z.object({
+      action: z.literal("delete_day"),
+      payload: z.object({ day_id: id }),
+    }),
+    z.object({
       action: z.literal("add"),
       payload: z.object({ day_id: id, place_id: id }).and(stopTimeInput),
     }),

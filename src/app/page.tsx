@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { OriginalMarkup } from "@/components/original-markup";
 import { PalawanMap } from "@/components/palawan-map";
 import { backendConfigured } from "@/lib/supabase/config";
@@ -14,9 +15,10 @@ import { HomeMerch } from "@/components/merch/home-merch";
 import { catalog } from "@/lib/repositories/commerce";
 import { products as originalProducts } from "@/lib/merch-products";
 import originalMap from "@/data/map.json";
+import { upgradeHref } from "@/lib/membership-navigation";
 
 export const metadata: Metadata = { title: "Home" };
-export default async function HomePage() {
+async function HomeFeatured() {
   const current = await currentSession();
   const preferences = current
     ? await travelPreferences(current.db, current.user.id)
@@ -48,8 +50,43 @@ export default async function HomePage() {
   const featured = backendConfigured()
     ? featuredMarkup(places, explanations)
     : fragment("featured")!;
-  const map = backendConfigured() ? await mapConfiguration() : undefined;
+  return <OriginalMarkup html={featured} />;
+}
+async function HomeMerchPreview() {
   const merch = backendConfigured() ? await catalog() : originalProducts;
+  return <HomeMerch products={merch} />;
+}
+async function HomeInvitation() {
+  const current = await currentSession();
+  const preferences = current
+    ? await travelPreferences(current.db, current.user.id)
+    : null;
+  return current && (!preferences || preferences.status === "pending") ? (
+    <TravelerInvitation version={preferences?.version} />
+  ) : null;
+}
+async function HomeUpgrade() {
+  const current = await currentSession();
+  return !current?.premium ? (
+    <section className="destination-invitation">
+      <div>
+        <h2>There’s more to discover.</h2>
+        <p>
+          Explore the destinations reserved for Explorer+ and find your next
+          place in Palawan.
+        </p>
+      </div>
+      <a
+        className="upd-btn upd-btn--vip"
+        href={upgradeHref(current ? "explorer" : "public", "/#palawan-map")}
+      >
+        Explore Explorer+
+      </a>
+    </section>
+  ) : null;
+}
+export default async function HomePage() {
+  const map = backendConfigured() ? await mapConfiguration() : undefined;
   return (
     <main className="upd-main" id="upd-main">
       <div className="upd-container">
@@ -58,25 +95,30 @@ export default async function HomePage() {
             html={heroMarkup(fragment("hero")!, map || originalMap)}
           />
           <PalawanMap data={map} />
-          <OriginalMarkup html={featured} />
-          {!current?.premium && (
-            <section className="destination-invitation">
-              <div>
-                <h2>There’s more to discover.</h2>
-                <p>
-                  Explore the destinations reserved for Explorer+ and find your
-                  next place in Palawan.
-                </p>
+          <Suspense
+            fallback={
+              <div className="home-section-loading" role="status">
+                Loading featured destinations…
               </div>
-              <a className="upd-btn upd-btn--vip" href="/membership/">
-                Explore Explorer+
-              </a>
-            </section>
-          )}
-          <HomeMerch products={merch} />
-          {current && (!preferences || preferences.status === "pending") && (
-            <TravelerInvitation version={preferences?.version} />
-          )}
+            }
+          >
+            <HomeFeatured />
+          </Suspense>
+          <Suspense fallback={null}>
+            <HomeUpgrade />
+          </Suspense>
+          <Suspense
+            fallback={
+              <div className="home-section-loading" role="status">
+                Loading merchandise…
+              </div>
+            }
+          >
+            <HomeMerchPreview />
+          </Suspense>
+          <Suspense fallback={null}>
+            <HomeInvitation />
+          </Suspense>
         </div>
       </div>
     </main>

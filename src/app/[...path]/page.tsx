@@ -18,6 +18,7 @@ import { Checkout } from "@/components/checkout";
 import { AreaNavigation } from "@/components/area-navigation";
 import { FeatureLock } from "@/components/feature-lock";
 import { googleReturnPath } from "@/lib/auth/google";
+import { MembershipStatus } from "@/components/membership-status";
 
 const titles: Record<string, string> = {
   about: "About",
@@ -92,6 +93,9 @@ export default async function PublicPage({ params, searchParams }: Props) {
     const query = await searchParams;
     return (
       <Checkout
+        returnTo={
+          typeof query.return_to === "string" ? query.return_to : undefined
+        }
         paymentReturn={query.payment === "return"}
         transactionId={
           typeof query.transaction_id === "string"
@@ -101,6 +105,8 @@ export default async function PublicPage({ params, searchParams }: Props) {
       />
     );
   }
+  if (key === "membership" && (await currentSession())?.premium)
+    return <MembershipStatus />;
   let html = fragment(key);
   const isArchive = ["area", "place_category"].includes(path[0]);
   let areaNavigation: React.ReactNode = null;
@@ -146,7 +152,13 @@ export default async function PublicPage({ params, searchParams }: Props) {
   }
   if (!html) notFound();
   if (key === "membership")
-    html = membershipMarkup(html, Boolean(await currentSession()));
+    html = membershipMarkup(
+      html,
+      (await currentSession()) ? "explorer" : "public",
+      typeof (await searchParams).return_to === "string"
+        ? ((await searchParams).return_to as string)
+        : undefined,
+    );
   if (key === "contact") html = contactMarkup(html);
   if (backendConfigured() && ["area", "place_category"].includes(path[0])) {
     const places = await findPlaces({

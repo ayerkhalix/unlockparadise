@@ -17,9 +17,13 @@ const money = (amount: number, currency = "PHP") =>
 export function MembershipPlanPicker({
   plans,
   approved,
+  returnTo,
+  ownerId,
 }: {
   plans: Plan[];
   approved: boolean;
+  returnTo?: string;
+  ownerId?: string;
 }) {
   const [selected, setSelected] = useState(plans[0]?.id || "");
   const plan = plans.find((p) => p.id === selected);
@@ -29,6 +33,8 @@ export function MembershipPlanPicker({
       action="/api/payments/checkout/"
       method="post"
       data-endpoint="/api/payments/checkout/"
+      data-return-target={returnTo}
+      data-return-owner={ownerId}
     >
       <fieldset className="p3-membership-plans">
         <legend>Choose your membership</legend>

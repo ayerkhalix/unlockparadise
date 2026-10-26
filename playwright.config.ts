@@ -25,6 +25,7 @@ export default defineConfig({
         "**/ux-polish-next.spec.ts",
         "**/planner-refinement.spec.ts",
         "**/safari-time.spec.ts",
+        "**/client-plan-oct26.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

@@ -223,7 +223,7 @@ export function SiteHeader(props: Props) {
           }
           onClose={() => setOpen(false)}
           drawer
-          side="left"
+          side="right"
         >
           <nav className="p2-mobile-nav" aria-label="Mobile">
             {nav}

@@ -1,5 +1,8 @@
 import "server-only";
-export function membershipMarkup(html: string, signedIn: boolean) {
+import { upgradeHref } from "../membership-navigation";
+import type { Tier } from "../destinations";
+export function membershipMarkup(html: string, tier: Tier, returnTo?: string) {
+  const signedIn = tier !== "public";
   html = html
     .replace(/<span class="upd-plans__note">Save[^<]*<\/span>/g, "")
     .replace(/, save \d+%/g, "")
@@ -33,7 +36,7 @@ export function membershipMarkup(html: string, signedIn: boolean) {
   );
   const checkout = html.replaceAll(
     'href="/join/?redirect_to=/checkout/"',
-    'href="/checkout/"',
+    `href="${tier === "public" ? "/checkout/" : upgradeHref(tier, returnTo)}"`,
   );
   if (!signedIn) return checkout;
   return checkout

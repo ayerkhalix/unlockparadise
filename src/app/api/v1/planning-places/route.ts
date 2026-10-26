@@ -47,11 +47,29 @@ export async function GET(request: Request) {
       mapMetadata(db),
     ]);
     databaseError(result.error);
+    const rows = Array.isArray(result.data) ? [...result.data] : [];
+    let pageSize = rows.length;
+    let offset = rows.length;
+    while (pageSize === 500) {
+      const next = await db
+        .rpc("find_places", {
+          area_slug: areaSlug,
+          category_slug: url.searchParams.get("category") || null,
+          search_text: search || null,
+          featured_only: false,
+          max_results: 500,
+          page_offset: offset,
+        })
+        .select(planningPlaceSelect);
+      databaseError(next.error);
+      const page = Array.isArray(next.data) ? next.data : [];
+      rows.push(...page);
+      pageSize = page.length;
+      offset += page.length;
+    }
     return json({
       map,
-      data: (Array.isArray(result.data) ? result.data : [])
-        .map(planningPlace)
-        .filter(Boolean),
+      data: rows.map(planningPlace).filter(Boolean),
     });
   });
 }

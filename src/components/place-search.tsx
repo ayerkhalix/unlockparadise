@@ -2,7 +2,7 @@
 import { ContentImage } from "@/components/ui/content-image";
 
 import { SearchInput } from "./ui/search-input";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Icon } from "./icon";
 import type { TravelPlace } from "@/lib/planning";
 import type { PlanningCatalog } from "./use-planning-catalog";
@@ -23,6 +23,7 @@ export function PlaceSearch({
   filters: { search },
   onFiltersChange,
   onExploreMap,
+  dayPicker,
 }: {
   day: string;
   onAdd: (place: TravelPlace) => Promise<boolean>;
@@ -33,16 +34,14 @@ export function PlaceSearch({
   filters: PlaceSearchFilters;
   onFiltersChange: (values: Partial<PlaceSearchFilters>) => void;
   onExploreMap: () => void;
+  dayPicker?: React.ReactNode;
 }) {
-  const section = useRef<HTMLElement>(null);
   const bucketlist = useSavedPlaces(true);
   const saved = new Set(
     bucketlist.rows.filter((row) => row.saved_at).map((row) => row.place_id),
   );
   const { loading } = catalog;
   const [error, setError] = useState("");
-  const [limit, setLimit] = useState(6);
-  const [expanded, setExpanded] = useState(false);
   const add = async (p: TravelPlace) => {
     setError("");
     try {
@@ -56,55 +55,38 @@ export function PlaceSearch({
   };
   return (
     <section
-      ref={section}
       className="p2-destination-finder"
       aria-label="Find destinations"
       id="find-destinations"
     >
       <h3>Add destination</h3>
+      {dayPicker}
       <div className="p2-destination-choices">
+        <label className="planner-inline-search">
+          <span className="p2-sr-only">Search destinations</span>
+          <Icon name="Search" size={20} />
+          <SearchInput
+            label="Search destinations"
+            value={search}
+            onValueChange={(value) => onFiltersChange({ search: value })}
+            placeholder="Search destination"
+          />
+        </label>
         <button
-          id="planner-search-destination"
+          disabled={busy}
           className="p2-button p2-button--quiet"
-          aria-expanded={expanded}
-          aria-controls="planner-destination-search"
-          onClick={() => {
-            setExpanded((value) => !value);
-            if (!expanded)
-              requestAnimationFrame(() =>
-                section.current
-                  ?.querySelector<HTMLInputElement>('input[type="search"]')
-                  ?.focus(),
-              );
-          }}
+          onClick={onExploreMap}
         >
-          <Icon name="Search" size={23} />
-          Search destination
-        </button>
-        <button className="p2-button p2-button--quiet" onClick={onExploreMap}>
           <Icon name="Explore" size={23} />
           Explore options
         </button>
       </div>
       <fieldset
         id="planner-destination-search"
-        hidden={!expanded}
         disabled={busy}
         className="p2-fieldset p2-form"
         aria-busy={busy}
       >
-        <label>
-          Search destinations
-          <SearchInput
-            label="Search destinations"
-            value={search}
-            onValueChange={(value) => {
-              onFiltersChange({ search: value });
-              setLimit(6);
-            }}
-            placeholder="Search by destination name"
-          />
-        </label>
         {loading ? (
           <p role="status">Loading destinations…</p>
         ) : (
@@ -140,7 +122,6 @@ export function PlaceSearch({
                   className="p2-button p2-button--quiet"
                   onClick={() => {
                     onFiltersChange({ search: "" });
-                    setLimit(6);
                   }}
                 >
                   Clear search
@@ -167,7 +148,7 @@ export function PlaceSearch({
                   ]?.focus();
                 }}
               >
-                {filtered.slice(0, limit).map((p) => {
+                {filtered.map((p) => {
                   const added = addedPlaceIds.includes(p.id);
                   return (
                     <li key={p.id}>
@@ -208,15 +189,6 @@ export function PlaceSearch({
                   );
                 })}
               </ul>
-            )}
-            {filtered.length > limit && (
-              <button
-                type="button"
-                className="p2-button p2-button--quiet"
-                onClick={() => setLimit(limit + 12)}
-              >
-                Show more destinations
-              </button>
             )}
           </>
         )}

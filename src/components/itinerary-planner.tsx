@@ -26,7 +26,7 @@ import { PalawanMap } from "./palawan-map";
 import { usePlanningCatalog } from "./use-planning-catalog";
 import { StopTimeFields } from "./stop-time-fields";
 import {
-  DaySchedule,
+  TripSchedule,
   PrintableItinerary,
   downloadItinerary,
 } from "./itinerary-schedule";
@@ -257,18 +257,19 @@ export function ItineraryPlanner({
     return () => window.removeEventListener("upd:itinerary-saved", updated);
   }, [initial.id, onUpdated]);
   const changeDay = async (id: string) => {
-    if (id === day.id) return;
+    if (id === day.id) return true;
     if (
       dirtyNotes.current.size &&
       !(await ask("Discard unsaved stop notes or times before switching days?"))
     )
-      return;
+      return false;
     dirtyNotes.current.clear();
     reportDirty(false);
     const url = new URL(location.href);
     url.searchParams.set("trip", trip.id);
     url.searchParams.set("day", id);
     history.replaceState(null, "", url);
+    return true;
   };
   async function mutate(action: string, payload: unknown, quiet = false) {
     if (mutationLock.current) {
@@ -286,6 +287,19 @@ export function ItineraryPlanner({
         "PATCH",
         { version: tripRef.current.version, action, payload },
       );
+      if (
+        action === "delete_day" &&
+        !result.data.itinerary_days.some((d) => d.id === day.id)
+      ) {
+        const oldIndex = trip.itinerary_days.findIndex((d) => d.id === day.id);
+        const nextDay =
+          result.data.itinerary_days[
+            Math.min(oldIndex, result.data.itinerary_days.length - 1)
+          ];
+        const url = new URL(location.href);
+        url.searchParams.set("day", nextDay.id);
+        history.replaceState(null, "", url);
+      }
       tripRef.current = result.data;
       setTrip(result.data);
       onUpdated(result.data);
@@ -303,7 +317,9 @@ export function ItineraryPlanner({
         notify(
           action === "add"
             ? "Place added to your itinerary."
-            : "Itinerary saved.",
+            : action === "delete_day"
+              ? "Day deleted. Your remaining days and dates are updated."
+              : "Itinerary saved.",
         );
       return true;
     } catch (e) {
@@ -403,6 +419,51 @@ export function ItineraryPlanner({
     }
     return saved;
   };
+  const deleteDay = async (id: string) => {
+    if (busy || dirtyNotes.current.size || trip.itinerary_days.length <= 1)
+      return;
+    const target = trip.itinerary_days.find((d) => d.id === id);
+    if (!target) return;
+    const count = trip.items.filter((item) => item.day_id === id).length;
+    const newEnd = trip.start_date
+      ? new Date(
+          Date.parse(trip.start_date + "T00:00:00Z") +
+            (trip.itinerary_days.length - 2) * 86400000,
+        )
+          .toISOString()
+          .slice(0, 10)
+      : null;
+    if (
+      !(await ask(
+        `Delete ${dayLabel(target, trip.start_date)} and its ${count} ${count === 1 ? "stop" : "stops"}? Saved notes and visit times for this day will be removed. Later days shift earlier. ${newEnd ? `Your trip will run ${tripDateLabel(trip.start_date, newEnd)}.` : `Your trip will have ${trip.itinerary_days.length - 1} days.`}`,
+      ))
+    )
+      return;
+    await mutate("delete_day", { day_id: id });
+  };
+  const deleteTrip = async () => {
+    if (
+      mutationLock.current ||
+      !(await ask(
+        `Delete “${trip.title}” and all of its days, stops, notes and visit times?`,
+      ))
+    )
+      return;
+    mutationLock.current = true;
+    setBusy(true);
+    try {
+      await requestJSON(`/api/v1/itineraries/${trip.id}/`, "DELETE", {
+        version: tripRef.current.version,
+      });
+      onDeleted();
+    } catch (e) {
+      setError((e as Error).message);
+      notify((e as Error).message, true);
+    } finally {
+      mutationLock.current = false;
+      setBusy(false);
+    }
+  };
   const exportReady = () => {
     if (dirtyNotes.current.size) {
       notify(
@@ -469,46 +530,6 @@ export function ItineraryPlanner({
           >
             Edit trip
           </button>
-          <details
-            className="p2-trip-options"
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                event.currentTarget.open = false;
-                event.currentTarget.querySelector("summary")?.focus();
-              }
-            }}
-          >
-            <summary>
-              Trip options <Icon name="Menu" size={16} />
-            </summary>
-            <div>
-              <button
-                type="button"
-                className="p2-trip-delete"
-                disabled={busy}
-                onClick={async () => {
-                  if (!(await ask(`Delete “${trip.title}” and its stops?`)))
-                    return;
-                  setBusy(true);
-                  try {
-                    await requestJSON(
-                      `/api/v1/itineraries/${trip.id}/`,
-                      "DELETE",
-                      {
-                        version: trip.version,
-                      },
-                    );
-                    onDeleted();
-                  } catch (e) {
-                    setError((e as Error).message);
-                    setBusy(false);
-                  }
-                }}
-              >
-                Delete trip
-              </button>
-            </div>
-          </details>
         </div>
       </header>
       {error && (
@@ -550,39 +571,6 @@ export function ItineraryPlanner({
           </button>
         </div>
       )}
-      <nav className="p2-day-tabs" aria-label="Itinerary days">
-        {trip.itinerary_days.map((d) => (
-          <button
-            key={d.id}
-            className={`p2-button p2-button--quiet${day.id === d.id ? " p3-day-selected" : ""}`}
-            aria-pressed={day.id === d.id}
-            aria-current={day.id === d.id ? "date" : undefined}
-            disabled={busy}
-            onClick={() => changeDay(d.id)}
-          >
-            {dayLabel(d, trip.start_date)}
-            <small>
-              {day.id === d.id && (
-                <span className="p3-day-current-label">Selected · </span>
-              )}
-              {trip.items.filter((i) => i.day_id === d.id).length}{" "}
-              {trip.items.filter((i) => i.day_id === d.id).length === 1
-                ? "stop"
-                : "stops"}
-            </small>
-          </button>
-        ))}
-        <button
-          className="p2-button p2-button--quiet"
-          disabled={busy || trip.itinerary_days.length >= 60}
-          onClick={() => void mutate("add_day", {})}
-        >
-          + Add day
-        </button>
-      </nav>
-      <h2 className="p2-planner-day-heading">
-        {dayLabel(day, trip.start_date)}
-      </h2>
       <div className="p2-view-tabs" role="group" aria-label="Planner view">
         <button
           className="p2-button p2-button--quiet"
@@ -608,6 +596,70 @@ export function ItineraryPlanner({
           My route
         </button>
       </div>
+      <nav
+        hidden={view === "schedule"}
+        className="p2-day-tabs"
+        aria-label="Itinerary days"
+      >
+        {trip.itinerary_days.map((d) => (
+          <div className="planner-day-tab" key={d.id}>
+            <button
+              className={`p2-button p2-button--quiet${day.id === d.id ? " p3-day-selected" : ""}`}
+              aria-pressed={day.id === d.id}
+              aria-current={day.id === d.id ? "date" : undefined}
+              disabled={busy}
+              onClick={() => changeDay(d.id)}
+            >
+              {dayLabel(d, trip.start_date)}
+              <small>
+                {day.id === d.id && (
+                  <span className="p3-day-current-label">Selected · </span>
+                )}
+                {trip.items.filter((i) => i.day_id === d.id).length}{" "}
+                {trip.items.filter((i) => i.day_id === d.id).length === 1
+                  ? "stop"
+                  : "stops"}
+              </small>
+            </button>
+            <button
+              type="button"
+              className="planner-delete-day"
+              aria-label={`Delete ${dayLabel(d, trip.start_date)}`}
+              data-tooltip={
+                hasDrafts
+                  ? "Save your notes and times first"
+                  : trip.itinerary_days.length === 1
+                    ? "Keep at least one day"
+                    : `Delete ${dayLabel(d, trip.start_date)}`
+              }
+              disabled={busy || hasDrafts || trip.itinerary_days.length === 1}
+              onClick={() => void deleteDay(d.id)}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                aria-hidden="true"
+              >
+                <path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7" />
+              </svg>
+            </button>
+          </div>
+        ))}
+        <button
+          className="p2-button p2-button--quiet"
+          disabled={busy || trip.itinerary_days.length >= 60}
+          onClick={() => void mutate("add_day", {})}
+        >
+          + Add day
+        </button>
+      </nav>
+      <h2 hidden={view === "schedule"} className="p2-planner-day-heading">
+        {dayLabel(day, trip.start_date)}
+      </h2>
       <div className={`p2-planner p2-planner--${view} p2-planner--focused`}>
         <section
           hidden={view !== "plan"}
@@ -741,15 +793,18 @@ export function ItineraryPlanner({
           hidden={view !== "schedule"}
           className="planner-schedule-panel"
         >
-          <DaySchedule
-            stops={stops}
-            onStop={(id) => {
+          <TripSchedule
+            trip={trip}
+            onStop={async (targetDay, id) => {
+              if (!(await changeDay(targetDay.id))) return;
               setView("plan");
-              requestAnimationFrame(() => {
-                const el = document.getElementById(`stop-${id}`);
-                el?.scrollIntoView({ block: "center" });
-                el?.focus({ preventScroll: true });
-              });
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => {
+                  const el = document.getElementById(`stop-${id}`);
+                  el?.scrollIntoView({ block: "center" });
+                  el?.focus({ preventScroll: true });
+                }),
+              );
             }}
           />
         </section>
@@ -791,6 +846,24 @@ export function ItineraryPlanner({
         </div>
       ) : (
         <PlaceSearch
+          dayPicker={
+            view === "schedule" ? (
+              <label className="planner-search-day">
+                Add destinations to
+                <select
+                  value={day.id}
+                  disabled={busy}
+                  onChange={(event) => void changeDay(event.target.value)}
+                >
+                  {trip.itinerary_days.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {dayLabel(d, trip.start_date)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : undefined
+          }
           catalog={catalog}
           filtered={filteredPlaces}
           filters={filters}
@@ -867,9 +940,15 @@ export function ItineraryPlanner({
         </Modal>
       )}
       {edit && (
-        <Modal title="Edit trip details" onClose={() => setEdit(false)}>
+        <Modal
+          title="Edit trip details"
+          onClose={() => {
+            if (!busy) setEdit(false);
+          }}
+        >
           <TripForm
             trip={trip}
+            onDelete={deleteTrip}
             onSaved={(t) => {
               tripRef.current = t;
               failedMutation.current = null;

@@ -2,6 +2,7 @@ import { fragment } from "@/lib/content";
 import { membershipMarkup } from "@/lib/auth/markup";
 import { OriginalMarkup } from "./original-markup";
 import type { Tier } from "@/lib/destinations";
+import { upgradeHref } from "@/lib/membership-navigation";
 
 /** Keep destination hooks on the existing membership comparison and its feature truth. */
 export function MembershipComparison({
@@ -12,14 +13,11 @@ export function MembershipComparison({
   returnTo: string;
 }) {
   let html =
-    membershipMarkup(fragment("membership") || "", tier !== "public").match(
+    membershipMarkup(fragment("membership") || "", tier, returnTo).match(
       /<section class="upd-membership__plans">[\s\S]*?<\/section>/,
     )?.[0] || "";
   html = html
-    .replace(
-      'href="/checkout/"',
-      `href="/membership/?return_to=${encodeURIComponent(returnTo)}"`,
-    )
+    .replace('href="/checkout/"', `href="${upgradeHref(tier, returnTo)}"`)
     .replace(
       'href="/join/?redirect_to=/membership/"',
       `href="/join/?redirect_to=${encodeURIComponent(returnTo)}"`,

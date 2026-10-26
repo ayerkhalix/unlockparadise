@@ -35,3 +35,6 @@ The Current contract above supersedes historical Final itinerary/Daily timeline/
 ## Safari time control — 26 October 2026
 
 Use the shared StopTimeFields native Hour/Minute/AM-PM selectors in every add/edit entry point. Keep complete HH:mm state, optional flexible visits, all minutes and same-day range validation. Match the current navy/teal fields, 16px text, visible focus, 44px controls and responsive grouping. Regression coverage is tests/safari-time.spec.ts in Chromium and the opt-in playwright.webkit.config.ts. WebKit on Windows verifies the engine; it does not constitute a physical Mac Safari test.
+
+
+26 October client plan: operate within the existing notebook/map identity. One persistent inline name search, whole-trip Schedule with saved Notes disclosures, reference exploration controls and confirmed atomic day deletion supersede the previous selected-day/toggle/disclosure composition. Preserve Safari native time selectors, slot-based reorder, retries, drafts and ownership. See CLIENT_PLAN_2026_10_26.md and UX-CONTRACT.md.

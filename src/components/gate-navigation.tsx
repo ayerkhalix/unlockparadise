@@ -2,6 +2,8 @@
 import { useEffect } from "react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { safeBrowseReturn } from "@/lib/browsing-return";
+import { upgradeHref } from "@/lib/membership-navigation";
+import type { Tier } from "@/lib/destinations";
 
 const key = "upd:last-browsing-page";
 function browsingTarget(value: string, referrer = false) {
@@ -220,13 +222,23 @@ export function GateBack() {
     </button>
   );
 }
-export function GateUpgrade() {
+export function GateUpgrade({ tier }: { tier: Tier }) {
   const path = usePathname();
   const query = useSearchParams();
   return (
     <a
       className="upd-btn upd-btn--vip"
-      href={`/membership/?return_to=${encodeURIComponent(path + (query.size ? `?${query}` : ""))}`}
+      href={upgradeHref(
+        tier,
+        query.get("return_to") ||
+          (path === "/explorer-plus/"
+            ? {
+                bucketlist: "/bucketlist/",
+                portfolio: "/portfolio/",
+                itinerary: "/itineraries/",
+              }[query.get("feature") || ""] || "/account/"
+            : path + (query.size ? `?${query}` : "")),
+      )}
     >
       Upgrade to Explorer+
     </a>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { validateFields } from "@/lib/form-validation";
+import { membershipReturnTarget } from "@/lib/membership-navigation";
 export function BackendForms() {
   useEffect(() => {
     const submit = async (event: SubmitEvent) => {
@@ -42,6 +43,24 @@ export function BackendForms() {
           return;
         }
         if (result.checkout_url) {
+          if (
+            form.dataset.endpoint === "/api/payments/checkout/" &&
+            typeof result.transaction_id === "string" &&
+            /^[a-f0-9-]{36}$/i.test(result.transaction_id)
+          ) {
+            try {
+              sessionStorage.setItem(
+                `upd:payment-return:${result.transaction_id}`,
+                JSON.stringify({
+                  target: membershipReturnTarget(form.dataset.returnTarget),
+                  owner: form.dataset.returnOwner,
+                  expires: Date.now() + 3600000,
+                }),
+              );
+            } catch {
+              /* Payment still returns to the account. */
+            }
+          }
           location.assign(result.checkout_url);
           return;
         }
