@@ -196,6 +196,14 @@ test("whole-trip schedule, persistent search, Safari time editing and confirmed 
   });
   await page.locator(".planner-day-tab").nth(1).hover();
   await expect(deleteDay).toHaveCSS("opacity", "1");
+  await expect(
+    page.locator(".planner-day-tab").nth(1).locator("button").first(),
+  ).toHaveCSS(
+    "padding-right",
+    await page.evaluate(() =>
+      matchMedia("(hover: none)").matches ? "48px" : "38px",
+    ),
+  );
   await deleteDay.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toContainText("1 stop");

@@ -1602,7 +1602,7 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
   position: relative;
   flex-shrink: 0;
 }
-.planner-day-tab > button:first-child {
+body .p2-workspace .p2-day-tabs .planner-day-tab > button:first-child {
   padding-right: 38px;
 }
 body .p2-workspace .p2-day-tabs .planner-delete-day {
@@ -1797,7 +1797,7 @@ body .p2-workspace .p2-day-tabs .planner-day-tab .planner-delete-day:disabled {
     min-height: 44px;
     height: 44px;
   }
-  .planner-day-tab > button:first-child {
+  body .p2-workspace .p2-day-tabs .planner-day-tab > button:first-child {
     padding-right: 48px;
   }
 }
