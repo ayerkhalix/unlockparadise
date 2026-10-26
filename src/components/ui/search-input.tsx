@@ -6,12 +6,14 @@ export function SearchInput({
   label,
   placeholder,
   preventSubmit = false,
+  disabled = false,
 }: {
   value: string;
   onValueChange: (value: string) => void;
   label: string;
   placeholder?: string;
   preventSubmit?: boolean;
+  disabled?: boolean;
 }) {
   const ref = useRef<HTMLInputElement>(null);
   const composing = useRef(false);
@@ -25,6 +27,7 @@ export function SearchInput({
       <input
         ref={ref}
         type="search"
+        disabled={disabled}
         defaultValue={value}
         aria-label={label}
         placeholder={placeholder}
@@ -48,6 +51,7 @@ export function SearchInput({
       {(value || (isComposing && hasValue)) && (
         <button
           type="button"
+          disabled={disabled}
           className="p2-search-clear"
           aria-label={`Clear ${label.toLowerCase()}`}
           onClick={() => {

@@ -9,17 +9,21 @@ export function TripForm({
   onSaved,
   onCancel,
   onDelete,
+  initialAreaId = "",
+  createLabel = "Create trip",
 }: {
   trip?: Trip;
   onSaved: (trip: Trip) => void;
   onCancel?: () => void;
   onDelete?: () => Promise<void>;
+  initialAreaId?: string;
+  createLabel?: string;
 }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const [start, setStart] = useState(trip?.start_date || ""),
     [end, setEnd] = useState(trip?.end_date || "");
-  const [area, setArea] = useState(trip?.area_id || "");
+  const [area, setArea] = useState(trip?.area_id || initialAreaId);
   const [areas, setAreas] = useState<{ id: string; name: string }[]>([]);
   const [loadingAreas, setLoadingAreas] = useState(true),
     [areaError, setAreaError] = useState(""),
@@ -95,6 +99,7 @@ export function TripForm({
         Trip area
         <select
           name="area_id"
+          aria-label="Trip area"
           required
           value={area}
           disabled={busy || loadingAreas || !!areaError}
@@ -181,7 +186,7 @@ export function TripForm({
           className="p2-button"
           disabled={busy || loadingAreas || !!areaError}
         >
-          {busy ? "Saving…" : trip ? "Save trip details" : "Create trip"}
+          {busy ? "Saving…" : trip ? "Save trip details" : createLabel}
         </button>
         {onCancel && (
           <button

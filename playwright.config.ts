@@ -26,6 +26,7 @@ export default defineConfig({
         "**/planner-refinement.spec.ts",
         "**/safari-time.spec.ts",
         "**/client-plan-oct26.spec.ts",
+        "**/itinerary-library.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

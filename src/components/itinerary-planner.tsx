@@ -1,7 +1,14 @@
 "use client";
 import { captureInterest } from "@/lib/analytics-client";
+import { safeLibraryReturn } from "@/lib/itinerary-library";
 import { ValidatedForm } from "./ui/validated-form";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   dayLabel,
@@ -100,6 +107,9 @@ function StopTiming({
     </details>
   );
 }
+const subscribeReady = () => () => {};
+const clientReady = () => true;
+const serverReady = () => false;
 function StopNotes({
   item,
   onSave,
@@ -110,6 +120,7 @@ function StopNotes({
   onDirtyChange: (dirty: boolean) => void;
 }) {
   const [notes, setNotes] = useState(item.notes);
+  const ready = useSyncExternalStore(subscribeReady, clientReady, serverReady);
   const saved = item.notes;
   const dirty = notes !== saved;
   useEffect(() => {
@@ -132,6 +143,7 @@ function StopNotes({
         <textarea
           id={`stop-notes-${item.id}`}
           className="resize-none"
+          disabled={!ready}
           maxLength={2000}
           rows={2}
           placeholder="What would you like to remember?"
@@ -159,7 +171,7 @@ export function ItineraryPlanner({
   onBusyChange,
 }: {
   initial: Trip;
-  onUpdated: (trip: Trip) => void;
+  onUpdated?: (trip: Trip) => void;
   onDeleted: () => void;
   onDirtyChange: (dirty: boolean) => void;
   onBusyChange: (busy: boolean) => void;
@@ -250,7 +262,7 @@ export function ItineraryPlanner({
       if (next?.id === initial.id) {
         tripRef.current = next;
         setTrip(next);
-        onUpdated(next);
+        onUpdated?.(next);
       }
     };
     window.addEventListener("upd:itinerary-saved", updated);
@@ -302,7 +314,7 @@ export function ItineraryPlanner({
       }
       tripRef.current = result.data;
       setTrip(result.data);
-      onUpdated(result.data);
+      onUpdated?.(result.data);
       window.dispatchEvent(
         new CustomEvent("upd:itinerary-saved", { detail: result.data }),
       );
@@ -352,7 +364,10 @@ export function ItineraryPlanner({
       return;
     dirtyNotes.current.clear();
     reportDirty(false);
-    router.push(`/itineraries/explore/?trip=${trip.id}&day=${day.id}`);
+    const query = new URLSearchParams({ trip: trip.id, day: day.id });
+    const library = safeLibraryReturn(searchParams.get("return_to"));
+    if (library) query.set("return_to", library);
+    router.push(`/itineraries/explore/?${query}`);
   };
   const reorder = async (from: number, to: number) => {
     if (from < 0 || to < 0 || to >= stops.length || from === to) return false;
@@ -560,7 +575,7 @@ export function ItineraryPlanner({
                 failedMutation.current = null;
                 setSaveState("saved");
                 setRequiresReload(false);
-                onUpdated(r.data);
+                onUpdated?.(r.data);
                 setError("");
               } catch (e) {
                 setError((e as Error).message);
@@ -955,7 +970,7 @@ export function ItineraryPlanner({
               setSaveState("saved");
               setError("");
               setTrip(t);
-              onUpdated(t);
+              onUpdated?.(t);
               setEdit(false);
               notify("Trip details saved.");
             }}

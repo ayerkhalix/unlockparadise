@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { safeLibraryReturn } from "./itinerary-library";
 import type { AccessPoint } from "./access-points";
 
 export function tripDuration(start: string, end: string) {
@@ -159,10 +160,16 @@ export type Trip = {
 };
 export type SavedPlace = TravelPlace & { saved_at: string; visited: boolean };
 
-export function plannerHref(tripId?: string, dayId?: string) {
+export function plannerHref(
+  tripId?: string,
+  dayId?: string,
+  libraryReturn?: string | null,
+) {
   const query = new URLSearchParams();
   if (tripId) query.set("trip", tripId);
   if (dayId) query.set("day", dayId);
+  const target = safeLibraryReturn(libraryReturn);
+  if (target) query.set("return_to", target);
   return `/itineraries/${query.size ? `?${query}` : ""}`;
 }
 

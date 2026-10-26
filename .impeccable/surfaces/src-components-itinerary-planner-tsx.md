@@ -2,7 +2,7 @@
 version: 1
 slug: "src-components-itinerary-planner-tsx"
 primary_target: "src/components/itinerary-planner.tsx"
-related_targets: ["src/components/planner-stop-actions.tsx", "src/components/place-search.tsx", "src/components/planner-browser.tsx", "src/app/itineraries/explore/page.tsx", "src/app/phase2.css", "src/app/client-todo.css", "src/components/itinerary-schedule.tsx"]
+related_targets: ["src/components/planner-stop-actions.tsx", "src/components/place-search.tsx", "src/components/planner-browser.tsx", "src/app/itineraries/explore/page.tsx", "src/app/phase2.css", "src/app/client-todo.css", "src/components/itinerary-schedule.tsx", "src/components/itinerary-library.tsx", "src/components/itineraries.tsx"]
 ---
 
 # Client itinerary refinement
@@ -38,3 +38,7 @@ Use the shared StopTimeFields native Hour/Minute/AM-PM selectors in every add/ed
 
 
 26 October client plan: operate within the existing notebook/map identity. One persistent inline name search, whole-trip Schedule with saved Notes disclosures, reference exploration controls and confirmed atomic day deletion supersede the previous selected-day/toggle/disclosure composition. Preserve Safari native time selectors, slot-based reorder, retries, drafts and ownership. See CLIENT_PLAN_2026_10_26.md and UX-CONTRACT.md.
+
+## Itinerary library — 27 October 2026
+
+The approved library is the generic planner entry point. Related owners: src/components/itinerary-library.tsx, src/components/itineraries.tsx, src/lib/itinerary-library.ts, src/lib/repositories/itinerary-library.ts and the namespaced library rules in client-todo.css. Reuse the white Places card anatomy and existing public type, palette and native form primitives. Show actual trip identity, area, dates, day/destination counts and proportional cover images. Search/area/sort/page are URL-owned; loading, no trips, no matches and failed loading are separate states. The selected owned trip keeps its existing editor and direct link. My itineraries uses the existing discard decision and shared source-card restoration; Explore options propagates the safe library target. Duplicate/pinned trips remain later work. Evidence is recorded in ITINERARY_LIBRARY_DELIVERY.md.

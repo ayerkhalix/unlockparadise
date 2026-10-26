@@ -20,6 +20,7 @@ import {
 import { notify, requestJSON } from "@/lib/client-api";
 import { captureInterest } from "@/lib/analytics-client";
 import { overlappingStops } from "@/lib/itinerary-schedule";
+import { safeLibraryReturn } from "@/lib/itinerary-library";
 export function PlannerBrowser({
   initial,
   dayId,
@@ -35,6 +36,7 @@ export function PlannerBrowser({
     trip.itinerary_days[0];
   const catalog = usePlanningCatalog(trip.id, trip.area_id);
   const params = useSearchParams();
+  const libraryReturn = safeLibraryReturn(params.get("return_to"));
   const area = trip.areas?.name || "";
   const access = (params.get("access") || "").split("|").filter(Boolean);
   const vip = params.get("vip") === "1";
@@ -142,7 +144,10 @@ export function PlannerBrowser({
     <div className="planner-browser">
       <div className="planner-browser-bar">
         <div>
-          <a className="p2-back" href={plannerHref(trip.id, day.id)}>
+          <a
+            className="p2-back"
+            href={plannerHref(trip.id, day.id, libraryReturn)}
+          >
             Back to {trip.title}
           </a>
           <p>
@@ -168,7 +173,10 @@ export function PlannerBrowser({
             </select>
           </label>
         </div>
-        <a className="p2-button" href={plannerHref(trip.id, day.id)}>
+        <a
+          className="p2-button"
+          href={plannerHref(trip.id, day.id, libraryReturn)}
+        >
           View itinerary
         </a>
       </div>
@@ -395,13 +403,13 @@ export function PlannerBrowser({
       <div className="planner-browser-return">
         <a
           className="p2-button p2-button--quiet"
-          href={`${plannerHref(trip.id, day.id)}&view=map`}
+          href={`${plannerHref(trip.id, day.id, libraryReturn)}&view=map`}
         >
           My route <Icon name="Explore" size={18} />
         </a>
         <a
           className="p2-back"
-          href={`${plannerHref(trip.id, day.id)}&view=schedule`}
+          href={`${plannerHref(trip.id, day.id, libraryReturn)}&view=schedule`}
         >
           View schedule
         </a>

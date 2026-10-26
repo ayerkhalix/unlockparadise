@@ -57,9 +57,13 @@ export function BrowsingTrail() {
       if (!link || event.defaultPrevented) return;
       const url = new URL(link.href, location.origin);
       const current = safeBrowseReturn(source());
+      const itineraryCard =
+        link.hasAttribute("data-itinerary-card") &&
+        url.pathname === "/itineraries/" &&
+        url.searchParams.has("trip");
       if (
         url.origin !== location.origin ||
-        !url.pathname.startsWith("/place/") ||
+        (!url.pathname.startsWith("/place/") && !itineraryCard) ||
         !current
       )
         return;
@@ -68,15 +72,17 @@ export function BrowsingTrail() {
           storageKey(current),
           JSON.stringify({
             y: window.scrollY,
-            href: url.pathname,
+            href: itineraryCard ? url.pathname + url.search : url.pathname,
             top: link.getBoundingClientRect().top,
-            anchor: link.classList.contains("upd-card__link")
-              ? "card"
-              : link.closest("[data-upd-strip]")
-                ? "photo"
-                : link.closest("h1,h2,h3")
-                  ? "heading"
-                  : "other",
+            anchor: itineraryCard
+              ? "itinerary"
+              : link.classList.contains("upd-card__link")
+                ? "card"
+                : link.closest("[data-upd-strip]")
+                  ? "photo"
+                  : link.closest("h1,h2,h3")
+                    ? "heading"
+                    : "other",
           }),
         );
         sessionStorage.setItem("upd:last-browsing-page", current);
@@ -136,18 +142,25 @@ export function BrowsingTrail() {
       const attempt = () => {
         if (cancelled || performance.now() - started > 12000) return;
         const selector =
-          saved!.anchor === "card"
-            ? "main a.upd-card__link[href]"
-            : saved!.anchor === "photo"
-              ? "main [data-upd-strip] a[href]"
-              : saved!.anchor === "heading"
-                ? "main h1 a[href],main h2 a[href],main h3 a[href]"
-                : "main a[href]";
+          saved!.anchor === "itinerary"
+            ? "main a[data-itinerary-card]"
+            : saved!.anchor === "card"
+              ? "main a.upd-card__link[href]"
+              : saved!.anchor === "photo"
+                ? "main [data-upd-strip] a[href]"
+                : saved!.anchor === "heading"
+                  ? "main h1 a[href],main h2 a[href],main h3 a[href]"
+                  : "main a[href]";
         const link = Array.from(
           document.querySelectorAll<HTMLAnchorElement>(selector),
-        ).find(
-          (a) => new URL(a.href, location.origin).pathname === saved!.href,
-        );
+        ).find((a) => {
+          const target = new URL(a.href, location.origin);
+          return (
+            (saved!.anchor === "itinerary"
+              ? target.pathname + target.search
+              : target.pathname) === saved!.href
+          );
+        });
         const archiveGrid = document.querySelector<HTMLElement>(".upd-toolbar")
           ? document.querySelector<HTMLElement>(".upd-grid")
           : null;
@@ -160,6 +173,8 @@ export function BrowsingTrail() {
           window.scrollTo({ top: target, behavior: "instant" });
           stable++;
           if (stable >= 4) {
+            if (saved!.anchor === "itinerary")
+              link.focus({ preventScroll: true });
             try {
               sessionStorage.removeItem("upd:restore-browse");
             } catch {}
