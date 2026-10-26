@@ -1619,14 +1619,29 @@ body .p2-workspace .p2-day-tabs .planner-delete-day {
   color: inherit;
   opacity: 0;
 }
-.planner-day-tab:is(:hover, :focus-within) .planner-delete-day {
+body
+  .p2-workspace
+  .p2-day-tabs
+  .planner-day-tab:is(:hover, :focus-within)
+  .planner-delete-day:not(:disabled) {
   opacity: 1;
 }
-.planner-day-tab .planner-delete-day:not(:disabled):hover {
+body
+  .p2-workspace
+  .p2-day-tabs
+  .planner-day-tab:has(.p3-day-selected)
+  .planner-delete-day {
+  color: var(--p2-on-teal);
+}
+body
+  .p2-workspace
+  .p2-day-tabs
+  .planner-day-tab
+  .planner-delete-day:not(:disabled):hover {
   background: var(--p2-navy);
   color: var(--p2-text);
 }
-.planner-day-tab .planner-delete-day:disabled {
+body .p2-workspace .p2-day-tabs .planner-day-tab .planner-delete-day:disabled {
   opacity: 0.35;
 }
 .planner-edit-danger {

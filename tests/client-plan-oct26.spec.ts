@@ -190,23 +190,22 @@ test("whole-trip schedule, persistent search, Safari time editing and confirmed 
   await setVisitTime(form, "End", "14:50");
   await form.getByRole("button", { name: "Save time", exact: true }).click();
   await expect(page.locator(".p2-save-feedback")).toHaveText("Saved");
-  await page
-    .getByRole("button", {
-      name: `Delete ${dayLabel(originalDays[1], f.trip.start_date)}`,
-      exact: true,
-    })
-    .click({ force: true });
+  const deleteDay = page.getByRole("button", {
+    name: `Delete ${dayLabel(originalDays[1], f.trip.start_date)}`,
+    exact: true,
+  });
+  await page.locator(".planner-day-tab").nth(1).hover();
+  await expect(deleteDay).toHaveCSS("opacity", "1");
+  await deleteDay.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toContainText("1 stop");
   await expect(dialog).toContainText("Later days shift earlier");
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(page.locator(".planner-day-tab")).toHaveCount(4);
-  await page
-    .getByRole("button", {
-      name: `Delete ${dayLabel(originalDays[1], f.trip.start_date)}`,
-      exact: true,
-    })
-    .click({ force: true });
+  await page.mouse.move(0, 0);
+  await deleteDay.focus();
+  await expect(deleteDay).toHaveCSS("opacity", "1");
+  await deleteDay.click();
   await shot(page, "delete-day");
   await dialog.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(page.locator(".planner-day-tab")).toHaveCount(3);
