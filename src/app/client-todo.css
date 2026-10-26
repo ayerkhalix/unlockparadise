@@ -1616,7 +1616,7 @@ body .p2-workspace .p2-day-tabs .planner-delete-day {
   padding: 7px;
   border: 0;
   background: transparent;
-  color: inherit;
+  color: var(--p2-error);
   opacity: 0;
 }
 body
@@ -1631,7 +1631,7 @@ body
   .p2-day-tabs
   .planner-day-tab:has(.p3-day-selected)
   .planner-delete-day {
-  color: var(--p2-on-teal);
+  color: var(--p2-error-on-teal);
 }
 body
   .p2-workspace
@@ -1639,7 +1639,7 @@ body
   .planner-day-tab
   .planner-delete-day:not(:disabled):hover {
   background: var(--p2-navy);
-  color: var(--p2-text);
+  color: var(--p2-error);
 }
 body .p2-workspace .p2-day-tabs .planner-day-tab .planner-delete-day:disabled {
   opacity: 0.35;
