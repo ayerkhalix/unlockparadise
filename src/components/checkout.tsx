@@ -29,7 +29,6 @@ export async function Checkout({
       `/login/?redirect_to=${encodeURIComponent(`/checkout/?return_to=${encodeURIComponent(returnTarget)}`)}`,
     );
   }
-  if (current.premium && !paymentReturn) redirect("/membership/");
   const xendit = paymentProvider() === "xendit";
   const approvedTestAccount = !xendit || xenditTestUser(current.user.id);
   let paymentQuery = current.db
@@ -61,9 +60,14 @@ export async function Checkout({
             Back to membership
           </a>
           <h1 id="checkout-title">
-            Go Explorer<span>+</span>
+            {current.premium ? "Extend Explorer" : "Go Explorer"}
+            <span>+</span>
           </h1>
-          <p className="p3-checkout-lead">Choose your membership.</p>
+          <p className="p3-checkout-lead">
+            {current.premium
+              ? "Choose how long to extend your membership."
+              : "Choose your membership."}
+          </p>
           <p className="p2-muted">
             Get access to Explorer+ destinations, save places and plan your
             route across Palawan.

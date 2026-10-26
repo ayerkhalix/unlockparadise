@@ -341,16 +341,30 @@ test("Explorer profile previews, direct checkout, compact hook and right-side me
       .getByRole("link", { name: "Itinerary Planner" }),
   ).toHaveCount(0);
   if (page.viewportSize()!.width < 800) {
-    const membership = await page.locator(".p3-profile-sidebar").boundingBox(),
-      portfolio = await page
-        .locator(".upd-profile__section")
-        .filter({
-          has: page.getByRole("heading", { name: "My Portfolio", exact: true }),
-        })
-        .boundingBox(),
-      settings = await page.locator("#account-settings").boundingBox();
-    expect(membership!.y).toBeGreaterThan(portfolio!.y);
-    expect(settings!.y).toBeGreaterThan(membership!.y);
+    await expect
+      .poll(async () => {
+        const membership = await page
+          .locator(".p3-profile-sidebar")
+          .boundingBox();
+        const portfolio = await page
+          .locator(".upd-profile__section")
+          .filter({
+            has: page.getByRole("heading", {
+              name: "My Portfolio",
+              exact: true,
+            }),
+          })
+          .boundingBox();
+        const settings = await page.locator("#account-settings").boundingBox();
+        return Boolean(
+          membership &&
+          portfolio &&
+          settings &&
+          membership.y > portfolio.y &&
+          settings.y > membership.y,
+        );
+      })
+      .toBe(true);
   }
   await shot(page, "explorer-profile");
   await page.getByRole("link", { name: "View portfolio", exact: true }).click();
@@ -407,6 +421,15 @@ test("active Explorer+ membership shows status and category return opens the int
     page.getByRole("link", { name: "Get Explorer+", exact: true }),
   ).toHaveCount(0);
   await shot(page, "membership-status");
+  await page.goto("/account/#account-settings");
+  await page
+    .locator("#account-settings")
+    .getByText("Membership", { exact: true })
+    .click();
+  await page.getByRole("link", { name: "Renew", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Extend Explorer+", exact: true }),
+  ).toBeVisible();
   await page.goto("/area/puerto-princesa/beaches/");
   await page
     .getByRole("link", { name: "All Puerto Princesa City categories" })

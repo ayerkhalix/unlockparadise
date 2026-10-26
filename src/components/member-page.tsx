@@ -402,13 +402,11 @@ export async function MemberPage({ kind }: { kind: string }) {
                           className="upd-btn upd-btn--vip"
                           href={
                             current.premium
-                              ? "/membership/"
+                              ? "/checkout/"
                               : upgradeHref("explorer", "/account/")
                           }
                         >
-                          {current.premium
-                            ? "Membership details"
-                            : "Get Explorer+"}
+                          {current.premium ? "Renew" : "Get Explorer+"}
                         </a>
                       </div>
                     </details>
