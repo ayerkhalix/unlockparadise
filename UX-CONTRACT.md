@@ -238,7 +238,7 @@ Map category photos use existing public thumbnail fallbacks when the current RLS
 - **Explore options** has no All destinations tab or search/travel-time filters. It uses category, transport, asset and Explorer+ facets plus Name / Date added / Top rated sorting. Bucketlist actions use the canonical delegated member controller and Undo; unavailable lookup offers retry.
 - **Return** uses a same-origin allowlisted browse target. The source stores its exact URL, shown count and click-time card position. Restoration waits for destination content and stops on user input. Category back links reopen the home map area, including the second category page.
 - **Mobile menu** puts linked account identity first, then primary links, Itinerary Planner, My Portfolio and Log out. Desktop account links stay unchanged. The original drawer, tagline and legal footer remain.
-- **Profile** collections use horizontal snap rails on phones, with keyboard and previous/next alternatives. Setting the featured place updates the visible cover and pressed star.
+- **Profile** collections use horizontal snap rails on phones, with keyboard and previous/next alternatives. Setting the featured place updates the visible cover and pressed star. A featured place appears only for the explicitly saved selection; an empty or unavailable selection omits the entire section, without choosing a bucketlist or portfolio fallback. Remove featured place clears the selection.
 - **Membership** explicitly lists the itinerary planner. The redundant account prompt and discount/savings wording are removed; amounts and payment behavior stay unchanged.
 
 ## Visit-time compatibility — 26 October 2026

@@ -308,6 +308,7 @@ test("profile featured photo is visible, mobile rails swipe, menu leads with acc
     )
     .slice(0, 2);
   let cleaned = false;
+  let featureTouched = false;
   const cleanup = async () => {
     if (cleaned) return;
     const current = (
@@ -315,7 +316,11 @@ test("profile featured photo is visible, mobile rails swipe, menu leads with acc
         await context.request.get(base + "/api/v1/me/", { timeout: 15000 })
       ).json()
     ).data;
-    if (current.featured_place_id === candidates[0].id)
+    if (
+      featureTouched &&
+      (current.featured_place_id === candidates[0].id ||
+        current.featured_place_id === null)
+    )
       expect(
         (
           await context.request.patch(base + "/api/v1/me/", {
@@ -350,7 +355,20 @@ test("profile featured photo is visible, mobile rails swipe, menu leads with acc
       ).toBe(true);
       added.push(place.id);
     }
+    featureTouched = true;
+    expect(
+      (
+        await context.request.patch(base + "/api/v1/me/", {
+          headers,
+          data: { featured_place_id: null },
+        })
+      ).ok(),
+    ).toBe(true);
     await page.goto("/account/");
+    await expect(page.locator(".profile-featured-place")).toHaveCount(0);
+    await expect(
+      page.locator('[data-profile-feature][aria-pressed="true"]'),
+    ).toHaveCount(0);
     const feature = page
       .locator(`[data-profile-feature="${candidates[0].id}"]`)
       .first();
@@ -405,13 +423,20 @@ test("profile featured photo is visible, mobile rails swipe, menu leads with acc
       await page.keyboard.press("Escape");
     }
     await shot(page, "profile-featured-swipe");
+    await page
+      .getByRole("button", { name: "Remove featured place", exact: true })
+      .click();
+    await expect(page.locator(".profile-featured-place")).toHaveCount(0);
+    await expect(feature).toHaveAttribute("aria-pressed", "false");
+    await page.reload();
+    await expect(page.locator(".profile-featured-place")).toHaveCount(0);
     await page.goto("/membership/");
-    await expect(page.locator("main")).not.toContainText(
+    await expect(page.getByRole("main")).not.toContainText(
       /save \d+%|Save up to|view your Explorer account/i,
     );
-    await expect(page.locator("main")).toContainText(
-      "Day-by-day itinerary planner",
-    );
+    await expect(
+      page.getByRole("main").getByRole("link", { name: /^Itinerary Planner/ }),
+    ).toHaveAttribute("href", "/itineraries/");
   } finally {
     if (test.info().status !== "timedOut") await cleanup();
   }

@@ -104,13 +104,8 @@ export async function MemberPage({ kind }: { kind: string }) {
   const active = subscriptions.data?.find(
     (s) => s.status === "active" || s.status === "cancelled",
   );
-  const featured = (
-    entries.find(
-      (e) =>
-        (e.places as unknown as PlaceSummary).id === data.featured_place_id,
-    ) ||
-    visited[0] ||
-    saved[0]
+  const featured = entries.find(
+    (e) => (e.places as unknown as PlaceSummary).id === data.featured_place_id,
   )?.places as unknown as PlaceSummary | undefined;
   const heroAssociation = featured?.place_media.find(
     (m) => m.kind === "cover" && mediaAvailable(m.media),
@@ -313,7 +308,7 @@ export async function MemberPage({ kind }: { kind: string }) {
                           className="upd-btn upd-btn--ghost"
                           data-profile-feature=""
                         >
-                          Return featured place to automatic
+                          Remove featured place
                         </button>
                       </p>
                     )}
