@@ -466,11 +466,9 @@ Saved-place pages retain their shared header and tabs but omit filters when ther
 
 Merchandise calls its local selection a cart throughout. Product editor previews reuse the actual collection-card and detail components with purchase actions, navigation and analytics disabled. The readiness checklist is advisory, with inventory uncertainty explicitly stated; publishing and ordering permissions are unchanged. MapFeedback owns bounded loading, failure and retry feedback in both area and destination maps, and the selected destination pin has a persistent gold/teal state. ContentImage provides a reserved, readable fallback when a cover or destination photo cannot load.
 
-
 ## Client planner refinement — 24 October 2026
 
 The planner retains the public navy, teal, sand/gold, Outfit and Open Sans system. One selected-day work surface replaces simultaneous desktop columns. Final itinerary and My route use the existing filled-teal selected control at every width. Destination cards retain real photos and a static gold sequence marker, with the timing on the right, a small upper-right three-line actions disclosure and a Notes disclosure. Search and map discovery sit behind two explicitly named Add destination choices. The cards use existing rounded media/control geometry and thin slate boundaries; an open action panel lifts its owning card above its neighbors. Hold-to-drag feedback is direct manipulation rather than an idle animation. At phone widths card content stacks and wraps without reducing supporting metadata below 11px; the shared 44px action targets remain.
-
 
 ## Area-scoped planner refinement — 25 October 2026
 
@@ -478,8 +476,8 @@ Keep the incumbent navy/teal/gold and Outfit/Open Sans system. A native single-a
 
 Profile statistics use two equal columns: Bucketlisted and In Portfolio; the editor offers photo upload/replacement only. Getting there uses inline access-type and destination Maps links without coordinate text. Cookie choices say Accept cookies and No thanks. The About shoreline photograph crops spare sky near the mountain ridge and fades at the top/bottom into its existing sea background. Responsive delivery preserves originals and the same framing.
 
-
 The itinerary destination browser uses the same white Places cards as regular browsing, retaining the shared 4:3 photo, dark title, travel-time and teal transport metadata, with its itinerary action over the photograph. The phone grid is one column. The canonical title selector also supports section-level headings inside the planner shell.
+
 ## Approved UX polish — 25 October 2026
 
 The scalar frontmatter font sizes describe the existing desktop ceilings. Runtime fluid sizes remain display `clamp(44px, 5vw, 72px)`, headline `clamp(32px, 4vw, 56px)`, editorial `clamp(26px, 3vw, 38px)` and studio heading `clamp(30px, 3vw, 40px)` in their established CSS owners; this representation keeps the machine-readable dimension schema valid without changing those styles.
@@ -493,6 +491,7 @@ Trip-title feedback distinguishes Saving changes, Saved, unsaved drafts and fail
 The phone merchandise introduction keeps its real image alongside smaller text so products appear sooner. Product actions state that ordering opens soon. Cart and membership payment capabilities retain their existing boundaries.
 
 Place cover/gallery and product photo editors use one shared focal-point disclosure: choose on the uncropped image, adjust with arrows or Home, inspect a card preview, and reset to center. The selected crop is metadata, never a rewritten original. Retained images keep their crop through older-client saves. Public, protected, planner and preview images honor that metadata through their existing delivery and access paths.
+
 ## Client photo and hook correction — 25 October 2026
 
 This supersedes the earlier removal of homepage category icons. Restore the original six icon/label items as informational spans: hover/focus gives the current count, with no link or click action. The main Start exploring/map CTA is unchanged.
@@ -501,7 +500,6 @@ Destination access hooks are photographic: the authorized cover preview, concise
 
 Category tiles eagerly request their bounded image sizes before the map overlay opens. If an association is hidden from the viewer, use the established public category thumbnail rather than a blank tile. Featured photographs use real image elements in a 4:3 frame with cover fitting, filling the card edge to edge without side bars. Admin focal points control the crop. This replaces both the short fixed-height background crop and the subsequently rejected contain framing. Storage delivery remains proportional so CSS crops a correctly scaled source. Bounded public previews preserve photo composition by default and apply explicit focal cropping when selected. React images and retained HTML each have one canonical retry-to-original adapter, then a readable unavailable state. Original assets remain intact.
 
-
 ## Planner and profile refinements — 25 October 2026
 
 The selected day has three views: Itinerary for photo cards and editing, Schedule for timed and flexible visits, and My route for its map. The shared Add destination card sits below every view with Search destination and Explore options. Notes remain visible with a small inline icon. Reordering gives each destination its new position’s saved time slot; destination notes stay attached. Cross-day moves append and retain that visit’s time.
@@ -509,7 +507,6 @@ The selected day has three views: Itinerary for photo cards and editing, Schedul
 Explore options retains the normal white Places cards. Category tabs omit All destinations. The standard transport, assets, Explorer+ and name/date/rating filters remain; search and travel-time filters are absent here. Bucketlist controls share the normal Places mutation/Undo behavior, including inline search results. Return preserves the source URL, filters, displayed result count and clicked position; Back to categories reopens the correct home map area.
 
 The mobile drawer leads with the account photo/name, followed by primary links, Itinerary Planner, My Portfolio and Log out. Bucketlist stays in the floating companion and account page. Profile collections swipe horizontally on phones with snap points and keyboard/previous/next alternatives. The selected featured place has a visible photo and selected star. Discount/savings claims are hidden; prices remain unchanged.
-
 
 ## Visit-time compatibility — 26 October 2026
 
@@ -538,3 +535,7 @@ ItineraryLibraryCard owns the bounded destination-photo preview, replacing image
 Preserve the incumbent palette, proportions, focal points and card crops. ContentImage uses ready stored sizes, not Supabase runtime transformations; immutable local merch copies use the generated merch-images manifest. Original image files remain available privately or at their existing local paths. Only visible, motion-eligible itinerary cards mount the next photo. Preload the established body/display fonts; reserve a full content viewport during route loading so the footer does not jump through the first screen. Main-map initialization is proximity driven while compact maps retain immediate behavior. Admin upload controls retain the same form anatomy, show phase progress and permit cancelling the transfer before processing; edits remain locked during an upload. Never describe a compressed display copy as a lossless archival original.
 
 Namespaced client-todo.css rules supply planner search's 46px icon clearance, phone stacking and account workspace/stat/membership divider spacing. Account settings joins the sidebar as an in-page shortcut. React-owned profile password inputs use PasswordField instead of imperative reparenting; static markup keeps SiteBehavior's adapter.
+
+## Homepage first paint — 27 October 2026
+
+The hero renders before destination/map queries. Its existing 16:9 photo remains a full-bleed cover with the same parallax layer and crop. Responsive sizes account for the layer's 130% height and the 88svh phone/78vh desktop hero, rather than requesting a blurry phone-width image for a tall cover. It is eager and high priority; originals remain unchanged. The home header declares its overlay state in initial HTML, and the streamed map reserves its final 90lvh geometry. Non-clickable category icons initially announce their category, then receive live counts without moving visible content. Do not show fabricated zero counts while data is loading.

@@ -167,7 +167,6 @@ Product preview reads current unsaved editor values and uses the storefront comp
 
 Area and destination maps share loading/failure/retry feedback and keep keyboard/touch destination choices available during tile failures. Retry recreates only the failed map; selected-trip and saved-stop state are retained. Images reserve their existing geometry and show a photo-unavailable fallback instead of a broken-image icon.
 
-
 ## Client planner simplification — 24 October 2026
 
 This supersedes the earlier always-visible stop notes, numbered drag handle and two-column desktop planner presentation. The selected day has Final itinerary and My route controls on every viewport. Final itinerary keeps the daily timeline and destination cards; My route opens only that day's numbered saved-stop map. Add destination exposes Search destination and Explore options. Search progressively reveals name results without area or category controls; the subsequent client PDF makes Explore options open the dedicated photographic browser. Returning restores the selected trip/day. No duplicate map-mode toolbar or Add Place shortcut is shown above the cards.
@@ -200,7 +199,6 @@ Download and Print remain disabled with busy semantics until the printable docum
 
 The current profile shows only Bucketlisted and In Portfolio, in two equal-width columns. Areas explored is removed. Profile photo editing keeps upload/replacement and omits the Remove photo option. These changes do not alter saved travel records or current photos.
 
-
 ## Single-area trips and image delivery — 25 October 2026
 
 Create trip requires exactly one saved area. Native day selectors in Explore destinations and its add dialog choose the target day; additions, counts and return links follow the confirmed selected day. The owned trip determines the catalog area, regardless of a caller-supplied area filter. Existing trips without an area keep their stops and notes; choose an area in Edit trip before adding stops. An occupied trip cannot switch to an area that excludes an existing stop.
@@ -208,6 +206,7 @@ Create trip requires exactly one saved area. Native day selectors in Explore des
 Final itinerary shows photo stop cards before Daily timeline. Add destination contains name search only. My route omits Open main map and places Route stops 8px from the map's upper-left corner, below measured loading/error notices while those exist.
 
 ContentImage uses responsive derivatives, lazy loading below the fold, eager loading for high-priority imagery, and a retry with the original source before its readable unavailable fallback. Private media remains on the authenticated API route; only its server-authorized Storage URL carries a signed resize. Public local photographs use Next's image cache. Unknown remote and vector sources stay unchanged, and originals remain available for deliberate full-photo viewing.
+
 ## Reversible actions and photo crops — 25 October 2026
 
 The approved 2–8 polish keeps the homepage map CTA unchanged. Phone destination browsing collapses secondary native filters behind Filters, retains query/day/area context, and exposes clearable active chips. Desktop filters stay visible. Destination loading reserves the same card grid geometry and announces Loading destinations without pretending placeholder data is real.
@@ -219,6 +218,7 @@ Removal notifications offer Undo for 15 seconds and pause while hovered, focused
 Failed Undo owns Retry Undo; it does not also expose the ordinary Retry save control. Conflict recovery remains Reload saved itinerary. Shared tooltips render in the active dialog or a named contextual-help region at the document root, preserving both viewport positioning and landmark semantics.
 
 Photo focal-point controls support pointer/touch and arrow keys, a visual preview, explicit center reset and busy locking. Place crop metadata is versioned with the Place save; product metadata remains in its versioned images JSON. Server validation rejects out-of-bounds or malformed points transactionally. No original media is deleted or overwritten. A bounded premium preview applies its crop internally and returns image bytes only.
+
 ## Destination hooks and image recovery correction — 25 October 2026
 
 Storage image delivery explicitly uses proportional `contain` resizing. Width-only default cover transforms were cropping originals into narrow strips, so the shared request URL also changes to avoid cached old redirects. Both public and signed private delivery keep the same authorization and cache boundaries. UI focal cropping happens against the proportional source rather than an already-cropped strip.
@@ -228,7 +228,6 @@ Homepage category items are passive information, not navigation. They expose the
 DestinationGate is distinct from FeatureLock: it shows an already-authorized cover preview and reuses the membership comparison and safe return flow. It never serializes a protected original or premium destination name. FeatureLock keeps its padlock and upgrade action. Neither hook adds a second brand lockup below the header.
 
 Map category photos use existing public thumbnail fallbacks when the current RLS projection has no visible image association. Eager, low-priority requests warm these small previews before opening the category panel. Featured photos reserve 4:3 geometry and fill that frame edge to edge using cover fitting, with admin focal points controlling the crop. Side bars are not part of the featured card design. Storage still resizes proportionally; the card owns its visual crop. OriginalMarkup and ContentImage each retry a failed resized source once through its original authorized route, then show the same readable fallback. The retained-HTML recovery adapter runs once at the app root and handles images that failed before hydration as well as later route content.
-
 
 ## Current planner navigation and schedule contract — 25 October 2026
 
@@ -241,7 +240,6 @@ Map category photos use existing public thumbnail fallbacks when the current RLS
 - **Mobile menu** puts linked account identity first, then primary links, Itinerary Planner, My Portfolio and Log out. Desktop account links stay unchanged. The original drawer, tagline and legal footer remain.
 - **Profile** collections use horizontal snap rails on phones, with keyboard and previous/next alternatives. Setting the featured place updates the visible cover and pressed star.
 - **Membership** explicitly lists the itinerary planner. The redundant account prompt and discount/savings wording are removed; amounts and payment behavior stay unchanged.
-
 
 ## Visit-time compatibility — 26 October 2026
 
@@ -280,3 +278,7 @@ Admin media/product uploads accept still JPEG, PNG and WebP up to 20 MB via obje
 Public versioned local merch derivatives cache immutably. Replacements use new paths. Public/premium HTML is not newly shared-cached, and the authenticated root stays dynamic. Media IDs, gallery ordering, source checksums and all original association rows survive the backfill. See PERFORMANCE_OPTIMIZATION_PLAN.md and PERFORMANCE_OPTIMIZATION_DELIVERY.md for release evidence and operational commands.
 
 Planner search reserves 46px before its text and 44px at the clear control under the actual surface selector; Search and Explore stack on narrow phones. Profile divider spacing increases to 28px (24px at the phone workspace boundary), and Account settings sits below Membership details as a link to the existing section. React-owned PasswordField controls prevent SiteBehavior from mutating profile SSR markup; the same CSS, reveal/hide labels and form field names remain.
+
+Public email registration and recovery accept any valid address while AUTH_EMAILS_ENABLED is true; the old staging inbox allowlist is retired. Signup still requires matching 12-character-or-longer passwords, explicit terms acceptance, origin checks, per-email and per-IP rate limits, and email confirmation. A mail-provider restriction/outage must show a retryable error rather than claim that a confirmation was sent. An unexpected auto-confirmed session is signed out locally and rejected. Public delivery depends on Supabase SMTP configuration and must be verified with a controlled inbox; do not bypass confirmation to work around provider restrictions.
+
+Home's hero and overlay header render without waiting for the map's data. The streamed map reserves 90lvh; route placeholders reserve a complete viewport so the footer does not briefly enter the opening screen. The existing hover-only category icons retain their purpose and gain current counts after map data arrives. Personalized sections remain session scoped and the authenticated root remains dynamic.

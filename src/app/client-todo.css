@@ -1880,8 +1880,26 @@ body .p2-workspace .p2-day-tabs .planner-day-tab .planner-delete-day:disabled {
   padding: 32px;
   color: var(--p2-muted);
 }
+.upd-hero-bg > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+/* The header streams before the route: reserve its final home overlay immediately. */
+body:has(.upd-header[data-home="true"]) .upd-site {
+  padding-top: 0;
+}
+.home-map-loading__canvas {
+  height: 90vh;
+  height: 90lvh;
+  display: grid;
+  place-items: center;
+  color: var(--p2-muted);
+}
 .route-loading {
-  min-height: calc(100svh - 76px);
+  min-height: 100svh;
   display: grid;
   align-items: center;
   color: var(--p2-muted);

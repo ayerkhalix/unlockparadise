@@ -9,6 +9,7 @@ export default defineConfig({
     "**/itinerary-library.spec.ts",
     "**/itinerary-photo-polish.spec.ts",
         "**/performance-images.spec.ts",
+        "**/home-loading.spec.ts",
   ],
   use: { ...base.use, browserName: "webkit", channel: undefined },
   projects: [

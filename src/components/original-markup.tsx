@@ -10,6 +10,11 @@ export function OriginalMarkup({ html }: { html: string }) {
   const escape = (value: string) =>
     value.replaceAll("&", "&amp;").replaceAll('"', "&quot;");
   const optimized = html
+    .replace(
+      /<div class="upd-hero-bg" style="background-image:\s*url\(['"]?(\/original\/[^)'"\s]+)['"]?\)"><\/div>/g,
+      (_, source: string) =>
+        `<div class="upd-hero-bg"><img src="${escape(source)}" alt="" aria-hidden="true" sizes="(max-width: 767px) 204svh, (max-aspect-ratio: 16/9) 181vh, 100vw" fetchpriority="high" loading="eager" decoding="async" /></div>`,
+    )
     .replace(/<img\b[^>]*>/gi, (tag) => {
       const source = tag
         .match(/\bsrc="([^"]+)"/)?.[1]
@@ -34,7 +39,7 @@ export function OriginalMarkup({ html }: { html: string }) {
         );
     })
     .replace(
-      /background-image:\s*url\('(\/original\/[^']+)'\)/g,
+      /background-image:\s*url\(['"]?(\/original\/[^)'"\s]+)['"]?\)/g,
       (_, source: string) =>
         `background-image:url('${escape(imageDeliveryUrl(source, 1920))}')`,
     );

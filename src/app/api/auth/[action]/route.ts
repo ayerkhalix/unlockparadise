@@ -15,6 +15,10 @@ import { verifyRecoveryGrant } from "@/lib/auth/recovery";
 import { rateLimit } from "@/lib/rate-limit";
 import { discoveryDestination } from "@/lib/repositories/traveler";
 import { registrationInput } from "@/lib/auth/registration";
+import {
+  requireAccountEmails,
+  signUpWithConfirmation,
+} from "@/lib/auth/signup";
 const credentials = z.object({
   email: z.email().max(254),
   password: z.string().min(8).max(200),
@@ -23,21 +27,6 @@ const credentials = z.object({
 });
 const address = z.object({ email: z.email().max(254) });
 const password = z.string().min(8).max(200);
-function allowEmail(email: string) {
-  const allowed = (process.env.AUTH_ALLOWED_EMAILS || "")
-    .toLowerCase()
-    .split(",")
-    .map((x) => x.trim());
-  if (
-    process.env.AUTH_EMAILS_ENABLED !== "true" ||
-    (process.env.UPD_ENVIRONMENT !== "production" &&
-      !allowed.includes(email.toLowerCase()))
-  )
-    throw new ApiError(
-      503,
-      "Email delivery is not enabled for this account in this environment.",
-    );
-}
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ action: string }> },
@@ -55,26 +44,24 @@ export async function POST(
       if (action === "join") {
         if (!body.terms)
           throw new ApiError(400, "Accept the Terms and Privacy Policy.");
-        allowEmail(body.email);
-        const result = await db.auth.signUp({
-          email: body.email,
-          password: body.password,
-          options: {
-            emailRedirectTo: appOrigin() + "/auth/confirm/",
-            data: { terms_accepted: true },
-          },
-        });
-        if (result.error)
-          throw new ApiError(
-            400,
-            "Registration could not be completed. Check your details or sign in.",
-          );
-        return json({
-          message: "Check your email to confirm your account.",
-          redirect_to: result.data.session
-            ? await discoveryDestination(db)
-            : undefined,
-        });
+        requireAccountEmails();
+        await rateLimit(
+          "auth:join:ip",
+          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            "local",
+          20,
+          3600,
+        );
+        return json(
+          await signUpWithConfirmation(
+            db,
+            {
+              email: body.email,
+              password: body.password,
+            },
+            appOrigin() + "/auth/confirm/",
+          ),
+        );
       }
       const { error } = await db.auth.signInWithPassword({
         email: body.email,
@@ -94,7 +81,14 @@ export async function POST(
     }
     if (action === "forgot-password") {
       const body = await input(request, address);
-      allowEmail(body.email);
+      requireAccountEmails();
+      await rateLimit(
+        "recovery:ip",
+        request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+          "local",
+        10,
+        3600,
+      );
       await rateLimit("recovery", body.email.toLowerCase(), 3, 3600);
       const { error } = await db.auth.resetPasswordForEmail(body.email, {
         redirectTo: appOrigin() + "/auth/confirm/",

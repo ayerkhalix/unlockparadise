@@ -16,6 +16,7 @@ import { catalog } from "@/lib/repositories/commerce";
 import { products as originalProducts } from "@/lib/merch-products";
 import originalMap from "@/data/map.json";
 import { upgradeHref } from "@/lib/membership-navigation";
+import { HomeCategoryCounts } from "@/components/home-category-counts";
 
 export const metadata: Metadata = { title: "Home" };
 async function HomeFeatured() {
@@ -85,16 +86,32 @@ async function HomeUpgrade() {
     </section>
   ) : null;
 }
-export default async function HomePage() {
+async function HomeMap() {
   const map = backendConfigured() ? await mapConfiguration() : undefined;
+  return (
+    <>
+      <PalawanMap data={map} />
+      {map && <HomeCategoryCounts data={map} />}
+    </>
+  );
+}
+export default function HomePage() {
   return (
     <main className="upd-main" id="upd-main">
       <div className="upd-container">
         <div className="upd-home">
-          <OriginalMarkup
-            html={heroMarkup(fragment("hero")!, map || originalMap)}
-          />
-          <PalawanMap data={map} />
+          <OriginalMarkup html={heroMarkup(fragment("hero")!, originalMap)} />
+          <Suspense
+            fallback={
+              <div className="palawan-map-wrap home-map-loading" role="status">
+                <div className="home-map-loading__canvas">
+                  Opening the Palawan map…
+                </div>
+              </div>
+            }
+          >
+            <HomeMap />
+          </Suspense>
           <Suspense
             fallback={
               <div className="home-section-loading" role="status">

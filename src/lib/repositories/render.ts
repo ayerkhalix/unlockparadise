@@ -22,7 +22,9 @@ export function heroMarkup(template: string, map: MapConfiguration) {
         if (!original) return block;
         const category =
           map.categories.find((c) => c.slug === original.slug) || original;
-        const count = map.categoryCounts?.[category.slug] || 0;
+        const count = map.categoryCounts?.[category.slug];
+        const tooltip =
+          count === undefined ? category.name : `${count} ${category.name}`;
         let result = block
           .replace(
             /data-tip="\d+ [^"]+"/,
@@ -44,7 +46,7 @@ export function heroMarkup(template: string, map: MapConfiguration) {
           .replace(/ type="button"/, "")
           .replace(
             /data-tip="[^"]+"/,
-            `data-tooltip="${count} ${escape(category.name)}" aria-label="${escape(category.name)}: ${count} destinations"`,
+            `data-home-category="${escape(category.slug)}" data-tooltip="${escape(tooltip)}" aria-label="${escape(count === undefined ? category.name : `${category.name}: ${count} destinations`)}"`,
           )
           .replace(/<span class="upd-cat-tip"[\s\S]*?<\/span>/, "")
           .replace(/<span class="screen-reader-text">[\s\S]*?<\/span>/, "");

@@ -135,7 +135,11 @@ export function SiteHeader(props: Props) {
   );
   return (
     <>
-      <header className="upd-header" id="upd-header">
+      <header
+        className="upd-header"
+        id="upd-header"
+        data-home={pathname === "/" ? "true" : undefined}
+      >
         <div className="upd-header__inner">
           <div className="upd-header__row">
             <div className="upd-header__branding">
