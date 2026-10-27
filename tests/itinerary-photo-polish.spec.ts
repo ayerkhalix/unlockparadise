@@ -35,7 +35,7 @@ test.beforeEach(async ({ page }) => {
   await page.route("https://api.mapbox.com/**", (route) => route.abort());
 });
 
-test("all unique destination covers crossfade without moving the card, with pause and reduced motion", async ({
+test("all unique destination covers crossfade every two seconds without controls or layout shift, respecting reduced motion", async ({
   page,
   context,
 }, info) => {
@@ -125,24 +125,14 @@ test("all unique destination covers crossfade without moving the card, with paus
     card.locator("[data-current-photo='true'] img").getAttribute("src");
   const before = await active();
   const box = await card.boundingBox();
-  await page.clock.fastForward(5100);
+  await page.clock.fastForward(2100);
   await expect.poll(active).not.toBe(before);
   await expect(card.locator(".is-crossfading")).toHaveCount(1);
-  const after = await active();
   const afterBox = await card.boundingBox();
   expect(afterBox!.height).toBeCloseTo(box!.height, 0);
   expect(afterBox!.width).toBeCloseTo(box!.width, 0);
-  const pause = card.getByRole("button", {
-    name: `Pause photos for ${title}`,
-    exact: true,
-  });
-  await pause.click();
-  await page.clock.fastForward(11000);
-  expect(await active()).toBe(after);
-  await card
-    .getByRole("button", { name: `Resume photos for ${title}`, exact: true })
-    .click();
-  await page.clock.fastForward(5100);
+  await expect(card.getByRole("button")).toHaveCount(0);
+  await page.clock.fastForward(2100);
   await expect.poll(active).toBe(before);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(card).toHaveAttribute("data-playing", "false");

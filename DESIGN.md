@@ -531,6 +531,6 @@ Native stop Notes wait for client readiness before accepting edits, preventing a
 
 ## Destination-photo crossfades and profile spacing — 27 October 2026
 
-ItineraryLibraryCard owns the bounded destination-photo preview, replacing image hover zoom with a 900ms opacity crossfade every five seconds. The prior frame remains opaque beneath the incoming frame to avoid a dark flash. Responsive ContentImage delivery and fixed 4:3 geometry remain. Pause is a sibling 44px media control outside the trip link, using public navy/teal and the shared tooltip treatment. Offscreen, hidden, inert and keyboard-focused previews stop; reduced motion shows a still and omits autoplay controls. Only current/next/outgoing photos mount.
+ItineraryLibraryCard owns the bounded destination-photo preview, replacing image hover zoom with a 450ms opacity crossfade every two seconds. The prior frame remains opaque beneath the incoming frame to avoid a dark flash. Responsive ContentImage delivery and fixed 4:3 geometry remain. The user-requested preview has no Pause/Resume overlay. Offscreen, hidden, inert and keyboard-focused previews stop; reduced motion shows a still and omits autoplay controls. Only current/next/outgoing photos mount.
 
 Namespaced client-todo.css rules supply planner search's 46px icon clearance, phone stacking and account workspace/stat/membership divider spacing. Account settings joins the sidebar as an in-page shortcut. React-owned profile password inputs use PasswordField instead of imperative reparenting; static markup keeps SiteBehavior's adapter.

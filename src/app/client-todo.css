@@ -2250,7 +2250,7 @@ body.upd-surface--navy
   position: absolute;
   inset: 0;
   opacity: 0;
-  transition: opacity 900ms ease-in-out;
+  transition: opacity 450ms ease-in-out;
 }
 .itinerary-card-photo__frame.is-current {
   opacity: 1;
@@ -2268,30 +2268,6 @@ body.upd-surface--navy
 }
 .itinerary-library-card__photo.is-crossfading .itinerary-card-photo__frame {
   will-change: opacity;
-}
-body .itinerary-library-card > .itinerary-card-photo__pause {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  padding: 10px;
-  border: 1px solid var(--p2-line);
-  border-radius: 50%;
-  background: var(--p2-navy);
-  color: var(--p2-text);
-  box-shadow: none;
-  cursor: pointer;
-}
-body .itinerary-library-card > .itinerary-card-photo__pause:hover {
-  background: var(--p2-panel);
-  color: var(--p2-teal);
-  border-color: var(--p2-teal);
 }
 body .p2-account-page .p3-profile-workspace {
   padding-top: 28px;
@@ -2327,9 +2303,6 @@ body.upd-surface--navy
 @media (prefers-reduced-motion: reduce) {
   .itinerary-card-photo__frame {
     transition: none;
-  }
-  body .itinerary-library-card > .itinerary-card-photo__pause {
-    display: none;
   }
 }
 

@@ -24,7 +24,6 @@ export function ItineraryLibraryCard({
   const images = [...new Set(sources)].filter((src) => !failed.includes(src));
   const [current, setCurrent] = useState(images[0]);
   const [previous, setPrevious] = useState<string | null>(null);
-  const [paused, setPaused] = useState(false);
   const shown = images.includes(current) ? current : images[0];
   const next =
     images.length > 1
@@ -32,7 +31,7 @@ export function ItineraryLibraryCard({
       : undefined;
 
   useEffect(() => {
-    if (paused || !next) return;
+    if (!next) return;
     const timer = setInterval(() => {
       const card = ref.current;
       if (
@@ -52,12 +51,12 @@ export function ItineraryLibraryCard({
         setFailed((old) => [...old, shown]);
       setPrevious(shown);
       setCurrent(next);
-    }, 5000);
+    }, 2000);
     return () => clearInterval(timer);
-  }, [paused, shown, next, ref]);
+  }, [shown, next, ref]);
   useEffect(() => {
     if (!previous) return;
-    const timer = setTimeout(() => setPrevious(null), 1000);
+    const timer = setTimeout(() => setPrevious(null), 550);
     return () => clearTimeout(timer);
   }, [previous]);
   const frames = [
@@ -119,32 +118,6 @@ export function ItineraryLibraryCard({
           </span>
         </div>
       </a>
-      {images.length > 1 && (
-        <button
-          type="button"
-          className="itinerary-card-photo__pause"
-          aria-label={`${paused ? "Resume" : "Pause"} photos for ${trip.title}`}
-          data-tooltip={paused ? "Resume photos" : "Pause photos"}
-          onClick={() => setPaused((value) => !value)}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            {paused ? (
-              <path d="M8 5v14l11-7z" />
-            ) : (
-              <>
-                <rect x="6" y="5" width="4" height="14" />
-                <rect x="14" y="5" width="4" height="14" />
-              </>
-            )}
-          </svg>
-        </button>
-      )}
     </li>
   );
 }
