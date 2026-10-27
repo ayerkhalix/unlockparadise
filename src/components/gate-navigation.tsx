@@ -6,6 +6,13 @@ import { upgradeHref } from "@/lib/membership-navigation";
 import type { Tier } from "@/lib/destinations";
 
 const key = "upd:last-browsing-page";
+type BrowsePosition = {
+  url: string;
+  y: number;
+  href: string;
+  top: number;
+  anchor: string;
+};
 function browsingTarget(value: string, referrer = false) {
   if (!value || /[\\\u0000-\u001f\u007f]/.test(value)) return null;
   try {
@@ -54,7 +61,18 @@ export function BrowsingTrail() {
       const link = (event.target as Element).closest<HTMLAnchorElement>(
         "a[href]",
       );
-      if (!link || event.defaultPrevented) return;
+      if (
+        !link ||
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        link.target === "_blank" ||
+        link.hasAttribute("download")
+      )
+        return;
       const url = new URL(link.href, location.origin);
       const current = safeBrowseReturn(source());
       const itineraryCard =
@@ -67,24 +85,33 @@ export function BrowsingTrail() {
         !current
       )
         return;
+      const saved: BrowsePosition = {
+        url: current,
+        y: window.scrollY,
+        href: itineraryCard ? url.pathname + url.search : url.pathname,
+        top: link.getBoundingClientRect().top,
+        anchor: itineraryCard
+          ? "itinerary"
+          : link.classList.contains("upd-card__link")
+            ? "card"
+            : link.closest("[data-upd-strip]")
+              ? "photo"
+              : link.closest("h1,h2,h3")
+                ? "heading"
+                : "other",
+      };
       try {
-        sessionStorage.setItem(
-          storageKey(current),
-          JSON.stringify({
-            y: window.scrollY,
-            href: itineraryCard ? url.pathname + url.search : url.pathname,
-            top: link.getBoundingClientRect().top,
-            anchor: itineraryCard
-              ? "itinerary"
-              : link.classList.contains("upd-card__link")
-                ? "card"
-                : link.closest("[data-upd-strip]")
-                  ? "photo"
-                  : link.closest("h1,h2,h3")
-                    ? "heading"
-                    : "other",
-          }),
+        // Preserve Next's history fields and bind the snapshot to this exact visit.
+        history.replaceState(
+          { ...history.state, updBrowsePosition: saved },
+          "",
         );
+      } catch {
+        /* Session storage remains an independent fallback. */
+      }
+      try {
+        sessionStorage.setItem(storageKey(current), JSON.stringify(saved));
+        sessionStorage.setItem("upd:restore-browse", current);
         sessionStorage.setItem("upd:last-browsing-page", current);
       } catch {
         /* Link retains a safe return even without storage. */
@@ -92,8 +119,8 @@ export function BrowsingTrail() {
       url.searchParams.set("return_to", current);
       link.href = url.pathname + url.search + url.hash;
     };
-    document.addEventListener("click", remember);
-    return () => document.removeEventListener("click", remember);
+    document.addEventListener("click", remember, true);
+    return () => document.removeEventListener("click", remember, true);
   }, []);
   useEffect(() => {
     const url = location.pathname + location.search + location.hash;
@@ -114,7 +141,6 @@ export function BrowsingTrail() {
     } catch {
       /* Native history remains available. */
     }
-    if (!returning) return;
     let frame = 0,
       timer: ReturnType<typeof setTimeout> | undefined,
       cancelled = false;
@@ -122,25 +148,26 @@ export function BrowsingTrail() {
       cancelled = true;
     };
     const restore = () => {
-      let saved: {
-        y: number;
-        href: string;
-        top: number;
-        anchor?: string;
-      } | null = null;
+      if (location.pathname + location.search + location.hash !== url) return;
+      clearTimeout(timer);
+      cancelAnimationFrame(frame);
+      // A cached page keeps its old effect and cancellation state alive.
+      cancelled = false;
+      let saved: BrowsePosition | null = history.state?.updBrowsePosition;
+      if (saved?.url !== url) saved = null;
       try {
-        saved = JSON.parse(
+        saved ||= JSON.parse(
           sessionStorage.getItem(`upd:browse-position:${url}`) || "null",
         );
       } catch {
-        return;
+        /* History can restore even when browser storage is unavailable. */
       }
       if (!saved || !Number.isFinite(saved.y) || !Number.isFinite(saved.top))
         return;
       const started = performance.now();
       let stable = 0;
       const attempt = () => {
-        if (cancelled || performance.now() - started > 12000) return;
+        if (cancelled || performance.now() - started > 30000) return;
         const selector =
           saved!.anchor === "itinerary"
             ? "main a[data-itinerary-card]"
@@ -171,7 +198,11 @@ export function BrowsingTrail() {
           const target =
             window.scrollY + link.getBoundingClientRect().top - saved!.top;
           window.scrollTo({ top: target, behavior: "instant" });
-          stable++;
+          // A short loading document can clamp scroll even after the card appears.
+          stable =
+            Math.abs(link.getBoundingClientRect().top - saved!.top) < 2
+              ? stable + 1
+              : 0;
           if (stable >= 4) {
             if (saved!.anchor === "itinerary")
               link.focus({ preventScroll: true });
@@ -185,9 +216,15 @@ export function BrowsingTrail() {
       };
       frame = requestAnimationFrame(attempt);
     };
-    // Runs after source archive filters rebuild their card order, including bfcache.
-    timer = setTimeout(restore, 100);
-    window.addEventListener("pageshow", restore);
+    const shown = (event: PageTransitionEvent) => {
+      if (event.persisted || returning) restore();
+    };
+    const popped = () => restore();
+    // Browser Back may reuse a live document, so listen on ordinary first visits too.
+    if (returning || history.state?.updBrowsePosition?.url === url)
+      timer = setTimeout(restore, 100);
+    window.addEventListener("pageshow", shown);
+    window.addEventListener("popstate", popped);
     window.addEventListener("wheel", cancel, { passive: true });
     window.addEventListener("touchstart", cancel, { passive: true });
     window.addEventListener("keydown", cancel);
@@ -195,7 +232,8 @@ export function BrowsingTrail() {
       cancelled = true;
       clearTimeout(timer);
       cancelAnimationFrame(frame);
-      window.removeEventListener("pageshow", restore);
+      window.removeEventListener("pageshow", shown);
+      window.removeEventListener("popstate", popped);
       window.removeEventListener("wheel", cancel);
       window.removeEventListener("touchstart", cancel);
       window.removeEventListener("keydown", cancel);

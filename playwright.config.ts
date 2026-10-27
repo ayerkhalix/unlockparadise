@@ -30,6 +30,7 @@ export default defineConfig({
         "**/itinerary-photo-polish.spec.ts",
         "**/performance-images.spec.ts",
         "**/home-loading.spec.ts",
+        "**/explore-scroll-return.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },
