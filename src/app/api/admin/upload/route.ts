@@ -1,14 +1,10 @@
-import {
-  api,
-  ApiError,
-  databaseError,
-  json,
-  verifyOrigin,
-  uploadForm,
-} from "@/lib/http";
+import { api, ApiError, json, verifyOrigin, uploadForm } from "@/lib/http";
 import { requireStaff } from "@/lib/auth/session";
-import { validatedImage } from "@/lib/storage/images";
+import { checksum } from "@/lib/storage/derivatives";
+import { POST as prepareUpload } from "./prepare/route";
+import { finishAdminUpload } from "@/lib/storage/admin-upload";
 import { rateLimit } from "@/lib/rate-limit";
+export const maxDuration = 120;
 export async function POST(request: Request) {
   return api(async () => {
     verifyOrigin(request);
@@ -21,35 +17,35 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) throw new ApiError(400, "Choose an image.");
     if (file.size > 5 * 1024 * 1024)
       throw new ApiError(413, "Use an image up to 5 MB.");
-    const bucket =
-      form.get("visibility") === "public"
-        ? "destination-public"
-        : "destination-private";
-    const image = await validatedImage(file);
-    const path = "admin/" + image.name;
-    const upload = await current.db.storage
-      .from(bucket)
-      .upload(path, image.data, { contentType: image.mime, upsert: false });
-    if (upload.error) throw new ApiError(503, "Upload failed.");
-    const result = await current.db
-      .from("media")
-      .insert({
-        bucket,
-        object_path: path,
-        mime_type: image.mime,
-        byte_size: image.data.length,
-        checksum: image.checksum,
-        width: image.width,
-        height: image.height,
-        alt: String(form.get("alt") || "").slice(0, 1000),
-        status: "ready",
-      })
-      .select("id")
-      .single();
-    if (result.error) {
-      await current.db.storage.from(bucket).remove([path]);
-      databaseError(result.error);
-    }
-    return json({ data: result.data }, 201);
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const headers = new Headers(request.headers);
+    headers.set("content-type", "application/json");
+    headers.delete("content-length");
+    const prepared = await prepareUpload(
+      new Request(new URL("/api/admin/upload/prepare/", request.url), {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          mime: file.type,
+          size: file.size,
+          checksum: checksum(bytes),
+          visibility:
+            form.get("visibility") === "public" ? "public" : "private",
+          alt: String(form.get("alt") || "").slice(0, 1000),
+        }),
+      }),
+    );
+    if (!prepared.ok) return prepared;
+    const { data } = await prepared.json();
+    if (data.state === "ready") return json({ data: { id: data.id } }, 201);
+    const upload = await fetch(data.upload_url, {
+      method: "PUT",
+      headers: { "Content-Type": file.type, "x-upsert": "false" },
+      body: bytes,
+    });
+    if (!upload.ok && ![400, 409].includes(upload.status))
+      throw new ApiError(503, "Upload failed.");
+    const result = await finishAdminUpload(data.job_id, current.user.id);
+    return json({ data: result }, result.state === "ready" ? 201 : 202);
   });
 }

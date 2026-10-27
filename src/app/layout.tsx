@@ -56,6 +56,20 @@ export default async function RootLayout({
   return (
     <html lang="en-US">
       <head>
+        <link
+          rel="preload"
+          href="/original/wp-content/themes/unlock-paradise/assets/fonts/open-sans.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/original/wp-content/themes/unlock-paradise/assets/fonts/outfit-600.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link rel="stylesheet" href="/original/vendor/swiper-bundle.min.css" />
         <link rel="stylesheet" href="/original/vendor/glightbox.min.css" />
         {originalStylesheets.map((href) => (

@@ -420,11 +420,27 @@ export function AreaMap({
         observer.observe(container.current!);
       });
     }
-    void initialize().catch(() => {
-      if (!disposed) setUnavailable(true);
-    });
+    const start = () =>
+      void initialize().catch(() => {
+        if (!disposed) setUnavailable(true);
+      });
+    const activation =
+      !compact && "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => {
+              if (entries.some((entry) => entry.isIntersecting)) {
+                activation?.disconnect();
+                start();
+              }
+            },
+            { rootMargin: "400px" },
+          )
+        : null;
+    if (activation && container.current) activation.observe(container.current);
+    else start();
     return () => {
       disposed = true;
+      activation?.disconnect();
       clearTimeout(timeout);
       clearTimeout(overlayTimer);
       clearTimeout(resizeTimer);

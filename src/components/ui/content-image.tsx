@@ -19,11 +19,18 @@ export function ContentImage({
 }: ComponentProps<"img">) {
   const [failed, setFailed] = useState<unknown>(null);
   const [original, setOriginal] = useState<unknown>(null);
+  const [dimensions, setDimensions] = useState<{
+    source: string;
+    max: number;
+  } | null>(null);
   const source = typeof src === "string" ? src : "";
   const delivery =
     original === src
       ? { src: stripFocalPoint(source) }
-      : responsiveImage(source);
+      : responsiveImage(
+          source,
+          dimensions?.source === source ? dimensions.max : undefined,
+        );
   const focal = sourceFocalPoint(source);
   const recover = () => {
     if (
@@ -55,6 +62,15 @@ export function ContentImage({
       alt={alt}
       className={className}
       decoding="async"
+      onLoad={(event) => {
+        const image = event.currentTarget;
+        const requested = Number(
+          new URL(image.currentSrc, location.href).searchParams.get("width"),
+        );
+        if (requested && image.naturalWidth < requested)
+          setDimensions({ source, max: image.naturalWidth });
+        props.onLoad?.(event);
+      }}
       style={{
         ...(focal
           ? { objectPosition: focalPosition(focal), objectFit: "cover" }

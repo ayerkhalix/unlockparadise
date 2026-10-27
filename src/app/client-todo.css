@@ -1881,7 +1881,7 @@ body .p2-workspace .p2-day-tabs .planner-day-tab .planner-delete-day:disabled {
   color: var(--p2-muted);
 }
 .route-loading {
-  min-height: 55dvh;
+  min-height: calc(100svh - 76px);
   display: grid;
   align-items: center;
   color: var(--p2-muted);

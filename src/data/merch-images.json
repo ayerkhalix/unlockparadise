@@ -1,0 +1,62 @@
+{
+  "/merch/images/cap-display.png": {
+    "256": "/merch/optimized/0f6221464a07aa27-256.webp",
+    "384": "/merch/optimized/0f6221464a07aa27-384.webp",
+    "640": "/merch/optimized/0f6221464a07aa27-640.webp",
+    "1024": "/merch/optimized/0f6221464a07aa27-1024.webp"
+  },
+  "/merch/images/cap-side.png": {
+    "256": "/merch/optimized/7e4aa1531b292905-256.webp",
+    "384": "/merch/optimized/7e4aa1531b292905-384.webp",
+    "640": "/merch/optimized/7e4aa1531b292905-640.webp",
+    "1024": "/merch/optimized/7e4aa1531b292905-1024.webp"
+  },
+  "/merch/images/hero-adventure.png": {
+    "256": "/merch/optimized/fb4b292f6e33a4a7-256.webp",
+    "384": "/merch/optimized/fb4b292f6e33a4a7-384.webp",
+    "640": "/merch/optimized/fb4b292f6e33a4a7-640.webp",
+    "1024": "/merch/optimized/fb4b292f6e33a4a7-1024.webp"
+  },
+  "/merch/images/hoodie-back.png": {
+    "256": "/merch/optimized/3b3802d13b26cac8-256.webp",
+    "384": "/merch/optimized/3b3802d13b26cac8-384.webp",
+    "640": "/merch/optimized/3b3802d13b26cac8-640.webp",
+    "1024": "/merch/optimized/3b3802d13b26cac8-1024.webp"
+  },
+  "/merch/images/hoodie-display.png": {
+    "256": "/merch/optimized/7c4b19a3b429580a-256.webp",
+    "384": "/merch/optimized/7c4b19a3b429580a-384.webp",
+    "640": "/merch/optimized/7c4b19a3b429580a-640.webp",
+    "1024": "/merch/optimized/7c4b19a3b429580a-1024.webp"
+  },
+  "/merch/images/tee1-back.png": {
+    "256": "/merch/optimized/725064c4bf64ae66-256.webp",
+    "384": "/merch/optimized/725064c4bf64ae66-384.webp",
+    "640": "/merch/optimized/725064c4bf64ae66-640.webp",
+    "1024": "/merch/optimized/725064c4bf64ae66-1024.webp"
+  },
+  "/merch/images/tee1-detail.png": {
+    "256": "/merch/optimized/521786f6256fa3d0-256.webp",
+    "384": "/merch/optimized/521786f6256fa3d0-384.webp",
+    "640": "/merch/optimized/521786f6256fa3d0-640.webp",
+    "1024": "/merch/optimized/521786f6256fa3d0-1024.webp"
+  },
+  "/merch/images/tee1-display.png": {
+    "256": "/merch/optimized/83db94ad2735c003-256.webp",
+    "384": "/merch/optimized/83db94ad2735c003-384.webp",
+    "640": "/merch/optimized/83db94ad2735c003-640.webp",
+    "1024": "/merch/optimized/83db94ad2735c003-1024.webp"
+  },
+  "/merch/images/tee1-front.png": {
+    "256": "/merch/optimized/88abe89d04bb1967-256.webp",
+    "384": "/merch/optimized/88abe89d04bb1967-384.webp",
+    "640": "/merch/optimized/88abe89d04bb1967-640.webp",
+    "1024": "/merch/optimized/88abe89d04bb1967-1024.webp"
+  },
+  "/merch/images/tote-display.png": {
+    "256": "/merch/optimized/091999e6709e1feb-256.webp",
+    "384": "/merch/optimized/091999e6709e1feb-384.webp",
+    "640": "/merch/optimized/091999e6709e1feb-640.webp",
+    "1024": "/merch/optimized/091999e6709e1feb-1024.webp"
+  }
+}

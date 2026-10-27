@@ -28,6 +28,7 @@ export default defineConfig({
         "**/client-plan-oct26.spec.ts",
         "**/itinerary-library.spec.ts",
         "**/itinerary-photo-polish.spec.ts",
+        "**/performance-images.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

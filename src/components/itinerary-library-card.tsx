@@ -14,7 +14,8 @@ export function ItineraryLibraryCard({
   href: string;
   eager: boolean;
 }) {
-  const ref = useAmbientMotion<HTMLLIElement>();
+  const [eligible, setEligible] = useState(false);
+  const ref = useAmbientMotion<HTMLLIElement>(setEligible);
   const sources = trip.images?.length
     ? trip.images
     : trip.image
@@ -31,7 +32,7 @@ export function ItineraryLibraryCard({
       : undefined;
 
   useEffect(() => {
-    if (!next) return;
+    if (!next || !eligible) return;
     const timer = setInterval(() => {
       const card = ref.current;
       if (
@@ -53,7 +54,7 @@ export function ItineraryLibraryCard({
       setCurrent(next);
     }, 2000);
     return () => clearInterval(timer);
-  }, [shown, next, ref]);
+  }, [shown, next, ref, eligible]);
   useEffect(() => {
     if (!previous) return;
     const timer = setTimeout(() => setPrevious(null), 550);
@@ -61,7 +62,9 @@ export function ItineraryLibraryCard({
   }, [previous]);
   const frames = [
     ...new Set(
-      [previous, shown, next].filter((src): src is string => Boolean(src)),
+      [previous, shown, eligible ? next : undefined].filter(
+        (src): src is string => Boolean(src),
+      ),
     ),
   ];
   return (

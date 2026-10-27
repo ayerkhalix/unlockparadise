@@ -2,7 +2,9 @@
 import { useEffect, useRef } from "react";
 
 /** Decorative motion never runs outside the viewport or against user preferences. */
-export function useAmbientMotion<T extends HTMLElement>() {
+export function useAmbientMotion<T extends HTMLElement>(
+  onPlaying?: (playing: boolean) => void,
+) {
   const ref = useRef<T>(null);
   useEffect(() => {
     const el = ref.current;
@@ -10,9 +12,9 @@ export function useAmbientMotion<T extends HTMLElement>() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     let visible = false;
     const update = () => {
-      el.dataset.playing = String(
-        visible && !document.hidden && !reduced.matches,
-      );
+      const playing = visible && !document.hidden && !reduced.matches;
+      el.dataset.playing = String(playing);
+      onPlaying?.(playing);
     };
     const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
@@ -26,6 +28,6 @@ export function useAmbientMotion<T extends HTMLElement>() {
       reduced.removeEventListener("change", update);
       document.removeEventListener("visibilitychange", update);
     };
-  }, []);
+  }, [onPlaying]);
   return ref;
 }

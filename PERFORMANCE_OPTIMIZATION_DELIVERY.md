@@ -1,0 +1,37 @@
+# Image and performance delivery — 27 October 2026
+
+## Delivered behavior
+
+- The shared media route chooses ready stored files by measured width. It never passes `transform` to Supabase. Existing variants work for new uploads as well as legacy imports. Archive files and files in another visibility bucket cannot be selected. Private access checks and private/no-store signed redirects remain.
+- All 18,122 existing non-archive variant records received verified dimensions from the local migration source. Existing metadata fields, source objects and associations remain unchanged. A checkpointed Sharp backfill adds high-quality WebP card/hero copies in immutable paths; originals and previous sizes are retained. Unsupported/oversized archive masters use a checksum-verified supported display master, with the reason recorded.
+- The completed backfill covers 3,434 eligible existing images with 10,066 additional copies (3,461,915,604 bytes). Zero failed items remain after retries. Two oversized archive masters used their verified display masters; neither archive was modified. The remaining existing media are outside this raster/destination pipeline, including private profile media. Total derivative storage is not a bandwidth saving: each browser selects the appropriate one rather than downloading the complete set.
+- Future admin uploads preserve the uploaded bytes in private Storage, verify SHA-256, and prepare high-quality, oriented, bounded display files. Transparent/PNG derivatives use lossless WebP encoding; photos use quality 88. This describes website copies, not a claim that resized photographic pixels are lossless. Original source bytes are exact. The current worker deliberately rejects animation instead of silently flattening it. HEIC uploads are not advertised as supported.
+- The direct-upload path avoids sending large binaries through Vercel functions. A server-only job table, scoped signed upload, current staff/owner checks, processing lease, stale-job recovery and service-only atomic publication prevent duplicate or partially published media. Existing user/MFA rules are retained. The actual admin form was tested with a source above 4.5 MB. Product uploads use the same helper and retain earlier successful selections after partial failure.
+- Transfer cancellation leaves previously saved originals intact. Standard upload retries restart the transfer; processing jobs resume. There is no claim of chunk-resumable TUS transfer support.
+- Limited published destination previews are persisted by source checksum/cover/focal key instead of recomputed on every cache miss. Publication is checked before conditional responses; originals are not exposed through this endpoint.
+- Ten existing local merch images now have 40 immutable, fingerprinted, lossless WebP display files. The original PNGs/JPEGs remain. Actual-width srcset avoids advertising nonexistent sizes. The total size of a 640px copy for each source is 2,337,738 bytes versus 9,929,594 bytes for those ten source files: about 76% smaller, an asset-level comparison rather than a whole-page benchmark.
+- Only eligible visible itinerary cards mount/preload their next image; the requested two-second rotation and 450ms fade remain. Main-map initialization waits until near the viewport. Primary existing fonts preload and the route-loading area reserves content space to keep the footer from jumping through the viewport.
+
+## Data and security
+
+The additive migration is `20261027032431_image_delivery_and_uploads.sql`. Upload jobs have RLS with no anon/authenticated table grants, and the publication function is security invoker and executable only by service_role. The migration is recorded on the pinned client project. Storage policies, roles, memberships and billing/spend-cap settings were not changed.
+
+The private pre-change snapshot and subsequent audits compare all prior places, media, media_files, gallery/taxonomy relations, merchandise, itineraries, days and stops. Added width/height fields and newly generated derivative rows are expected; original row fields must remain identical. Browser tests create and remove only exact owned synthetic fixtures. Historical missing camera originals cannot be recreated; future originals are preserved exactly.
+
+## Verification and measurements
+
+Evidence is under ignored `artifacts/performance-optimization/`: build/type/lint logs, backend and browser results, source/display visual comparison, original-data snapshot/audit, backfill progress, quota-guarded baseline and deployed follow-up measurements. Final commit/deployment identity and counts belong in `release.json` in that directory.
+
+The baseline contains 16 first/repeat public-route visits on Chromium at phone/desktop widths with Supabase render requests blocked to avoid additional quota usage. It is not a throttled Lighthouse run or field Web Vitals study, and later route visits can reuse shared cached assets. Local follow-up timing differs in hosting conditions; only same-host follow-up results should be compared as indicative lab samples. No 90+ score or real-user p75 result is claimed. Cross-origin resource byte counters can undercount where Timing-Allow-Origin is unavailable.
+
+Before the final release, the full backend suite passed 131 checks; focused source/variant tests passed, including exact PNG transparency pixels, orientation, dimension bounds and input checksum preservation. Chromium desktop/phone and WebKit desktop/phone verify stored delivery, denied guest access, original card motion and profile navigation. The large upload executes once per acceptance run rather than on every browser/device combination. WebKit on Windows is engine verification, not a physical Mac test.
+
+## Operating and rollback
+
+- `node scripts/media/audit.mjs --before` captures a fresh private content baseline before a new batch. Do not overwrite the release baseline during a running migration.
+- `node scripts/media/dimensions.mjs --apply` fills missing legacy dimensions from the verified local source.
+- `node --conditions=react-server --import tsx scripts/media/optimize.ts --limit=40 --apply` runs a bounded resumable batch. The default is a dry run. `--concurrency` is bounded; lower it on a busy machine. Checkpoints are written atomically. Re-run after transient failures; failed or differently encoded immutable objects are never overwritten.
+- `node scripts/media/local-merch.mjs` regenerates the local merch manifest/copies from unchanged sources. Fingerprints change with source bytes or recipe.
+- Roll back delivery selection with MEDIA_STORED_VARIANTS=off to use untransformed parent files, or redeploy the verified prior compatible source. New derivatives and archived originals remain. Do not restore an old transform-enabled build merely to undo a crop regression.
+
+Supabase's existing 544 usage count does not disappear after release; it resets with its billing cycle. The new site stops creating transformation requests. Other clients, old tabs or manually used old transform URLs can still affect the meter. Removing this dependency does not eliminate Storage, bandwidth or function costs. The project's transformation switch and organization spend cap were left unchanged.

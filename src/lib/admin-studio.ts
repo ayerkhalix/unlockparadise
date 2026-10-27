@@ -254,7 +254,7 @@ export async function studioGET(request: Request, resource: string[]) {
         ? "configured; delivery verification required"
         : "unavailable",
       media_records: result.count,
-      upload_limit_bytes: 5242880,
+      upload_limit_bytes: 20971520,
       storage:
         "Existing mappings retained. Small uploads only; quota usage is authoritative in Supabase Storage.",
       stored_bytes: usage.data?.stored_bytes,

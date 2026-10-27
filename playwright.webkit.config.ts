@@ -8,6 +8,7 @@ export default defineConfig({
     "**/client-plan-oct26.spec.ts",
     "**/itinerary-library.spec.ts",
     "**/itinerary-photo-polish.spec.ts",
+        "**/performance-images.spec.ts",
   ],
   use: { ...base.use, browserName: "webkit", channel: undefined },
   projects: [

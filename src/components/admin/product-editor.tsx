@@ -1,5 +1,6 @@
 "use client";
 import { ContentImage } from "@/components/ui/content-image";
+import { uploadAdminImage } from "@/lib/admin-image-upload";
 
 import { useEffect, useRef, useState } from "react";
 import { ValidatedForm } from "../ui/validated-form";
@@ -283,11 +284,11 @@ export function ProductEditor({
     if (
       selected.some(
         (f) =>
-          f.size > 5 * 1024 * 1024 ||
+          f.size > 20 * 1024 * 1024 ||
           !["image/jpeg", "image/png", "image/webp"].includes(f.type),
       )
     ) {
-      setUploadError("Choose JPG, PNG or WebP photos up to 5 MB each.");
+      setUploadError("Choose JPG, PNG or WebP photos up to 20 MB each.");
       return;
     }
     setUploading(true);
@@ -296,18 +297,13 @@ export function ProductEditor({
     mark();
     try {
       for (const [i, file] of selected.entries()) {
-        const body = new FormData();
-        body.set("file", file);
-        body.set("visibility", "public");
-        body.set("alt", name || file.name.replace(/\.[^.]+$/, ""));
-        const response = await fetch("/api/admin/upload/", {
-          method: "POST",
-          body,
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || "Upload failed.");
+        const result = await uploadAdminImage(
+          file,
+          "public",
+          name || file.name.replace(/\.[^.]+$/, ""),
+        );
         const image = {
-          src: `/api/media/${result.data.id}/`,
+          src: `/api/media/${result.id}/`,
           alt: name || file.name,
         };
         setImages((rows) =>
@@ -594,7 +590,8 @@ export function ProductEditor({
             <h2>Photos</h2>
             <p>
               Upload this product’s photos. The first photo is the cover. JPG,
-              PNG or WebP, up to 5 MB each; 8 photos maximum.
+              PNG or WebP, up to 20 MB each; 8 photos maximum. Originals are
+              preserved privately.
             </p>
             <input
               ref={fileInput}

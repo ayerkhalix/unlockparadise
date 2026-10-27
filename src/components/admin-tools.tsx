@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { ValidatedForm } from "./ui/validated-form";
 import { useDecision } from "./ui/decision";
 import { adminRequest as request } from "./admin/shared";
 import { StudioTable } from "./admin/shared";
 import { list } from "./admin/shared";
+import { uploadAdminImage } from "@/lib/admin-image-upload";
 type Row = Record<string, unknown>;
 export function MediaUpload({
   onSaved,
@@ -15,6 +16,8 @@ export function MediaUpload({
 }) {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const transfer = useRef<AbortController | null>(null);
+  useEffect(() => () => transfer.current?.abort(), []);
   return (
     <ValidatedForm
       data-backend="true"
@@ -23,33 +26,43 @@ export function MediaUpload({
         if (busy) return;
         const form = e.currentTarget;
         const file = new FormData(form).get("file");
-        if (file instanceof File && file.size > 5 * 1024 * 1024) {
-          setMessage("Use an image up to 5 MB.");
+        if (!(file instanceof File) || file.size > 20 * 1024 * 1024) {
+          setMessage("Use an image up to 20 MB.");
           return;
         }
         setBusy(true);
         setMessage("");
+        transfer.current = new AbortController();
         try {
-          const r = await fetch("/api/admin/upload/", {
-            method: "POST",
-            body: new FormData(form),
-          });
-          const result = await r.json();
-          if (!r.ok) throw new Error(result.error);
+          const values = new FormData(form);
+          await uploadAdminImage(
+            file,
+            String(values.get("visibility") || "private"),
+            String(values.get("alt") || ""),
+            setMessage,
+            transfer.current.signal,
+          );
           form.reset();
           setMessage("Uploaded and verified.");
           onSaved();
         } catch (error) {
-          setMessage(error instanceof Error ? error.message : "Upload failed.");
+          setMessage(
+            error instanceof Error && error.name === "AbortError"
+              ? "Upload stopped. Any saved original is kept; select the file again to retry."
+              : error instanceof Error
+                ? error.message
+                : "Upload failed.",
+          );
         } finally {
           setBusy(false);
+          transfer.current = null;
         }
       }}
     >
       <h2>Upload an image</h2>
       <p>
-        JPG, PNG or WebP · maximum 5 MB. Upload only the images you need;
-        existing media mappings are retained.
+        JPG, PNG or WebP · maximum 20 MB. Your original is preserved privately;
+        website sizes are prepared automatically.
       </p>
       <div className="admin-fields">
         <label>
@@ -59,6 +72,7 @@ export function MediaUpload({
             name="file"
             accept="image/jpeg,image/png,image/webp"
             required
+            disabled={busy}
           />
         </label>
         <label>
@@ -66,7 +80,7 @@ export function MediaUpload({
           <select
             name="visibility"
             defaultValue={publicOnly ? "public" : "private"}
-            disabled={publicOnly}
+            disabled={publicOnly || busy}
           >
             <option value="private">Member gallery (private)</option>
             <option value="public">Public cover / category image</option>
@@ -77,12 +91,17 @@ export function MediaUpload({
         </label>
         <label>
           Alternative text
-          <input name="alt" maxLength={1000} />
+          <input name="alt" maxLength={1000} disabled={busy} />
         </label>
       </div>
       <button type="submit" disabled={busy}>
         {busy ? "Uploading…" : "Upload image"}
       </button>
+      {busy && message !== "Preparing image sizes…" && (
+        <button type="button" onClick={() => transfer.current?.abort()}>
+          Cancel upload
+        </button>
+      )}
       <p role="status">{message}</p>
     </ValidatedForm>
   );
