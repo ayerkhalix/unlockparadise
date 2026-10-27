@@ -61,6 +61,7 @@ export function SiteBehavior() {
     document
       .querySelectorAll<HTMLInputElement>('input[type="password"]')
       .forEach((input) => {
+        if (input.closest("[data-react-password]")) return;
         const ownedWrapper =
           input.parentElement?.classList.contains("p2-password-field");
         const wrapper = ownedWrapper

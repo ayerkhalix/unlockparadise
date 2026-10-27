@@ -7,6 +7,7 @@ export default defineConfig({
     "**/safari-time.spec.ts",
     "**/client-plan-oct26.spec.ts",
     "**/itinerary-library.spec.ts",
+    "**/itinerary-photo-polish.spec.ts",
   ],
   use: { ...base.use, browserName: "webkit", channel: undefined },
   projects: [

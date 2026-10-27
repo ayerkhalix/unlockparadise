@@ -62,20 +62,14 @@ export async function getItineraryLibrary(
   const pages = Math.max(1, Math.ceil(count / itineraryLibraryPageSize));
   const page = Math.min(filters.page, pages);
   let query = owned(
-    `id,title,area_id,start_date,end_date,areas(name),days:itinerary_days(count),stops:itinerary_items(count),cover:itinerary_items(position,itinerary_days(day_number),places!inner(place_media!inner(${photos})))`,
-  )
-    .eq("cover.places.status", "publish")
-    .eq("cover.places.place_media.kind", "cover")
-    .in("cover.places.place_media.media.status", ["ready", "legacy"]);
+    "id,title,area_id,start_date,end_date,areas(name),days:itinerary_days(count),stops:itinerary_items(count)",
+  );
   if (filters.sort === "name") query = query.order("title");
   else if (filters.sort === "date")
     query = query.order("start_date", { ascending: true, nullsFirst: false });
   else query = query.order("updated_at", { ascending: false });
   const result = await query
     .order("id")
-    .order("itinerary_days(day_number)", { referencedTable: "cover" })
-    .order("position", { referencedTable: "cover" })
-    .limit(1, { referencedTable: "cover" })
     .range(
       (page - 1) * itineraryLibraryPageSize,
       page * itineraryLibraryPageSize - 1,
@@ -96,25 +90,68 @@ export async function getItineraryLibrary(
     areas: { name: string } | null;
     days: { count: number }[];
     stops: { count: number }[];
-    cover: { places: { place_media: Photo[] } }[];
   }[];
+  const covers = new Map<string, string[]>();
+  // Page stop metadata independently: repeated visits must not truncate later destinations.
+  if (rows.length)
+    for (let offset = 0; ; offset += 500) {
+      const batch = await db
+        .from("itinerary_items")
+        .select(
+          `id,itinerary_id,position,itinerary_days(day_number),places!inner(id,place_media!inner(${photos}))`,
+        )
+        .in(
+          "itinerary_id",
+          rows.map((row) => row.id),
+        )
+        .eq("places.status", "publish")
+        .eq("places.place_media.kind", "cover")
+        .in("places.place_media.media.status", ["ready", "legacy"])
+        .order("itinerary_id")
+        .order("itinerary_days(day_number)")
+        .order("position")
+        .order("id")
+        .order("position", { referencedTable: "places.place_media" })
+        .limit(1, { referencedTable: "places.place_media" })
+        .range(offset, offset + 499);
+      databaseError(batch.error);
+      const stops = (batch.data || []) as unknown as {
+        itinerary_id: string;
+        places: { place_media: Photo[] };
+      }[];
+      for (const stop of stops) {
+        const src = image(stop.places.place_media[0]);
+        const list = covers.get(stop.itinerary_id) || [];
+        if (src && !list.includes(src)) list.push(src);
+        covers.set(stop.itinerary_id, list);
+      }
+      if (stops.length < 500) break;
+    }
   return {
-    data: rows.map((row) => ({
-      id: row.id,
-      title: row.title,
-      area_id: row.area_id,
-      area: row.areas?.name || "Area not selected",
-      start_date: row.start_date,
-      end_date: row.end_date,
-      day_count: row.days[0]?.count || 0,
-      stop_count: row.stops[0]?.count || 0,
-      image:
-        image(row.cover[0]?.places.place_media[0]) ||
-        image(
-          areas.find((area) => area.id === row.area_id)?.place_areas[0]?.places
-            .place_media[0],
-        ),
-    })),
+    data: rows.map((row) => {
+      const destinationPhotos = covers.get(row.id) || [];
+      const fallback = image(
+        areas.find((area) => area.id === row.area_id)?.place_areas[0]?.places
+          .place_media[0],
+      );
+      const images = destinationPhotos.length
+        ? destinationPhotos
+        : fallback
+          ? [fallback]
+          : [];
+      return {
+        id: row.id,
+        title: row.title,
+        area_id: row.area_id,
+        area: row.areas?.name || "Area not selected",
+        start_date: row.start_date,
+        end_date: row.end_date,
+        day_count: row.days[0]?.count || 0,
+        stop_count: row.stops[0]?.count || 0,
+        image: images[0] || null,
+        images,
+      };
+    }),
     areas: areas.map(({ id, name }) => ({ id, name })),
     count,
     total: all.count || 0,

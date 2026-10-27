@@ -12,6 +12,7 @@ import { OriginalMarkup } from "./original-markup";
 import { ProfileEditor } from "./profile-editor";
 import { Icon } from "./icon";
 import { ValidatedForm } from "./ui/validated-form";
+import { PasswordField } from "./ui/password-field";
 import { travelPreferences } from "@/lib/repositories/traveler";
 import { FeatureLock } from "./feature-lock";
 import { TravelerBadgePrivacy } from "./traveler-badge-privacy";
@@ -289,6 +290,12 @@ export async function MemberPage({ kind }: { kind: string }) {
                         ? "Membership details"
                         : "Explore Explorer+"}
                     </a>
+                    <a
+                      className="profile-account-settings-link"
+                      href="#account-settings"
+                    >
+                      Account settings
+                    </a>
                   </section>
                 </aside>
                 <section
@@ -340,20 +347,26 @@ export async function MemberPage({ kind }: { kind: string }) {
                           method="post"
                           action="/api/auth/password/"
                         >
-                          <label className="upd-auth-field">
+                          <label
+                            className="upd-auth-field"
+                            htmlFor="profile-current-password"
+                          >
                             Current password
-                            <input
+                            <PasswordField
+                              id="profile-current-password"
                               name="current_password"
-                              type="password"
                               autoComplete="current-password"
                               required
                             />
                           </label>
-                          <label className="upd-auth-field">
+                          <label
+                            className="upd-auth-field"
+                            htmlFor="profile-new-password"
+                          >
                             New password
-                            <input
+                            <PasswordField
+                              id="profile-new-password"
                               name="password"
-                              type="password"
                               minLength={8}
                               maxLength={200}
                               autoComplete="new-password"

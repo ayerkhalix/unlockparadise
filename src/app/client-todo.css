@@ -1590,9 +1590,15 @@ body:has(.p2-floating) .p2-map-feedback .p2-button {
 .planner-inline-search > .p2-search-input {
   width: 100%;
 }
-.planner-inline-search input {
+body.upd-surface--navy
+  .p2-shell
+  .p2-destination-finder
+  .planner-inline-search
+  .p2-search-input
+  > input {
   min-height: 50px;
-  padding-left: 44px;
+  padding-left: 46px;
+  padding-right: 44px;
 }
 .p2-day-tabs[hidden] {
   display: none;
@@ -2229,5 +2235,106 @@ body.upd-surface--navy
     .itinerary-library-card__photo
     > img {
     transform: none;
+  }
+}
+
+/* Destination previews keep fixed media geometry while their covers crossfade. */
+.itinerary-library-card {
+  position: relative;
+}
+.itinerary-library-card__photo {
+  position: relative;
+  isolation: isolate;
+}
+.itinerary-card-photo__frame {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 900ms ease-in-out;
+}
+.itinerary-card-photo__frame.is-current {
+  opacity: 1;
+  z-index: 1;
+}
+.itinerary-card-photo__frame.is-previous {
+  opacity: 1;
+  z-index: 0;
+}
+.itinerary-card-photo__frame > img,
+.itinerary-card-photo__frame > .p2-photo-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.itinerary-library-card__photo.is-crossfading .itinerary-card-photo__frame {
+  will-change: opacity;
+}
+body .itinerary-library-card > .itinerary-card-photo__pause {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid var(--p2-line);
+  border-radius: 50%;
+  background: var(--p2-navy);
+  color: var(--p2-text);
+  box-shadow: none;
+  cursor: pointer;
+}
+body .itinerary-library-card > .itinerary-card-photo__pause:hover {
+  background: var(--p2-panel);
+  color: var(--p2-teal);
+  border-color: var(--p2-teal);
+}
+body .p2-account-page .p3-profile-workspace {
+  padding-top: 28px;
+}
+body .p2-account-page .p3-profile-content > .upd-stats {
+  margin: 0;
+  padding: 0 0 28px;
+}
+body .p2-account-page .p3-profile-content .p3-profile-membership {
+  padding-bottom: 28px;
+}
+body .p2-account-page .p3-profile-membership > a {
+  display: block;
+  width: fit-content;
+  min-height: 44px;
+  padding-block: 10px;
+  box-sizing: border-box;
+}
+body.upd-surface--navy
+  .p2-account-page
+  .p3-profile-membership
+  > .profile-account-settings-link {
+  margin-top: 4px;
+}
+@media (max-width: 760px) {
+  body .p2-account-page .p3-profile-workspace {
+    padding-top: 24px;
+  }
+  body .p2-account-page .p3-profile-content > .upd-stats {
+    padding-bottom: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .itinerary-card-photo__frame {
+    transition: none;
+  }
+  body .itinerary-library-card > .itinerary-card-photo__pause {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .p2-destination-finder .p2-destination-choices {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

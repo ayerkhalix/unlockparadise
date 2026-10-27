@@ -8,9 +8,9 @@ import {
   type ItineraryLibraryResult,
   type LibraryFilters,
 } from "@/lib/itinerary-library";
-import { plannerHref, tripDateLabel, type Trip } from "@/lib/planning";
+import { plannerHref, type Trip } from "@/lib/planning";
 import { requestJSON, notify } from "@/lib/client-api";
-import { ContentImage } from "./ui/content-image";
+import { ItineraryLibraryCard } from "./itinerary-library-card";
 import { SearchInput } from "./ui/search-input";
 import { Modal } from "./ui/modal";
 import { TripForm } from "./trip-form";
@@ -222,47 +222,12 @@ export function ItineraryLibrary() {
               {result.data.length ? (
                 <ul className="itinerary-library__grid" inert={pending}>
                   {result.data.map((trip, index) => (
-                    <li key={trip.id} className="itinerary-library-card">
-                      <a
-                        className="itinerary-library-card__link"
-                        data-itinerary-card
-                        href={plannerHref(trip.id, undefined, href)}
-                      >
-                        <div className="itinerary-library-card__photo">
-                          {trip.image ? (
-                            <ContentImage
-                              src={trip.image}
-                              alt=""
-                              sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1100px) 46vw, 30vw"
-                              loading={index < 3 ? "eager" : "lazy"}
-                            />
-                          ) : (
-                            <span>No destinations yet</span>
-                          )}
-                        </div>
-                        <div className="itinerary-library-card__body">
-                          <p className="itinerary-library-card__area">
-                            {trip.area}
-                          </p>
-                          <h2>{trip.title}</h2>
-                          <p className="itinerary-library-card__dates">
-                            {tripDateLabel(trip.start_date, trip.end_date)}
-                          </p>
-                          <p className="itinerary-library-card__counts">
-                            {trip.day_count}{" "}
-                            {trip.day_count === 1 ? "day" : "days"}
-                            <span aria-hidden="true"> · </span>
-                            {trip.stop_count}{" "}
-                            {trip.stop_count === 1
-                              ? "destination"
-                              : "destinations"}
-                          </p>
-                          <span className="itinerary-library-card__open">
-                            Open itinerary <span aria-hidden="true">↗</span>
-                          </span>
-                        </div>
-                      </a>
-                    </li>
+                    <ItineraryLibraryCard
+                      key={trip.id}
+                      trip={trip}
+                      href={plannerHref(trip.id, undefined, href)}
+                      eager={index < 3}
+                    />
                   ))}
                 </ul>
               ) : (

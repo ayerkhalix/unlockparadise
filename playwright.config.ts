@@ -27,6 +27,7 @@ export default defineConfig({
         "**/safari-time.spec.ts",
         "**/client-plan-oct26.spec.ts",
         "**/itinerary-library.spec.ts",
+        "**/itinerary-photo-polish.spec.ts",
       ],
   timeout: 60000,
   expect: { timeout: 15000 },

@@ -54,6 +54,7 @@ export type ItinerarySummary = {
   day_count: number;
   stop_count: number;
   image: string | null;
+  images?: string[];
 };
 export type ItineraryLibraryResult = {
   data: ItinerarySummary[];
