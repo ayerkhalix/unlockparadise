@@ -1,4 +1,22 @@
 /* Client review refinements: inherit the travel notebook palette and shared controls. */
+.browse-return-loading {
+  display: none;
+}
+html[data-browse-restoring] .upd-site,
+html[data-browse-restoring] .p2-floating {
+  visibility: hidden;
+}
+html[data-browse-restoring] #upd-main {
+  min-height: var(--browse-reserve, 100svh);
+}
+html[data-browse-restoring] .browse-return-loading {
+  display: grid;
+  position: fixed;
+  inset: 0;
+  place-items: center;
+  color: var(--p2-muted);
+  pointer-events: none;
+}
 .destination-invitation {
   display: flex;
   align-items: center;

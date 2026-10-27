@@ -1,9 +1,11 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { safeBrowseReturn } from "@/lib/browsing-return";
 import { upgradeHref } from "@/lib/membership-navigation";
 import type { Tier } from "@/lib/destinations";
+import { useBrowseSession } from "./browse-session";
+import { finishBrowseRestore, holdBrowseRestore } from "@/lib/browse-restore";
 
 const key = "upd:last-browsing-page";
 type BrowsePosition = {
@@ -12,6 +14,8 @@ type BrowsePosition = {
   href: string;
   top: number;
   anchor: string;
+  height: number;
+  scope: string;
 };
 function browsingTarget(value: string, referrer = false) {
   if (!value || /[\\\u0000-\u001f\u007f]/.test(value)) return null;
@@ -39,6 +43,9 @@ function browsingTarget(value: string, referrer = false) {
 export function BrowsingTrail() {
   const path = usePathname();
   const query = useSearchParams();
+  const router = useRouter();
+  const session = useBrowseSession();
+  const departure = useRef<{ from: string; to: string } | null>(null);
   useEffect(() => {
     if (document.querySelector(".member-lock")) return;
     if (
@@ -69,7 +76,7 @@ export function BrowsingTrail() {
         event.ctrlKey ||
         event.shiftKey ||
         event.altKey ||
-        link.target === "_blank" ||
+        (link.target !== "" && link.target !== "_self") ||
         link.hasAttribute("download")
       )
         return;
@@ -87,6 +94,8 @@ export function BrowsingTrail() {
         return;
       const saved: BrowsePosition = {
         url: current,
+        scope: session?.scope || "",
+        height: document.documentElement.scrollHeight,
         y: window.scrollY,
         href: itineraryCard ? url.pathname + url.search : url.pathname,
         top: link.getBoundingClientRect().top,
@@ -118,13 +127,33 @@ export function BrowsingTrail() {
       }
       url.searchParams.set("return_to", current);
       link.href = url.pathname + url.search + url.hash;
+      departure.current = {
+        from: current,
+        to: url.pathname + url.search + url.hash,
+      };
+      event.preventDefault();
+      router.push(departure.current.to);
     };
     document.addEventListener("click", remember, true);
     return () => document.removeEventListener("click", remember, true);
-  }, []);
-  useEffect(() => {
+  }, [router, session]);
+  useLayoutEffect(() => {
     const url = location.pathname + location.search + location.hash;
-    if (!safeBrowseReturn(url)) return;
+    if (departure.current?.to === url) {
+      try {
+        history.replaceState(
+          { ...history.state, updBrowseOrigin: departure.current.from },
+          "",
+        );
+      } catch {
+        /* The validated Return URL still works without history metadata. */
+      }
+      departure.current = null;
+    }
+    if (!safeBrowseReturn(url)) {
+      finishBrowseRestore();
+      return;
+    }
     const navigation = performance.getEntriesByType("navigation")[0] as
       PerformanceNavigationTiming | undefined;
     let returning = navigation?.type === "back_forward";
@@ -141,16 +170,15 @@ export function BrowsingTrail() {
     } catch {
       /* Native history remains available. */
     }
-    let frame = 0,
-      timer: ReturnType<typeof setTimeout> | undefined,
+    let timer: ReturnType<typeof setTimeout> | undefined,
       cancelled = false;
     const cancel = () => {
       cancelled = true;
+      finishBrowseRestore();
     };
     const restore = () => {
       if (location.pathname + location.search + location.hash !== url) return;
       clearTimeout(timer);
-      cancelAnimationFrame(frame);
       // A cached page keeps its old effect and cancellation state alive.
       cancelled = false;
       let saved: BrowsePosition | null = history.state?.updBrowsePosition;
@@ -162,12 +190,24 @@ export function BrowsingTrail() {
       } catch {
         /* History can restore even when browser storage is unavailable. */
       }
-      if (!saved || !Number.isFinite(saved.y) || !Number.isFinite(saved.top))
+      if (!saved || !Number.isFinite(saved.y) || !Number.isFinite(saved.top)) {
+        finishBrowseRestore();
         return;
+      }
+      if (saved.scope && saved.scope !== session?.scope) {
+        finishBrowseRestore();
+        return;
+      }
       const started = performance.now();
-      let stable = 0;
       const attempt = () => {
-        if (cancelled || performance.now() - started > 30000) return;
+        if (cancelled || performance.now() - started > 8000) {
+          finishBrowseRestore();
+          return;
+        }
+        if (document.querySelector("main [role=alert]")) {
+          finishBrowseRestore();
+          return;
+        }
         const selector =
           saved!.anchor === "itinerary"
             ? "main a[data-itinerary-card]"
@@ -193,17 +233,28 @@ export function BrowsingTrail() {
           : null;
         const loading =
           document.querySelector(".planner-browser .p2-destination-loading") ||
+          document.querySelector(
+            '.itinerary-library__results[aria-busy="true"]',
+          ) ||
           (archiveGrid && archiveGrid.dataset.updArchiveReady !== "true");
-        if (link && !loading && !link.closest("[hidden],.is-hidden")) {
+        if (
+          link &&
+          !loading &&
+          document.fonts.status !== "loading" &&
+          !link.closest("[hidden],.is-hidden")
+        ) {
           const target =
             window.scrollY + link.getBoundingClientRect().top - saved!.top;
-          window.scrollTo({ top: target, behavior: "instant" });
-          // A short loading document can clamp scroll even after the card appears.
-          stable =
-            Math.abs(link.getBoundingClientRect().top - saved!.top) < 2
-              ? stable + 1
-              : 0;
-          if (stable >= 4) {
+          if (Math.abs(window.scrollY - target) > 1) {
+            holdBrowseRestore(saved!.height);
+            window.scrollTo({ top: target, behavior: "instant" });
+          }
+          if (Math.abs(link.getBoundingClientRect().top - saved!.top) < 2) {
+            finishBrowseRestore();
+            const corrected =
+              window.scrollY + link.getBoundingClientRect().top - saved!.top;
+            if (Math.abs(window.scrollY - corrected) > 1)
+              window.scrollTo({ top: corrected, behavior: "instant" });
             if (saved!.anchor === "itinerary")
               link.focus({ preventScroll: true });
             try {
@@ -212,17 +263,17 @@ export function BrowsingTrail() {
             return;
           }
         }
-        timer = setTimeout(attempt, 100);
+        holdBrowseRestore(saved!.height);
+        timer = setTimeout(attempt, 40);
       };
-      frame = requestAnimationFrame(attempt);
+      attempt();
     };
     const shown = (event: PageTransitionEvent) => {
       if (event.persisted || returning) restore();
     };
     const popped = () => restore();
     // Browser Back may reuse a live document, so listen on ordinary first visits too.
-    if (returning || history.state?.updBrowsePosition?.url === url)
-      timer = setTimeout(restore, 100);
+    if (returning || history.state?.updBrowsePosition?.url === url) restore();
     window.addEventListener("pageshow", shown);
     window.addEventListener("popstate", popped);
     window.addEventListener("wheel", cancel, { passive: true });
@@ -231,14 +282,14 @@ export function BrowsingTrail() {
     return () => {
       cancelled = true;
       clearTimeout(timer);
-      cancelAnimationFrame(frame);
+      finishBrowseRestore();
       window.removeEventListener("pageshow", shown);
       window.removeEventListener("popstate", popped);
       window.removeEventListener("wheel", cancel);
       window.removeEventListener("touchstart", cancel);
       window.removeEventListener("keydown", cancel);
     };
-  }, [path, query]);
+  }, [path, query, session]);
   return null;
 }
 export function GateBack() {

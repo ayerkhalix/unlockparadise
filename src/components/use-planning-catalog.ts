@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { requestJSON } from "@/lib/client-api";
 import type { TravelPlace } from "@/lib/planning";
 import type { MapConfiguration } from "./palawan-map";
+import { useBrowseSession } from "./browse-session";
 
 export type PlanningCatalog = {
   places: TravelPlace[];
@@ -16,14 +17,21 @@ export function usePlanningCatalog(
   areaId?: string | null,
 ): PlanningCatalog {
   const key = `${tripId || ""}:${areaId || ""}`;
+  const session = useBrowseSession();
+  const cacheKey = `planning:${key}`;
   const [state, setState] = useState<
     Omit<PlanningCatalog, "reload"> & { key: string }
-  >({
-    key,
-    places: [],
-    loading: true,
-    error: "",
-  });
+  >(
+    () =>
+      session?.read<Omit<PlanningCatalog, "reload"> & { key: string }>(
+        cacheKey,
+      ) || {
+        key,
+        places: [],
+        loading: true,
+        error: "",
+      },
+  );
   const [revision, setRevision] = useState(0);
   const reload = useCallback(() => {
     setState((current) => ({ ...current, loading: true, error: "" }));
@@ -39,26 +47,31 @@ export function usePlanningCatalog(
       controller.signal,
     )
       .then((result) => {
-        if (!controller.signal.aborted)
-          setState({
+        if (!controller.signal.aborted) {
+          const next = {
             key,
             places: result.data,
             metadata: result.map,
             loading: false,
             error: "",
-          });
+          };
+          session?.write(cacheKey, next);
+          setState(next);
+        }
       })
       .catch((error) => {
-        if (!controller.signal.aborted)
+        if (!controller.signal.aborted) {
+          session?.remove(cacheKey);
           setState({
             key,
             places: [],
             loading: false,
             error: error.message,
           });
+        }
       });
     return () => controller.abort();
-  }, [revision, tripId, areaId, key]);
+  }, [revision, tripId, areaId, key, session, cacheKey]);
   if (tripId && !areaId)
     return {
       places: [],

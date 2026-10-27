@@ -14,6 +14,7 @@ import { ItineraryLibraryCard } from "./itinerary-library-card";
 import { SearchInput } from "./ui/search-input";
 import { Modal } from "./ui/modal";
 import { TripForm } from "./trip-form";
+import { useBrowseSession } from "./browse-session";
 
 export function ItineraryLibrary() {
   const params = useSearchParams();
@@ -22,11 +23,17 @@ export function ItineraryLibrary() {
   const router = useRouter();
   const [attempt, setAttempt] = useState(0);
   const requestKey = `${href}:${attempt}`;
+  const session = useBrowseSession();
+  const cacheKey = `library:${href}`;
   const [received, setReceived] = useState<{
     key: string;
     result: ItineraryLibraryResult | null;
     error: string;
-  }>({ key: "", result: null, error: "" });
+  }>(() => ({
+    key: session?.read(cacheKey) ? requestKey : "",
+    result: session?.read<ItineraryLibraryResult>(cacheKey) || null,
+    error: "",
+  }));
   const previous = useRef<LibraryFilters | null>(null);
   const resultsHeading = useRef<HTMLParagraphElement>(null);
   const scrollToResults = useRef(false);
@@ -59,6 +66,7 @@ export function ItineraryLibrary() {
           );
           if (controller.signal.aborted) return;
           const actualHref = libraryHref({ ...current, page: data.page });
+          session?.write(`library:${actualHref}`, data);
           if (actualHref !== href) history.replaceState(null, "", actualHref);
           setReceived({
             key: `${actualHref}:${attempt}`,
@@ -74,6 +82,7 @@ export function ItineraryLibrary() {
             });
           }
         } catch (failure) {
+          if (!controller.signal.aborted) session?.remove(cacheKey);
           if (!controller.signal.aborted)
             setReceived((old) => ({
               ...old,
@@ -88,7 +97,7 @@ export function ItineraryLibrary() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [href, requestKey, attempt]);
+  }, [href, requestKey, attempt, session, cacheKey]);
 
   const change = (patch: Partial<LibraryFilters>, pagination = false) => {
     const next = {

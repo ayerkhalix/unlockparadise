@@ -5,6 +5,7 @@ import { requestJSON } from "@/lib/client-api";
 import type { TravelPlace } from "@/lib/planning";
 import { ContentImage } from "./ui/content-image";
 import { DestinationSkeleton } from "./ui/destination-skeleton";
+import { useBrowseSession } from "./browse-session";
 export type SavedRecord = {
   place_id: string;
   saved_at: string | null;
@@ -12,21 +13,27 @@ export type SavedRecord = {
   place: TravelPlace | null;
 };
 export function useSavedPlaces(enabled: boolean, kind = "bucketlist") {
-  const [rows, setRows] = useState<SavedRecord[]>([]),
-    [loading, setLoading] = useState(enabled),
+  const session = useBrowseSession();
+  const cacheKey = `saved:${kind}`;
+  const cached = enabled ? session?.read<SavedRecord[]>(cacheKey) : undefined;
+  const [rows, setRows] = useState<SavedRecord[]>(cached || []),
+    [loading, setLoading] = useState(enabled && !cached),
     [error, setError] = useState("");
   const load = useCallback(async () => {
     if (!enabled) return;
     try {
       const r = await requestJSON<{ data: SavedRecord[] }>(`/api/v1/${kind}/`);
+      session?.write(cacheKey, r.data);
       setRows(r.data);
       setError("");
     } catch (e) {
+      session?.remove(cacheKey);
+      setRows([]);
       setError((e as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [enabled, kind]);
+  }, [enabled, kind, session, cacheKey]);
   useEffect(() => {
     void Promise.resolve().then(load);
     const refresh = () => {

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePlanningCatalog } from "./use-planning-catalog";
 import { useSavedPlaces } from "./bucketlist";
@@ -51,6 +51,32 @@ export function PlannerBrowser({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const pending = useRef(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    // Stops may have been added on a destination while this browser was away.
+    requestJSON<{ data: Trip }>(
+      `/api/v1/itineraries/${initial.id}/`,
+      "GET",
+      undefined,
+      controller.signal,
+    )
+      .then(({ data }) => {
+        if (!controller.signal.aborted)
+          setTrip((current) =>
+            current.id !== data.id || data.version >= current.version
+              ? data
+              : current,
+          );
+      })
+      .catch(() => {
+        if (!controller.signal.aborted)
+          notify(
+            "Your saved stops could not refresh. Reload this page to check them.",
+            true,
+          );
+      });
+    return () => controller.abort();
+  }, [initial.id]);
   const bucketlist = useSavedPlaces(true);
   const saved = new Set(
     bucketlist.rows.filter((row) => row.saved_at).map((row) => row.place_id),

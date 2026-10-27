@@ -21,6 +21,8 @@ import { AdminThemeScope } from "@/components/admin-theme";
 import { FlightLifecycle } from "@/components/flight-lifecycle";
 import { BrowsingTrail } from "@/components/gate-navigation";
 import { StaticImageRecovery } from "@/components/ui/static-image-recovery";
+import { BrowseSessionProvider } from "@/components/browse-session";
+import { browseRestoreBootstrap } from "@/lib/browse-restore";
 
 export const metadata: Metadata = {
   title: { default: "Unlock Paradise", template: "%s - Unlock Paradise" },
@@ -39,6 +41,7 @@ export default async function RootLayout({
       ? "light"
       : "dark";
   const current = await currentSession();
+  const browseScope = `${current?.user.id || "public"}:${tier}`;
   const profile = current
     ? (
         await current.db
@@ -54,8 +57,14 @@ export default async function RootLayout({
     media: { id: string; status: string };
   } | null;
   return (
-    <html lang="en-US">
+    <html lang="en-US" suppressHydrationWarning>
       <head>
+        {/* This transient attribute is set before body paint and removed after restoration. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: browseRestoreBootstrap(browseScope),
+          }}
+        />
         <link
           rel="preload"
           href="/original/wp-content/themes/unlock-paradise/assets/fonts/open-sans.woff2"
@@ -92,32 +101,37 @@ export default async function RootLayout({
         className={`upd-surface--navy${tier !== "public" ? " logged-in" : ""}`}
       >
         <AdminThemeScope initial={adminTheme}>
-          <a className="upd-skip" href="#upd-main">
-            Skip to content
-          </a>
-          <div className="upd-site">
-            <SiteHeader
-              tier={tier}
-              name={profile?.display_name}
-              photo={
-                photo?.media?.status === "ready"
-                  ? `/api/media/${photo.media.id}/`
-                  : undefined
-              }
-            />
-            {children}
-            <OriginalMarkup html={fragment("footer")!} />
-            <AnalyticsPreferences />
-          </div>
-          <SiteBehavior />
-          <StaticImageRecovery />
-          <BrowsingTrail />
-          <BackendForms />
-          <MemberActions />
-          <TravelCompanion tier={tier} />
-          <Feedback />
-          <Tooltips />
-          <FlightLifecycle />
+          <BrowseSessionProvider scope={browseScope}>
+            <a className="upd-skip" href="#upd-main">
+              Skip to content
+            </a>
+            <div className="upd-site">
+              <SiteHeader
+                tier={tier}
+                name={profile?.display_name}
+                photo={
+                  photo?.media?.status === "ready"
+                    ? `/api/media/${photo.media.id}/`
+                    : undefined
+                }
+              />
+              {children}
+              <OriginalMarkup html={fragment("footer")!} />
+              <AnalyticsPreferences />
+            </div>
+            <div className="browse-return-loading" role="status">
+              Returning to your place…
+            </div>
+            <SiteBehavior />
+            <StaticImageRecovery />
+            <BrowsingTrail />
+            <BackendForms />
+            <MemberActions />
+            <TravelCompanion tier={tier} />
+            <Feedback />
+            <Tooltips />
+            <FlightLifecycle />
+          </BrowseSessionProvider>
         </AdminThemeScope>
       </body>
     </html>
