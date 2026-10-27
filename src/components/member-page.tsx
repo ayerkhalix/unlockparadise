@@ -182,23 +182,34 @@ export async function MemberPage({ kind }: { kind: string }) {
                   </li>
                 </ul>
                 {hero && featured && (
-                  <a
-                    className="profile-featured-place"
-                    href={`/place/${featured.slug}/`}
-                  >
-                    <ContentImage
-                      src={withFocalPoint(
-                        `/api/media/${hero.id}/?variant=medium_large`,
-                        associationFocalPoint(heroAssociation),
-                      )}
-                      alt=""
-                      sizes="(max-width: 680px) 90vw, 800px"
-                    />
-                    <span>
-                      <small>Your featured place</small>
-                      <strong>{featured.title} ↗</strong>
-                    </span>
-                  </a>
+                  <div className="profile-featured-place">
+                    <a
+                      className="profile-featured-place__link"
+                      href={`/place/${featured.slug}/`}
+                    >
+                      <ContentImage
+                        src={withFocalPoint(
+                          `/api/media/${hero.id}/?variant=medium_large`,
+                          associationFocalPoint(heroAssociation),
+                        )}
+                        alt=""
+                        sizes="(max-width: 680px) 90vw, 800px"
+                      />
+                      <span>
+                        <small>Your featured place</small>
+                        <strong>{featured.title} ↗</strong>
+                      </span>
+                    </a>
+                    <button
+                      type="button"
+                      className="p2-icon profile-featured-place__remove"
+                      data-profile-feature=""
+                      aria-label="Remove featured place"
+                      data-tooltip="Remove featured place"
+                    >
+                      <Icon name="Delete" size={18} />
+                    </button>
+                  </div>
                 )}
 
                 <>
@@ -301,17 +312,6 @@ export async function MemberPage({ kind }: { kind: string }) {
                     <h2>Settings</h2>
                   </div>
                   <div className="upd-profile__settings">
-                    {data.featured_place_id && (
-                      <p>
-                        <button
-                          type="button"
-                          className="upd-btn upd-btn--ghost"
-                          data-profile-feature=""
-                        >
-                          Remove featured place
-                        </button>
-                      </p>
-                    )}
                     {preferences?.status === "completed" && (
                       <details className="upd-profile__row">
                         <summary>

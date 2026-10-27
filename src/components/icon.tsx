@@ -3,7 +3,8 @@ import icons from "@/data/icons.json";
 const paths: Record<string, string> = {
   ...icons,
   Sort: "M160-240v-80h240v80H160Zm0-200v-80h400v80H160Zm0-200v-80h640v80H160Z",
-  Reset: "M440-80q-134 0-227-93t-93-227h80q0 100 70 170t170 70q100 0 170-70t70-170q0-100-70-170t-170-70h-6l62 62-56 58-160-160 160-160 56 58-62 62h6q134 0 227 93t93 227q0 134-93 227T440-80Z",
+  Reset:
+    "M440-80q-134 0-227-93t-93-227h80q0 100 70 170t170 70q100 0 170-70t70-170q0-100-70-170t-170-70h-6l62 62-56 58-160-160 160-160 56 58-62 62h6q134 0 227 93t93 227q0 134-93 227T440-80Z",
   Menu: "M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z",
   Clock:
     "M480-80q-83 0-156-31.5T197-197Q143-251 111.5-324T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm132-132 56-56-148-148v-184h-80v216l172 172Z",
@@ -24,7 +25,7 @@ export function iconPath(name: string) {
   return paths[name] || paths.Local;
 }
 export function Icon({ name, size = 24 }: { name: string; size?: number }) {
-  if (["Search", "Explore", "Notes"].includes(name))
+  if (["Search", "Explore", "Notes", "Delete"].includes(name))
     return (
       <svg
         className="upd-icon"
@@ -48,6 +49,8 @@ export function Icon({ name, size = 24 }: { name: string; size?: number }) {
             <circle cx="12" cy="12" r="9" />
             <path d="m16 8-2 6-6 2 2-6 6-2Z" />
           </>
+        ) : name === "Delete" ? (
+          <path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7" />
         ) : (
           <>
             <rect x="5" y="3" width="14" height="18" rx="2" />

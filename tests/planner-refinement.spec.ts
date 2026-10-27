@@ -384,6 +384,45 @@ test("profile featured photo is visible, mobile rails swipe, menu leads with acc
           .evaluate((img: HTMLImageElement) => img.naturalWidth),
       )
       .toBeGreaterThan(0);
+    const featuredCard = page.locator(".profile-featured-place");
+    const removeFeature = featuredCard.getByRole("button", {
+      name: "Remove featured place",
+      exact: true,
+    });
+    await expect(removeFeature).toHaveText("");
+    await expect(
+      page.locator("#account-settings [data-profile-feature]"),
+    ).toHaveCount(0);
+    const removeTarget = await removeFeature.boundingBox();
+    expect(removeTarget!.width).toBeGreaterThanOrEqual(44);
+    expect(removeTarget!.height).toBeGreaterThanOrEqual(44);
+    if (
+      await page.evaluate(
+        () => matchMedia("(hover: none), (pointer: coarse)").matches,
+      )
+    ) {
+      await featuredCard.scrollIntoViewIfNeeded();
+      await page.mouse.move(0, 0);
+      await expect(removeFeature).toHaveCSS("opacity", "1");
+    } else {
+      await page.mouse.move(0, 0);
+      await expect(removeFeature).toHaveCSS("opacity", "0");
+      await featuredCard.hover();
+      await expect(removeFeature).toHaveCSS("opacity", "1");
+      await page.mouse.move(0, 0);
+      await expect(removeFeature).toHaveCSS("opacity", "0");
+      await featuredCard.locator("a").focus();
+      await page.keyboard.press("Tab");
+      await expect(removeFeature).toBeFocused();
+      await expect(removeFeature).toHaveCSS("opacity", "1");
+      await featuredCard.hover();
+    }
+    await mkdir("artifacts/planner-refinement", { recursive: true });
+    await featuredCard.screenshot({
+      path: `artifacts/planner-refinement/featured-delete-card-${page.viewportSize()!.width}.png`,
+      animations: "disabled",
+    });
+    await shot(page, "profile-featured-delete");
     if (page.viewportSize()!.width < 680) {
       const rail = page.locator(".profile-swipe").first();
       // Selecting a star may scroll its card into view. Begin the swipe check
@@ -423,9 +462,8 @@ test("profile featured photo is visible, mobile rails swipe, menu leads with acc
       await page.keyboard.press("Escape");
     }
     await shot(page, "profile-featured-swipe");
-    await page
-      .getByRole("button", { name: "Remove featured place", exact: true })
-      .click();
+    await featuredCard.hover();
+    await removeFeature.click();
     await expect(page.locator(".profile-featured-place")).toHaveCount(0);
     await expect(feature).toHaveAttribute("aria-pressed", "false");
     await page.reload();

@@ -506,7 +506,7 @@ The selected day has three views: Itinerary for photo cards and editing, Schedul
 
 Explore options retains the normal white Places cards. Category tabs omit All destinations. The standard transport, assets, Explorer+ and name/date/rating filters remain; search and travel-time filters are absent here. Bucketlist controls share the normal Places mutation/Undo behavior, including inline search results. Return preserves the source URL, filters, displayed result count and clicked position; Back to categories reopens the correct home map area.
 
-The mobile drawer leads with the account photo/name, followed by primary links, Itinerary Planner, My Portfolio and Log out. Bucketlist stays in the floating companion and account page. Profile collections swipe horizontally on phones with snap points and keyboard/previous/next alternatives. The selected featured place has a visible photo and selected star. Discount/savings claims are hidden; prices remain unchanged.
+The mobile drawer leads with the account photo/name, followed by primary links, Itinerary Planner, My Portfolio and Log out. Bucketlist stays in the floating companion and account page. Profile collections swipe horizontally on phones with snap points and keyboard/previous/next alternatives. The selected featured place has a visible photo and selected star. Its red delete icon sits in the photo's upper-right corner on an opaque navy 44px control, revealed by hover or keyboard focus and always available on touch screens. Discount/savings claims are hidden; prices remain unchanged.
 
 ## Visit-time compatibility — 26 October 2026
 
