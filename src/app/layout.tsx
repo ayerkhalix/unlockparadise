@@ -15,6 +15,7 @@ import { currentSession } from "@/lib/auth/session";
 import "./phase2.css";
 import "./traveler.css";
 import "./client-todo.css";
+import "./mobile-app.css";
 import { AnalyticsPreferences } from "@/components/analytics-preferences";
 import { cookies } from "next/headers";
 import { AdminThemeScope } from "@/components/admin-theme";
