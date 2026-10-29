@@ -261,7 +261,7 @@
     font-size: 13px;
   }
   body .itinerary-library-card__body {
-    padding: 16px;
+    padding: 12px 14px;
   }
   body .itinerary-library .itinerary-library-card__body h2 {
     font-size: 18px;

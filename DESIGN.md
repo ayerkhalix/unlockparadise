@@ -526,6 +526,8 @@ My itineraries is an Operate surface owned by itinerary-library.tsx and its name
 
 The empty library follows the client's reference: a single tinted navy/teal panel with an inset dashed border, a crisp folded-map/pin icon, No itineraries yet, and Plan and save your trips here so you can easily access them anytime. Its only create action is an outlined teal Add itinerary pill inside the panel; no duplicate header action or zero-count row is shown. Keep the compact mobile scale and a 48px action target. Populated libraries keep Add itinerary in the header and pagination below the cards. Native stop Notes still wait for client readiness before accepting edits, preventing an early WebKit edit from appearing without being tracked.
 
+Saved itinerary cards use compact text bodies: 16px/18px padding on desktop and 12px/14px on phones, natural title height, and tight title/date/count/open-action gaps. Keep their 4:3 photographs, readable metadata and whole-card navigation. This density refinement applies to populated cards; the approved empty-state panel retains its original proportions.
+
 ## Destination-photo crossfades and profile spacing — 27 October 2026
 
 ItineraryLibraryCard owns the bounded destination-photo preview, replacing image hover zoom with a 450ms opacity crossfade every two seconds. The prior frame remains opaque beneath the incoming frame to avoid a dark flash. Responsive ContentImage delivery and fixed 4:3 geometry remain. The user-requested preview has no Pause/Resume overlay. Offscreen, hidden, inert and keyboard-focused previews stop; reduced motion shows a still and omits autoplay controls. Only current/next/outgoing photos mount.

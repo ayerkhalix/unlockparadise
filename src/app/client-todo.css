@@ -2128,10 +2128,13 @@ body:has(.upd-header[data-home="true"]) .upd-site {
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 20px 22px;
+  padding: 16px 18px;
 }
 .itinerary-library-card__body p {
   margin: 0;
+}
+.itinerary-library .itinerary-library-card__body p {
+  line-height: 1.4;
 }
 .itinerary-library-card__area {
   color: #47616b;
@@ -2140,10 +2143,9 @@ body:has(.upd-header[data-home="true"]) .upd-site {
 }
 .itinerary-library .itinerary-library-card h2 {
   color: var(--p2-navy);
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.25;
-  min-height: 2.5em;
-  margin: 8px 0 12px;
+  margin: 4px 0 6px;
   overflow-wrap: anywhere;
 }
 .itinerary-library-card__dates {
@@ -2155,7 +2157,7 @@ body:has(.upd-header[data-home="true"]) .upd-site {
   color: #47616b;
   font-size: 14px;
   line-height: 1.6;
-  padding-top: 5px;
+  padding-top: 2px;
 }
 .itinerary-library-card__open {
   display: flex;
@@ -2166,7 +2168,7 @@ body:has(.upd-header[data-home="true"]) .upd-site {
   font-size: 14px;
   font-weight: 600;
   margin-top: auto;
-  padding-top: 18px;
+  padding-top: 10px;
 }
 .itinerary-library-card__link:is(:hover, :focus-visible)
   .itinerary-library-card__open {
