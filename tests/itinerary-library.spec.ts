@@ -95,7 +95,7 @@ async function fixtures(context: BrowserContext) {
   return { prefix, areas, first, second, place, create, track };
 }
 
-test("library filters, covers, creation, guarded editor return and exploration preserve context", async ({
+test("library covers, creation, guarded editor return and exploration preserve context without filters", async ({
   page,
   context,
 }) => {
@@ -108,7 +108,7 @@ test("library filters, covers, creation, guarded editor return and exploration p
     "2027-01-02",
   );
   let zulu = await f.create("Zulu weekend");
-  await f.create("El Nido escape", f.second.id);
+  const island = await f.create("El Nido escape", f.second.id);
   const added = await context.request.patch(
     `${base}/api/v1/itineraries/${zulu.id}/`,
     {
@@ -122,25 +122,29 @@ test("library filters, covers, creation, guarded editor return and exploration p
   );
   expect(added.ok()).toBe(true);
   zulu = (await added.json()).data;
-  await page.goto("/itineraries/");
+  await page.goto(`/itineraries/?q=missing-trip&area=${f.first.id}&sort=name`);
   await expect(
     page.getByRole("heading", { name: "My itineraries", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("combobox", { name: "Switch trip", exact: true }),
   ).toHaveCount(0);
-  const search = page.getByRole("searchbox", {
-    name: "Search itineraries",
-    exact: true,
-  });
-  await search.fill(f.prefix);
-  await expect(page.locator(".itinerary-library-card")).toHaveCount(3);
-  await page.getByLabel("Area", { exact: true }).selectOption(f.first.id);
-  await expect(page.locator(".itinerary-library-card")).toHaveCount(2);
-  await page.getByLabel("Sort by", { exact: true }).selectOption("name");
-  await expect(page.locator(".itinerary-library-card h2").first()).toHaveText(
-    alpha.title,
-  );
+  await expect(page).toHaveURL(base + "/itineraries/");
+  await expect(
+    page.getByText("Organize your trips here", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".itinerary-library").getByRole("searchbox"),
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".itinerary-library").getByRole("combobox"),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: alpha.title, exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: island.title, exact: true }),
+  ).toBeVisible();
   const card = page.locator("a[data-itinerary-card]").filter({
     has: page.getByRole("heading", { name: zulu.title, exact: true }),
   });
@@ -202,26 +206,15 @@ test("library filters, covers, creation, guarded editor return and exploration p
   await page.locator(".planner-browser-bar .p2-back").click();
   await page.getByRole("link", { name: "My itineraries", exact: true }).click();
   await expect(page).toHaveURL(base + library);
-  await search.fill("No such library trip anywhere");
-  await expect(
-    page.getByRole("heading", { name: "No itineraries match your filters" }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", {
-      name: "Your first Palawan itinerary starts here",
-    }),
-  ).toHaveCount(0);
-  await search.fill(f.prefix);
-  await page.getByLabel("Area", { exact: true }).selectOption(f.second.id);
-  await expect(page.locator(".itinerary-library-card")).toHaveCount(1);
   await page
-    .getByRole("button", { name: "Create itinerary", exact: true })
+    .getByRole("button", { name: "Add itinerary", exact: true })
     .first()
     .click();
   const modal = page.getByRole("dialog");
-  await expect(modal.getByLabel("Trip area", { exact: true })).toHaveValue(
-    f.second.id,
-  );
+  await expect(modal.getByLabel("Trip area", { exact: true })).toHaveValue("");
+  await modal
+    .getByLabel("Trip area", { exact: true })
+    .selectOption(f.second.id);
   await modal
     .getByLabel("Trip name", { exact: true })
     .fill(`${f.prefix} New island plan`);
@@ -237,10 +230,12 @@ test("library filters, covers, creation, guarded editor return and exploration p
   await expect(page).toHaveURL(new RegExp(`trip=${created.id}`));
   await expect(page.locator(".p2-trip-header h1")).toHaveText(created.title);
   await page.getByRole("link", { name: "My itineraries", exact: true }).click();
-  await expect(page.locator(".itinerary-library-card")).toHaveCount(2);
+  await expect(
+    page.getByRole("heading", { name: created.title, exact: true }),
+  ).toBeVisible();
 });
 
-test("library loading, empty states, retry, pagination and cancelled searches stay distinct", async ({
+test("library loading, empty-state creation, retry and pagination stay distinct", async ({
   page,
   context,
 }) => {
@@ -249,14 +244,6 @@ test("library loading, empty states, retry, pagination and cancelled searches st
   let releaseInitial!: () => void;
   const initial = new Promise<void>((resolve) => {
     releaseInitial = resolve;
-  });
-  let releaseSlow!: () => void;
-  const slow = new Promise<void>((resolve) => {
-    releaseSlow = resolve;
-  });
-  let slowStarted!: () => void;
-  const slowReady = new Promise<void>((resolve) => {
-    slowStarted = resolve;
   });
   const data = Array.from({ length: 13 }, (_, n) => ({
     id: randomUUID(),
@@ -276,25 +263,18 @@ test("library loading, empty states, retry, pagination and cancelled searches st
       await initial;
     }
     const query = new URL(route.request().url()).searchParams;
-    if (query.get("q") === "slow") {
-      slowStarted();
-      await slow;
-    }
     if (mode === "fail")
       return route.fulfill({
         status: 503,
         json: { error: "Your saved plans could not be loaded. Try again." },
       });
-    const count = mode === "empty" || query.get("q") === "none" ? 0 : 13;
+    expect(query.has("q") || query.has("area") || query.has("sort")).toBe(
+      false,
+    );
+    const count = mode === "empty" ? 0 : 13;
     const pageNumber = Math.min(Number(query.get("page") || 1), 2);
     const result: ItineraryLibraryResult = {
-      data: count
-        ? data.slice((pageNumber - 1) * 12, pageNumber * 12).map((row) => ({
-            ...row,
-            title:
-              query.get("q") === "new" ? "Latest search result" : row.title,
-          }))
-        : [],
+      data: count ? data.slice((pageNumber - 1) * 12, pageNumber * 12) : [],
       areas: [],
       count,
       total: mode === "empty" ? 0 : 13,
@@ -309,7 +289,7 @@ test("library loading, empty states, retry, pagination and cancelled searches st
     page.getByRole("status").filter({ hasText: "Loading your itineraries" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Your first Palawan itinerary starts here"),
+    page.getByRole("heading", { name: "No itineraries yet", exact: true }),
   ).toHaveCount(0);
   releaseInitial();
   await expect(page.locator(".itinerary-library-card")).toHaveCount(12);
@@ -317,53 +297,74 @@ test("library loading, empty states, retry, pagination and cancelled searches st
   await expect(page.locator(".itinerary-library-card")).toHaveCount(1);
   await expect(page.getByText("Page 2 of 2", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Previous", exact: true }).click();
-  const search = page.getByRole("searchbox", {
-    name: "Search itineraries",
-    exact: true,
-  });
-  await search.fill("slow");
-  await slowReady;
-  await search.fill("new");
-  await expect(page.locator(".itinerary-library-card h2").first()).toHaveText(
-    "Latest search result",
-  );
-  releaseSlow();
-  await expect(page.locator(".itinerary-library-card h2").first()).toHaveText(
-    "Latest search result",
-  );
-  await search.fill("none");
-  await expect(
-    page.getByRole("heading", { name: "No itineraries match your filters" }),
-  ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Clear search itineraries", exact: true })
-    .click();
-  await expect(search).toBeFocused();
   await expect(page.locator(".itinerary-library-card")).toHaveCount(12);
   mode = "fail";
-  await search.fill("retry");
+  await page.reload();
   await expect(
     page.locator(".itinerary-library").getByRole("alert"),
   ).toContainText("saved plans could not be loaded");
   await expect(
-    page.getByText("Your first Palawan itinerary starts here"),
+    page.getByRole("heading", { name: "No itineraries yet", exact: true }),
   ).toHaveCount(0);
   await screenshot(page, "library-error");
   mode = "normal";
   await page.getByRole("button", { name: "Try again", exact: true }).click();
   await expect(page.locator(".itinerary-library-card")).toHaveCount(12);
   mode = "empty";
-  await search.fill("empty");
+  await page.reload();
   await expect(
     page.getByRole("heading", {
-      name: "Your first Palawan itinerary starts here",
+      name: "No itineraries yet",
     }),
   ).toBeVisible();
+  await expect(
+    page.getByText("Organize your trips here", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Add itinerary", exact: true }),
+  ).toHaveCount(1);
+  await expect(page.locator(".itinerary-library__header button")).toHaveCount(
+    0,
+  );
+  await expect(
+    page.locator(".itinerary-library").getByRole("searchbox"),
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".itinerary-library").getByRole("combobox"),
+  ).toHaveCount(0);
+  await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
   await screenshot(page, "library-empty");
+  const originalViewport = page.viewportSize()!;
+  if (originalViewport.width < 680) {
+    for (const width of [320, 430]) {
+      await page.setViewportSize({ width, height: originalViewport.height });
+      const add = page.getByRole("button", {
+        name: "Add itinerary",
+        exact: true,
+      });
+      await expect(add).toBeVisible();
+      expect((await add.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+      await screenshot(page, "library-empty");
+    }
+    await page.setViewportSize(originalViewport);
+  }
   expect(
     (await new AxeBuilder({ page }).include(".itinerary-library").analyze())
       .violations,
   ).toEqual([]);
+  await page
+    .getByRole("button", { name: "Add itinerary", exact: true })
+    .click();
+  await expect(
+    page.getByRole("dialog", { name: "Create itinerary", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Cancel", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "No itineraries yet", exact: true }),
+  ).toBeVisible();
   await page.evaluate(() =>
     history.pushState(null, "", "/itineraries/?create=1"),
   );

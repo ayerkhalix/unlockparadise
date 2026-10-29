@@ -256,10 +256,6 @@
   body .itinerary-library__header p {
     font-size: var(--app-mobile-body);
   }
-  body .itinerary-library .itinerary-library__filters {
-    gap: 12px 10px;
-    padding-block: 16px;
-  }
   body .itinerary-library__results-head {
     min-height: 56px;
     font-size: 13px;
@@ -271,7 +267,19 @@
     font-size: 18px;
   }
   body .itinerary-library__empty {
-    padding: 28px 16px;
+    padding: 32px 22px;
+  }
+  body .p2-shell.p2-planner-shell:has(.itinerary-library__empty) {
+    min-height: calc(100svh - 64px);
+  }
+  .itinerary-library__empty-icon {
+    width: 96px;
+    height: 96px;
+    margin-bottom: 18px;
+  }
+  .itinerary-library__empty-icon svg {
+    width: 76px;
+    height: 76px;
   }
 
   body .planner-browser {

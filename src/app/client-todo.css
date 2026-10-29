@@ -2032,6 +2032,7 @@ body:has(.upd-header[data-home="true"]) .upd-site {
   justify-content: space-between;
   gap: 24px;
   padding: 18px 0 30px;
+  border-bottom: 1px solid var(--p2-line);
 }
 .itinerary-library__header h1 {
   font-family: var(--p2-heading-font);
@@ -2051,35 +2052,6 @@ body:has(.upd-header[data-home="true"]) .upd-site {
   justify-content: center;
   gap: 8px;
 }
-.itinerary-library .itinerary-library__filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(180px, 1fr) minmax(
-      170px,
-      0.8fr
-    );
-  gap: 18px;
-  margin: 0;
-  padding: 24px 0;
-  border-block: 1px solid var(--p2-line);
-}
-.itinerary-library__filters > label {
-  min-width: 0;
-}
-body.upd-surface--navy
-  .p2-shell
-  .itinerary-library
-  .itinerary-library__filters
-  select {
-  appearance: none;
-  background-color: var(--p2-navy);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2383d9c6' stroke-width='1.7'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
-}
-.itinerary-library__filters .p2-search-input {
-  width: 100%;
-}
 .itinerary-library__results-head {
   display: flex;
   align-items: center;
@@ -2092,26 +2064,6 @@ body.upd-surface--navy
 .itinerary-library__results-head p {
   margin: 0;
   scroll-margin-top: 100px;
-}
-.itinerary-library .itinerary-library__results-head > button {
-  flex-shrink: 0;
-  min-height: 44px;
-  padding: 8px 0;
-  border: 0;
-  background: transparent;
-  color: var(--p2-teal);
-  font: inherit;
-  letter-spacing: normal;
-  text-transform: none;
-  box-shadow: none;
-}
-.itinerary-library
-  .itinerary-library__results-head
-  > button:is(:hover, :focus-visible) {
-  background: transparent;
-  color: var(--p2-text);
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 .itinerary-library__results {
   min-height: 280px;
@@ -2222,20 +2174,58 @@ body.upd-surface--navy
   text-underline-offset: 4px;
 }
 .itinerary-library__empty {
-  padding: 64px 24px;
-  border: 1px solid var(--p2-line);
-  border-radius: var(--p2-radius);
+  position: relative;
+  max-width: 760px;
+  margin: 24px auto 0;
+  padding: 44px 28px 40px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--p2-teal) 6%, var(--p2-navy));
   text-align: center;
 }
+.itinerary-library__empty::before {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px dashed color-mix(in srgb, var(--p2-teal) 30%, transparent);
+  border-radius: 10px;
+  pointer-events: none;
+}
+.itinerary-library__empty-icon {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  color: var(--p2-teal);
+  background: color-mix(in srgb, var(--p2-teal) 7%, transparent);
+}
 .itinerary-library__empty h2 {
-  font-size: clamp(24px, 3vw, 30px);
+  font-size: 24px;
   line-height: 1.25;
   margin: 0 0 14px;
 }
 .itinerary-library__empty p {
-  max-width: 48ch;
+  max-width: 38ch;
   margin: 0 auto 26px;
   color: var(--p2-muted);
+}
+body .p2-shell .itinerary-library button.itinerary-library__add {
+  gap: 12px;
+  width: min(100%, 240px);
+  min-height: 48px;
+  border: 1px solid var(--p2-teal);
+  border-radius: 999px;
+  color: var(--p2-teal);
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.itinerary-library__add > span {
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 400;
 }
 .itinerary-library__error {
   min-height: 220px;
@@ -2293,23 +2283,9 @@ body.upd-surface--navy
   .itinerary-library__header h1 {
     font-size: 32px;
   }
-  .itinerary-library .itinerary-library__filters {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 16px 12px;
-    padding: 20px 0;
-  }
-  .itinerary-library__filters > label:first-child {
-    grid-column: 1 / -1;
-  }
-  .itinerary-library__filters select {
-    padding-left: 10px;
-  }
   .itinerary-library__grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 24px;
-  }
-  .itinerary-library__empty {
-    padding: 40px 20px;
   }
   .itinerary-library__pagination {
     justify-content: space-between;

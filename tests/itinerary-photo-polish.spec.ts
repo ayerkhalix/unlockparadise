@@ -103,8 +103,10 @@ test("all unique destination covers crossfade every two seconds without controls
   expect(summary.data[0].images).toEqual([place.image, other.image]);
   expect(summary.data[0].stop_count).toBe(3);
   await page.clock.install();
-  await page.goto(`/itineraries/?q=${encodeURIComponent(title)}`);
-  const card = page.locator(".itinerary-library-card");
+  await page.goto("/itineraries/");
+  const card = page
+    .locator(".itinerary-library-card")
+    .filter({ hasText: title });
   await expect(card).toHaveAttribute("data-photo-count", "2");
   await card.scrollIntoViewIfNeeded();
   await expect(card).toHaveAttribute("data-playing", "true");
