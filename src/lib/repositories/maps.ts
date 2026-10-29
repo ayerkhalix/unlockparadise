@@ -18,6 +18,10 @@ function mapTerms(terms: Awaited<ReturnType<typeof taxonomy>>) {
     categories: terms.categories.map((c) => ({
       name: c.name,
       slug: c.slug,
+      imageAspectRatio:
+        c.taxonomy_media?.[0]?.media?.width && c.taxonomy_media[0].media.height
+          ? c.taxonomy_media[0].media.width / c.taxonomy_media[0].media.height
+          : undefined,
       image: mediaAvailable(c.taxonomy_media?.[0]?.media)
         ? `/api/media/${c.taxonomy_media[0].media.id}/`
         : originalMap.categories.find((category) => category.slug === c.slug)

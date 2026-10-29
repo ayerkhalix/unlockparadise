@@ -20,7 +20,12 @@ export function ProductCard({
   const presentation = (
     <>
       <div className="p2-product-card__photo">
-        <ContentImage src={p.displayImage} alt={p.name} loading="lazy" />
+        <ContentImage
+          src={p.displayImage}
+          alt={p.name}
+          sizes="(max-width: 1000px) 50vw, (max-width: 1240px) 33vw, 390px"
+          loading="lazy"
+        />
         <span>{p.category}</span>
       </div>
       <div className="p2-product-card__info">
@@ -193,6 +198,7 @@ export function Store() {
               src={products[0].displayImage}
               alt={`${products[0].name}, ${products[0].color}`}
               fetchPriority="high"
+              sizes="(max-width: 650px) 100vw, (max-width: 1240px) 50vw, 590px"
             />
             <figcaption>
               {products[0].name} · {products[0].color}
@@ -339,6 +345,8 @@ export function ProductDetail({
             <ContentImage
               src={p.images[photo]}
               alt={`${p.name}, view ${photo + 1}`}
+              sizes="(max-width: 650px) 100vw, (max-width: 1240px) 50vw, 590px"
+              loading="eager"
             />
           </button>
           <div className="p2-product-thumbs">
@@ -349,7 +357,7 @@ export function ProductDetail({
                 aria-pressed={photo === i}
                 onClick={() => setPhoto(i)}
               >
-                <ContentImage src={src} alt="" />
+                <ContentImage src={src} alt="" sizes="80px" />
               </button>
             ))}
           </div>
@@ -459,6 +467,7 @@ export function ProductDetail({
         <Modal title={p.name} onClose={() => setZoom(false)}>
           <ContentImage
             className="p2-product-zoom"
+            sizes="(max-width: 900px) 100vw, 900px"
             src={p.images[photo]}
             alt={`${p.name}, view ${photo + 1}`}
           />

@@ -1,5 +1,6 @@
 "use client";
 import { ContentImage } from "@/components/ui/content-image";
+import { localImageAspectRatio } from "@/lib/image-delivery";
 
 /* eslint-disable @next/next/no-location-assign-relative-destination -- The source archive enhancement owns document-level filter/history state; preserve its full-page navigation contract. */
 
@@ -13,11 +14,27 @@ import { useSearchParams } from "next/navigation";
 
 export interface MapConfiguration {
   areas: { name: string; slug: string; coords: number[]; desc: string }[];
-  categories: { name: string; slug: string; image: string }[];
+  categories: {
+    name: string;
+    slug: string;
+    image: string;
+    imageAspectRatio?: number;
+  }[];
   availability: Record<string, Record<string, number>>;
   categoryCounts?: Record<string, number>;
 }
 type Area = MapConfiguration["areas"][number];
+function categoryPhotoSizes(
+  category: MapConfiguration["categories"][number],
+  compact: boolean,
+) {
+  if (compact) return "(max-width: 767px) 40vw, 220px";
+  const aspect =
+    category.imageAspectRatio || localImageAspectRatio(category.image) || 4 / 3;
+  const square = Math.max(1, aspect);
+  const portrait = Math.max(1, aspect * 1.5);
+  return `(max-width: 767px) ${48 * square}vw, (max-width: 1199px) ${16 * portrait}vw, ${180 * portrait}px`;
+}
 type SavedView = { center: LngLat; zoom: number; bounds: LngLatBounds | null };
 const configuredMapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 export const MAPBOX_TOKEN = configuredMapboxToken?.startsWith("pk.")
@@ -576,7 +593,7 @@ export function AreaMap({
     >
       {cat.image && (
         <ContentImage
-          sizes="(max-width: 767px) 28vw, (max-width: 1199px) 16vw, 180px"
+          sizes={categoryPhotoSizes(cat, compact)}
           className="category-thumb"
           src={cat.image}
           alt=""

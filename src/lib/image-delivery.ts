@@ -1,7 +1,21 @@
 import { stripFocalPoint } from "./focal-point";
 import merchImages from "@/data/merch-images.json";
-const localCopies = merchImages as Record<string, Record<string, string>>;
-/** Public files use Next's cache. Authenticated media stays behind its RLS route. */
+import siteImages from "@/data/site-images.json";
+const editorial = siteImages as Record<
+  string,
+  { width: number; height: number; files: Record<string, string> }
+>;
+const localCopies: Record<string, Record<string, string>> = {
+  ...merchImages,
+  ...Object.fromEntries(
+    Object.entries(editorial).map(([source, image]) => [source, image.files]),
+  ),
+};
+export function localImageAspectRatio(source: string) {
+  const image = editorial[stripFocalPoint(source)];
+  return image ? image.width / image.height : null;
+}
+/** Public assets use prepared copies or Next's cache. Private media keeps its RLS route. */
 export const imageWidths = [256, 384, 640, 1080, 1920] as const;
 export function imageDeliveryUrl(source: string, width: number) {
   if (!imageWidths.includes(width as (typeof imageWidths)[number]))

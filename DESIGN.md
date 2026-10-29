@@ -549,3 +549,8 @@ Browse returns retain the existing page composition and restore before paint. Ca
 `src/app/mobile-app.css` owns the public app's compact phone/tablet scale after the legacy styles. At 800px and below, use 26px page titles, 22px trip/category titles, 20px sections, 17px subheadings, 16px stop titles/times and 14px body copy. App controls use sentence case at 13px; the drawer uses 15px links through its existing 921px breakpoint. Preserve the existing fonts, navy/teal/gold palette, selected states and 4:3 destination photographs. The app header is 64px high; 16px gutters and shorter section gaps bring useful planner content higher on the screen. Do not scale the desktop interface down with transforms or change marketing hero proportions.
 
 Smaller labels do not mean smaller hit areas: actions and menu rows remain at least 44px high, and native text entry stays 16px to avoid iPhone focus zoom. Stop numbers remain noninteractive. Public modal typography follows the app scale; Admin Studio retains its own design system.
+
+
+### Image delivery refinement — 29 October 2026
+
+Preserve the existing image boxes, focal crops and card hierarchy. Keep full responsive candidates on high-density screens, bound thumbnail/detail downloads to their actual layout, and account for portrait map tiles. The homepage hero and map category photographs use prepared public assets with immutable paths; the full-size hero retains its exact native source bytes. No visual upscaling or new crop design is introduced. Product photos with insufficient source detail require a better original rather than artificial enlargement.

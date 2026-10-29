@@ -135,7 +135,7 @@ export async function taxonomy(client?: SupabaseClient) {
     db.from("areas").select("*").order("display_order").order("name"),
     db
       .from("categories")
-      .select("*,taxonomy_media(media(id,status))")
+      .select("*,taxonomy_media(media(id,status,width,height))")
       .order("display_order")
       .order("name"),
   ]);

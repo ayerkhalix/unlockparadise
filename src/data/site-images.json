@@ -1,0 +1,94 @@
+{
+  "/original/wp-content/uploads/2026/05/pexels-photo-36724824.jpeg": {
+    "width": 2560,
+    "height": 1440,
+    "files": {
+      "256": "/site/optimized/8e31074678b60c16-256.webp",
+      "384": "/site/optimized/8e31074678b60c16-384.webp",
+      "640": "/site/optimized/8e31074678b60c16-640.webp",
+      "1080": "/site/optimized/8e31074678b60c16-1080.webp",
+      "1920": "/site/optimized/8e31074678b60c16-1920.webp",
+      "2560": "/site/optimized/8e31074678b60c16-2560.jpg"
+    }
+  },
+  "/original/wp-content/uploads/2026/05/dji_fly_20260529_102050_0108_1780017720444_photo-768x768.jpg": {
+    "width": 768,
+    "height": 768,
+    "files": {
+      "256": "/site/optimized/1c248854d6bd1838-256.webp",
+      "384": "/site/optimized/1c248854d6bd1838-384.webp",
+      "640": "/site/optimized/1c248854d6bd1838-640.webp",
+      "768": "/site/optimized/1c248854d6bd1838-768.jpg"
+    }
+  },
+  "/original/wp-content/uploads/2026/04/dji_fly_20260530_121206_0182_1780114657481_photo-768x768.jpg": {
+    "width": 768,
+    "height": 768,
+    "files": {
+      "256": "/site/optimized/62b9dc293c1245ab-256.webp",
+      "384": "/site/optimized/62b9dc293c1245ab-384.webp",
+      "640": "/site/optimized/62b9dc293c1245ab-640.webp",
+      "768": "/site/optimized/62b9dc293c1245ab-768.webp"
+    }
+  },
+  "/original/wp-content/uploads/2026/07/IMG_1967-768x1024.jpg": {
+    "width": 768,
+    "height": 1024,
+    "files": {
+      "256": "/site/optimized/418d758974c6a963-256.webp",
+      "384": "/site/optimized/418d758974c6a963-384.webp",
+      "640": "/site/optimized/418d758974c6a963-640.webp",
+      "768": "/site/optimized/418d758974c6a963-768.jpg"
+    }
+  },
+  "/original/wp-content/uploads/2026/05/att.QlotxKZiyAmtlgBTmdYnF0S1WV_OrLRBqe0wrYRd94o-768x768.jpg": {
+    "width": 768,
+    "height": 768,
+    "files": {
+      "256": "/site/optimized/116f89a80baa9e96-256.webp",
+      "384": "/site/optimized/116f89a80baa9e96-384.webp",
+      "640": "/site/optimized/116f89a80baa9e96-640.webp",
+      "768": "/site/optimized/116f89a80baa9e96-768.jpg"
+    }
+  },
+  "/original/wp-content/uploads/2026/05/IMG_20260407_175102-768x577.jpg": {
+    "width": 768,
+    "height": 577,
+    "files": {
+      "256": "/site/optimized/7b2fd6b76d991c48-256.webp",
+      "384": "/site/optimized/7b2fd6b76d991c48-384.webp",
+      "640": "/site/optimized/7b2fd6b76d991c48-640.webp",
+      "768": "/site/optimized/7b2fd6b76d991c48-768.webp"
+    }
+  },
+  "/original/wp-content/uploads/2026/05/IMG_2864-768x576.jpg": {
+    "width": 768,
+    "height": 576,
+    "files": {
+      "256": "/site/optimized/ed4be26782f70932-256.webp",
+      "384": "/site/optimized/ed4be26782f70932-384.webp",
+      "640": "/site/optimized/ed4be26782f70932-640.webp",
+      "768": "/site/optimized/ed4be26782f70932-768.jpg"
+    }
+  },
+  "/original/wp-content/uploads/2026/08/IMG_4759-768x546.jpg": {
+    "width": 768,
+    "height": 546,
+    "files": {
+      "256": "/site/optimized/db5e5bbd29ffd431-256.webp",
+      "384": "/site/optimized/db5e5bbd29ffd431-384.webp",
+      "640": "/site/optimized/db5e5bbd29ffd431-640.webp",
+      "768": "/site/optimized/db5e5bbd29ffd431-768.webp"
+    }
+  },
+  "/original/wp-content/uploads/2026/08/IMG_2004-768x576.jpg": {
+    "width": 768,
+    "height": 576,
+    "files": {
+      "256": "/site/optimized/f38fc12ea72f100d-256.webp",
+      "384": "/site/optimized/f38fc12ea72f100d-384.webp",
+      "640": "/site/optimized/f38fc12ea72f100d-640.webp",
+      "768": "/site/optimized/f38fc12ea72f100d-768.jpg"
+    }
+  }
+}

@@ -1,5 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import sharp from "sharp";
 import {
   imageDeliveryUrl,
   responsiveImage,
@@ -22,5 +24,28 @@ test("image delivery keeps private images on the authenticated route and leaves 
     assert.deepEqual(responsiveImage(src), { src });
   assert.ok(
     imageDeliveryUrl("/original/photo.jpg", 640).startsWith("/_next/image?"),
+  );
+});
+
+test("prepared public editorial images advertise actual raster widths and retain the native hero bytes", async () => {
+  const manifest = JSON.parse(
+    await readFile("src/data/site-images.json", "utf8"),
+  );
+  for (const [source, image] of Object.entries(manifest)) {
+    const delivery = responsiveImage(source);
+    for (const [width, path] of Object.entries(image.files)) {
+      assert.ok(delivery.srcSet.includes(`${path} ${width}w`));
+      const meta = await sharp(`public${path}`).metadata();
+      assert.equal(meta.width, Number(width));
+      assert.ok(meta.width <= image.width);
+    }
+  }
+  const [source, image] = Object.entries(manifest).find(
+    ([, image]) => image.width === 2560,
+  );
+  assert.ok(responsiveImage(source).srcSet.includes("2560w"));
+  assert.deepEqual(
+    await readFile(`public${image.files[2560]}`),
+    await readFile(`public${source}`),
   );
 });

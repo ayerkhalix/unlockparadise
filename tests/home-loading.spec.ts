@@ -16,6 +16,7 @@ test("home paints its responsive hero without a route offset, then enhances live
   await expect(hero).toHaveAttribute("fetchpriority", "high");
   await expect(hero).toHaveAttribute("loading", "eager");
   await expect(hero).toHaveAttribute("srcset", /1080w/);
+  await expect(hero).toHaveAttribute("srcset", /\/site\/optimized\/.*2560w/);
   await expect
     .poll(() =>
       hero.evaluate(
