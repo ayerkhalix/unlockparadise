@@ -579,6 +579,57 @@ body.glightbox-open .p2-floating {
 .p2-nav > a[aria-current="page"] {
   color: var(--p2-teal);
 }
+.p2-mobile-nav a[aria-current="page"],
+.p2-account__menu a[aria-current="page"] {
+  color: var(--p2-teal);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+}
+
+/* Keep provider attribution readable over every satellite photo. */
+body
+  :is(.palawan-map-wrap, .place-map-embed, .p2-map-canvas)
+  .mapboxgl-ctrl-attrib {
+  background: var(--p2-text);
+  color: var(--p2-on-teal);
+}
+body
+  :is(.palawan-map-wrap, .place-map-embed, .p2-map-canvas)
+  .mapboxgl-ctrl-attrib
+  a {
+  color: var(--p2-on-teal);
+}
+body
+  :is(.palawan-map-wrap, .place-map-embed, .p2-map-canvas)
+  .mapboxgl-ctrl-group
+  button,
+body
+  :is(.palawan-map-wrap, .place-map-embed, .p2-map-canvas)
+  .mapboxgl-ctrl-attrib-button {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+body
+  :is(.palawan-map-wrap, .place-map-embed, .p2-map-canvas)
+  .mapboxgl-ctrl-attrib-button {
+  background-color: var(--p2-text);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+}
+body
+  :is(.palawan-map-wrap, .place-map-embed, .p2-map-canvas)
+  .mapboxgl-ctrl-attrib.mapboxgl-compact {
+  min-height: 44px;
+  padding: 0 44px 0 0;
+}
+body .palawan-map-wrap .mapboxgl-ctrl-top-right {
+  bottom: 66px;
+}
 
 .p2-workspace-toolbar {
   display: flex;

@@ -5,7 +5,11 @@ import { useState, type ComponentProps } from "react";
 export function PasswordField(props: Omit<ComponentProps<"input">, "type">) {
   const [shown, setShown] = useState(false);
   const subject =
-    props.name === "current_password" ? "current password" : "password";
+    props.name === "current_password"
+      ? "current password"
+      : props.name === "confirm_password"
+        ? "confirmed password"
+        : "password";
   const action = `${shown ? "Hide" : "Show"} ${subject}`;
   return (
     <span className="p2-password-field" data-react-password="true">

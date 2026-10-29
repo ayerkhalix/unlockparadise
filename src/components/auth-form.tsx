@@ -1,4 +1,5 @@
 import { GoogleSignIn } from "./google-sign-in";
+import { PasswordField } from "./ui/password-field";
 type AuthRoute = "login" | "join" | "forgot-password";
 
 export function AuthBrand() {
@@ -89,18 +90,15 @@ export function AuthForm({
           {!recovery && (
             <>
               <label htmlFor="auth-password">Password</label>
-              <div className="p2-password-field">
-                <input
-                  id="auth-password"
-                  name="password"
-                  type="password"
-                  autoComplete={joining ? "new-password" : "current-password"}
-                  minLength={joining ? 12 : 8}
-                  maxLength={200}
-                  aria-describedby={joining ? "auth-password-help" : undefined}
-                  required
-                />
-              </div>
+              <PasswordField
+                id="auth-password"
+                name="password"
+                autoComplete={joining ? "new-password" : "current-password"}
+                minLength={joining ? 12 : 8}
+                maxLength={200}
+                aria-describedby={joining ? "auth-password-help" : undefined}
+                required
+              />
               {joining && (
                 <>
                   <p id="auth-password-help" className="p2-auth-help">
@@ -110,17 +108,14 @@ export function AuthForm({
                   <label htmlFor="auth-confirm-password">
                     Confirm password
                   </label>
-                  <div className="p2-password-field">
-                    <input
-                      id="auth-confirm-password"
-                      name="confirm_password"
-                      type="password"
-                      autoComplete="new-password"
-                      maxLength={200}
-                      data-match-password="password"
-                      required
-                    />
-                  </div>
+                  <PasswordField
+                    id="auth-confirm-password"
+                    name="confirm_password"
+                    autoComplete="new-password"
+                    maxLength={200}
+                    data-match-password="password"
+                    required
+                  />
                 </>
               )}
             </>

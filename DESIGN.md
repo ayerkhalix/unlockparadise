@@ -554,3 +554,8 @@ Smaller labels do not mean smaller hit areas: actions and menu rows remain at le
 ### Image delivery refinement — 29 October 2026
 
 Preserve the existing image boxes, focal crops and card hierarchy. Keep full responsive candidates on high-density screens, bound thumbnail/detail downloads to their actual layout, and account for portrait map tiles. The homepage hero and map category photographs use prepared public assets with immutable paths; the full-size hero retains its exact native source bytes. No visual upscaling or new crop design is introduced. Product photos with insufficient source detail require a better original rather than artificial enlargement.
+
+
+### Navigation and map control consistency — 29 October 2026
+
+Current-page feedback uses the existing teal and restrained underlining in mobile/account navigation. Map provider attribution uses the existing cream foreground token as an opaque surface with dark text, preserving legibility over photography. Provider controls and phone admin actions retain 44px touch areas. Auth password visibility reuses the established shared eye icon and field geometry.

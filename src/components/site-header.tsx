@@ -23,6 +23,16 @@ function ProfileIcon() {
   );
 }
 type Props = { tier: string; name?: string; photo?: string };
+const primaryLinks = [
+  ["About", "/about/"],
+  ["Membership", "/membership/"],
+  ["Merch", "/merch/"],
+  ["Contact Us", "/contact/"],
+  ["Itinerary Planner", "/itineraries/"],
+];
+function currentPage(pathname: string, href: string) {
+  return pathname === href.slice(0, -1) || pathname.startsWith(href);
+}
 const accountLinks = [
   ["My Account", "/account/"],
   ["My Bucketlist", "/bucketlist/"],
@@ -57,6 +67,7 @@ function ProfileDisclosure({ children }: { children: React.ReactNode }) {
 }
 function AccountMenu({ tier, name, photo }: Props) {
   const [busy, setBusy] = useState(false);
+  const pathname = usePathname();
   return (
     <ProfileDisclosure>
       <summary aria-label="Profile" data-tooltip="Your account">
@@ -76,7 +87,11 @@ function AccountMenu({ tier, name, photo }: Props) {
           {tier === "explorer-plus" ? "Explorer+" : "Explorer"}
         </span>
         {accountLinks.map(([label, href]) => (
-          <a key={href} href={href}>
+          <a
+            key={href}
+            href={href}
+            aria-current={currentPage(pathname, href) ? "page" : undefined}
+          >
             {label}
           </a>
         ))}
@@ -117,20 +132,20 @@ function GuestProfile() {
 }
 export function SiteHeader(props: Props) {
   const pathname = usePathname();
+  const menuTrigger = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const nav = (
     <>
-      <a href="/about/">About</a>
-      <a href="/membership/">Membership</a>
-      <a href="/merch/">Merch</a>
-      <a href="/contact/">Contact Us</a>
-      <a
-        href="/itineraries/"
-        aria-current={pathname.startsWith("/itineraries") ? "page" : undefined}
-      >
-        Itinerary Planner
-      </a>
+      {primaryLinks.map(([label, href]) => (
+        <a
+          key={href}
+          href={href}
+          aria-current={currentPage(pathname, href) ? "page" : undefined}
+        >
+          {label}
+        </a>
+      ))}
     </>
   );
   return (
@@ -177,6 +192,7 @@ export function SiteHeader(props: Props) {
               </div>
             </nav>
             <button
+              ref={menuTrigger}
               className="upd-header__toggle"
               type="button"
               aria-label="Open menu"
@@ -204,7 +220,13 @@ export function SiteHeader(props: Props) {
           title="Menu"
           heading={
             props.tier !== "public" ? (
-              <a className="mobile-menu-identity" href="/account/">
+              <a
+                className="mobile-menu-identity"
+                href="/account/"
+                aria-current={
+                  currentPage(pathname, "/account/") ? "page" : undefined
+                }
+              >
                 <span className="p2-avatar">
                   {props.photo ? (
                     <ContentImage src={props.photo} alt="" sizes="64px" />
@@ -228,6 +250,7 @@ export function SiteHeader(props: Props) {
           onClose={() => setOpen(false)}
           drawer
           side="right"
+          returnFocusRef={menuTrigger}
         >
           <nav className="p2-mobile-nav" aria-label="Mobile">
             {nav}
@@ -239,7 +262,14 @@ export function SiteHeader(props: Props) {
                 </>
               ) : (
                 <>
-                  <a href="/portfolio/">My Portfolio</a>
+                  <a
+                    href="/portfolio/"
+                    aria-current={
+                      currentPage(pathname, "/portfolio/") ? "page" : undefined
+                    }
+                  >
+                    My Portfolio
+                  </a>
                   <button
                     type="button"
                     disabled={signingOut}

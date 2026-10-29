@@ -505,6 +505,7 @@ export function ProductEditor({
             <div className="admin-fields">
               <CatalogChoice
                 label="Brand"
+                loading={options.loading}
                 value={brand}
                 choices={brands.map((b) => ({
                   value: String(b.id),
@@ -519,6 +520,7 @@ export function ProductEditor({
               />
               <CatalogChoice
                 label="Collection"
+                loading={options.loading}
                 value={collection}
                 choices={collections.map((c) => ({
                   value: String(c.id),

@@ -1,5 +1,11 @@
 "use client";
-import { useEffect, useId, useRef, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useSyncExternalStore,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import { useAdminTheme } from "../admin-theme";
 const subscribe = () => () => {};
@@ -12,6 +18,7 @@ export function Modal({
   children,
   drawer = false,
   side = "right",
+  returnFocusRef,
 }: {
   title: string;
   heading?: React.ReactNode;
@@ -19,6 +26,7 @@ export function Modal({
   children: React.ReactNode;
   drawer?: boolean;
   side?: "left" | "right";
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const theme = useAdminTheme();
@@ -31,7 +39,8 @@ export function Modal({
   useEffect(() => {
     if (!mounted) return;
     const dialog = ref.current!;
-    const previous = document.activeElement as HTMLElement | null;
+    const previous =
+      returnFocusRef?.current || (document.activeElement as HTMLElement | null);
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     dialog.showModal();
@@ -41,7 +50,7 @@ export function Modal({
       document.body.style.overflow = overflow;
       if (previous?.isConnected) previous.focus();
     };
-  }, [mounted]);
+  }, [mounted, returnFocusRef]);
   if (!mounted) return null;
   return createPortal(
     <dialog

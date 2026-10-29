@@ -148,7 +148,8 @@ body:has(.p2-floating) .mapboxgl-ctrl-bottom-right {
   bottom: calc(var(--p2-dock-clearance) + 12px);
 }
 body:has(.p2-floating) .palawan-map-wrap .mapboxgl-ctrl-top-right {
-  bottom: calc(var(--p2-dock-clearance) + 44px);
+  /* Clear the 44px attribution target, provider margin and a 12px gap. */
+  bottom: calc(var(--p2-dock-clearance) + 78px);
 }
 /* Keep map recovery on the left, clear of the fixed right-hand travel dock. */
 body:has(.p2-floating) .p2-map-feedback > span {

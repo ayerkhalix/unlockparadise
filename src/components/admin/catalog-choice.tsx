@@ -9,6 +9,7 @@ export function CatalogChoice({
   tagline = "",
   onSaveTagline,
   disabled = false,
+  loading = false,
 }: {
   label: string;
   value: string;
@@ -18,6 +19,7 @@ export function CatalogChoice({
   tagline?: string;
   onSaveTagline?: (v: string) => Promise<void>;
   disabled?: boolean;
+  loading?: boolean;
 }) {
   const [adding, setAdding] = useState(false),
     [editingTagline, setEditingTagline] = useState(false),
@@ -62,12 +64,19 @@ export function CatalogChoice({
           aria-label={label}
           value={value}
           required
-          disabled={disabled || busy || adding || editingTagline}
+          aria-busy={loading || undefined}
+          disabled={loading || disabled || busy || adding || editingTagline}
           onChange={(e) => onChange(e.target.value)}
         >
           <option value="">Choose {label.toLowerCase()}</option>
           {value && !choices.some((c) => c.value === value) && (
-            <option value={value}>{value}</option>
+            <option value={value}>
+              {loading
+                ? `Loading ${label.toLowerCase()}…`
+                : /^[0-9a-f-]{36}$/i.test(value)
+                  ? `Selected ${label.toLowerCase()} unavailable`
+                  : value}
+            </option>
           )}
           {choices.map((c) => (
             <option key={c.value} value={c.value}>
