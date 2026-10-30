@@ -14,6 +14,14 @@ test("image delivery keeps private images on the authenticated route and leaves 
   assert.ok(response.src.includes("variant=medium_large&width=640"));
   assert.ok(response.src.includes("resize=contain"));
   assert.ok(!response.srcSet.includes("/_next/image"));
+  const preview = responsiveImage(
+    "/api/previews/10000000-0000-4000-8000-000000000581/?v=cover-version",
+  );
+  assert.ok(preview.srcSet.includes("1920w"));
+  assert.ok(preview.srcSet.includes("width=384"));
+  assert.ok(preview.src.startsWith("/api/previews/"));
+  assert.ok(preview.src.includes("v=cover-version"));
+  assert.ok(!preview.srcSet.includes("storage/v1"));
   assert.equal(imageDeliveryUrl(media, 99999), media);
   for (const src of [
     "/api/previews/secret/",

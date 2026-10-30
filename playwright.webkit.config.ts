@@ -11,6 +11,7 @@ export default defineConfig({
     "**/performance-images.spec.ts",
     "**/image-quality.spec.ts",
     "**/ui-consistency.spec.ts",
+    "**/mobile-density-quality.spec.ts",
     "**/home-loading.spec.ts",
     "**/explore-scroll-return.spec.ts",
   ],

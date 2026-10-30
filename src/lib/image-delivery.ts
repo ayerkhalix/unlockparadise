@@ -29,7 +29,7 @@ export function imageDeliveryUrl(source: string, width: number) {
       widths.find((w) => w >= width) || widths.at(-1)!
     ];
   }
-  if (/^\/api\/media\/[0-9a-f-]{36}\/?(?:\?|$)/i.test(source)) {
+  if (/^\/api\/(?:media|previews)\/[0-9a-f-]{36}\/?(?:\?|$)/i.test(source)) {
     const url = new URL(source, "https://local.invalid");
     url.searchParams.set("width", String(width));
     url.searchParams.set("resize", "contain");

@@ -546,7 +546,7 @@ Browse returns retain the existing page composition and restore before paint. Ca
 
 ## Mobile app density — 28 October 2026
 
-`src/app/mobile-app.css` owns the public app's compact phone/tablet scale after the legacy styles. At 800px and below, use 26px page titles, 22px trip/category titles, 20px sections, 17px subheadings, 16px stop titles/times and 14px body copy. App controls use sentence case at 13px; the drawer uses 15px links through its existing 921px breakpoint. Preserve the existing fonts, navy/teal/gold palette, selected states and 4:3 destination photographs. The app header is 64px high; 16px gutters and shorter section gaps bring useful planner content higher on the screen. Do not scale the desktop interface down with transforms or change marketing hero proportions.
+`src/app/mobile-app.css` owns the public app's compact phone/tablet scale after the legacy styles. At 800px and below, use 24px page titles, 20px trip titles/sections, 16px subheadings/stop titles/times and 14px body copy. App controls use sentence case at 13px; the drawer uses 14px links through its existing 921px breakpoint. Public category/destination titles use 26px and the About introduction uses 28px. Preserve the existing fonts, navy/teal/gold palette, selected states and 4:3 destination photographs. The non-home app header is 64px high; 16px gutters and shorter section gaps bring useful content higher on the screen. Login, registration, membership, contact and legal pages share this compact scale and header clearance. The cinematic homepage opening retains its own proportions.
 
 Smaller labels do not mean smaller hit areas: actions and menu rows remain at least 44px high, and native text entry stays 16px to avoid iPhone focus zoom. Stop numbers remain noninteractive. Public modal typography follows the app scale; Admin Studio retains its own design system.
 
@@ -559,3 +559,7 @@ Preserve the existing image boxes, focal crops and card hierarchy. Keep full res
 ### Navigation and map control consistency — 29 October 2026
 
 Current-page feedback uses the existing teal and restrained underlining in mobile/account navigation. Map provider attribution uses the existing cream foreground token as an opaque surface with dark text, preserving legibility over photography. Provider controls and phone admin actions retain 44px touch areas. Auth password visibility reuses the established shared eye icon and field geometry.
+
+### Public preview sharpness — 30 October 2026
+
+Published cover previews use the shared 256/384/640/1080/1920px candidates and the smallest adequate ready display file within the parent's storage bucket. The versioned stored derivative preserves proportional composition and explicit focal metadata, includes its requested width in the cache identity, and never enlarges a small source. The endpoint rechecks publication and the current cover before cached or conditional responses. It does not disclose an archive, private object path, original redirect or protected title. No Supabase runtime transformation is introduced. A low-resolution original requires a replacement photograph; larger CSS boxes or artificial enlargement cannot restore missing detail.

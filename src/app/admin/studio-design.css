@@ -1026,6 +1026,9 @@ body .upd-admin .studio--catalog p.studio-commerce-note {
   }
 }
 @media (max-width: 800px) {
+  body .upd-admin .studio.studio--catalog h1 {
+    font-size: 26px;
+  }
   body .upd-admin .studio.studio--catalog button,
   body .upd-admin .studio.studio--catalog .admin-table .admin-actions button {
     min-height: 44px;

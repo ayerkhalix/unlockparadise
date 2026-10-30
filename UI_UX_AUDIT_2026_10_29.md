@@ -41,3 +41,5 @@ Audited the deployed staging site at commit `34a5877`, then fixed verified issue
 4. **Launch configuration:** Google provider activation, business-email SMTP and merchandise payment/fulfillment remain separate setup/business work. These are existing launch items, not newly discovered layout bugs.
 
 The interface is coherent overall. Further visual work should target a demonstrated problem rather than replacing the client-approved design or adding decoration.
+
+The [expanded checklist](UI_UX_CHECKLIST.md) records the 30 October follow-up: smaller public mobile layouts, responsive cover-preview delivery, a source-photo inventory and further prioritized checks.

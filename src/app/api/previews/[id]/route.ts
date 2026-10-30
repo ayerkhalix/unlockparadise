@@ -4,6 +4,8 @@ import { z } from "zod";
 import { api, ApiError, databaseError } from "@/lib/http";
 import { privilegedSupabase } from "@/lib/supabase/server";
 import { associationFocalPoint, focalCoverRegion } from "@/lib/focal-point";
+import { imageWidths } from "@/lib/image-delivery";
+import { storedImage } from "@/lib/storage/variants";
 
 /** Public, deliberately limited cover preview. Never redirect to a private object or disclose its path. */
 export async function GET(
@@ -13,6 +15,13 @@ export async function GET(
   return api(async () => {
     const { id } = await params;
     z.uuid().parse(id);
+    const requestedWidth = new URL(request.url).searchParams.get("width");
+    const width = requestedWidth === null ? 1920 : Number(requestedWidth);
+    z.number()
+      .refine((value) =>
+        imageWidths.includes(value as (typeof imageWidths)[number]),
+      )
+      .parse(width);
     const db = privilegedSupabase();
     const place = await db
       .from("places")
@@ -35,7 +44,7 @@ export async function GET(
     if (!cover.data) throw new ApiError(404, "Preview unavailable.");
     const media = await db
       .from("media")
-      .select("bucket,object_path,status,checksum")
+      .select("bucket,object_path,status,checksum,mime_type,width,height")
       .eq("id", cover.data.media_id)
       .eq("status", "ready")
       .maybeSingle();
@@ -49,7 +58,8 @@ export async function GET(
     const signature = createHash("sha256")
       .update(
         JSON.stringify([
-          "preview-v2",
+          "preview-v3",
+          width,
           cover.data.media_id,
           media.data.checksum,
           focus.x,
@@ -72,15 +82,15 @@ export async function GET(
       .download(previewPath);
     if (!stored.error && stored.data)
       return new Response(await stored.data.arrayBuffer(), { headers });
-    const variant = await db
+    const variants = await db
       .from("media_files")
-      .select("bucket,object_path")
+      .select("bucket,object_path,status,mime_type,width,height,variant")
       .eq("media_id", cover.data.media_id)
-      .eq("variant", "medium_large")
+      .eq("bucket", media.data.bucket)
       .eq("status", "ready")
-      .in("bucket", ["destination-public", "destination-private"])
-      .maybeSingle();
-    const file = variant.data || media.data;
+      .limit(40);
+    databaseError(variants.error);
+    const file = storedImage(media.data, variants.data || [], width);
     const download = await db.storage
       .from(file.bucket)
       .download(file.object_path);
@@ -95,13 +105,14 @@ export async function GET(
     });
     const metadata = await source.metadata();
     const rotated = metadata.orientation != null && metadata.orientation >= 5;
-    const width = (rotated ? metadata.height : metadata.width) || 1,
+    const sourceWidth = (rotated ? metadata.height : metadata.width) || 1,
       height = (rotated ? metadata.width : metadata.height) || 1;
     let pipeline = source.rotate();
     if (focus.x !== 50 || focus.y !== 50)
-      pipeline = pipeline.extract(focalCoverRegion(width, height, focus));
+      pipeline = pipeline.extract(focalCoverRegion(sourceWidth, height, focus));
     const image = await pipeline
-      .resize(640, 480, { fit: "inside", withoutEnlargement: true })
+      .withIccProfile("srgb")
+      .resize({ width, withoutEnlargement: true })
       .webp({ quality: 88 })
       .toBuffer();
     const saved = await db.storage
