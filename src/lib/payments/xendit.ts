@@ -19,7 +19,7 @@ class XenditRequestError extends ApiError {
   constructor(public readonly definitelyRejected: boolean) {
     super(
       503,
-      "Xendit could not prepare this test payment. Please try again later.",
+      "Xendit could not prepare this payment. Please try again later.",
     );
   }
 }
@@ -27,13 +27,13 @@ export function requireXenditSandbox() {
   try {
     xenditTestKey();
   } catch {
-    throw new ApiError(503, "Xendit test payments are not configured.");
+    throw new ApiError(503, "Payments are not configured.");
   }
   if (
     process.env.UPD_ENVIRONMENT !== "staging" ||
     !process.env.XENDIT_WEBHOOK_TOKEN
   )
-    throw new ApiError(503, "Xendit test payments are not configured.");
+    throw new ApiError(503, "Payments are not configured.");
 }
 export async function xenditRequest(
   method: "GET" | "POST",
@@ -203,10 +203,7 @@ export async function createXenditCheckout(
 ) {
   requireXenditSandbox();
   if (!xenditTestUser(userId))
-    throw new ApiError(
-      403,
-      "Test checkout is restricted to approved test accounts.",
-    );
+    throw new ApiError(403, "Checkout is not available for this account yet.");
   await rateLimit("xendit-checkout", userId, 10, 3600);
   const db = privilegedSupabase();
   const reserve = async () => {
@@ -271,7 +268,7 @@ export async function createXenditCheckout(
           type: "INDIVIDUAL",
           individual_detail: { given_names: "Explorer" },
         },
-        description: `Unlock Paradise Explorer+ for ${tx.duration_months} month${tx.duration_months === 1 ? "" : "s"} (test)`,
+        description: `Unlock Paradise Explorer+ for ${tx.duration_months} month${tx.duration_months === 1 ? "" : "s"}`,
         items: [
           {
             reference_id: tx.plan_id,

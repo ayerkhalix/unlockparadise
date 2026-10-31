@@ -28,8 +28,12 @@ export function AvatarForm({
   };
   return (
     <div className={inline ? "profile-photo-fields" : "profile-photo-editor"}>
+      <p className="profile-photo-visibility">
+        Your profile picture is public and appears with your reviews.
+      </p>
       {photoId && (
-        <ContentImage sizes="96px"
+        <ContentImage
+          sizes="96px"
           src={`/api/media/${photoId}/`}
           alt="Current profile photo"
           width={64}

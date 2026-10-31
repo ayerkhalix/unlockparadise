@@ -33,6 +33,7 @@ export default defineConfig({
         "**/ui-consistency.spec.ts",
         "**/mobile-density-quality.spec.ts",
         "**/client-refinement-oct31.spec.ts",
+        "**/client-document-nov1.spec.ts",
         "**/home-loading.spec.ts",
         "**/explore-scroll-return.spec.ts",
       ],

@@ -2,6 +2,8 @@ import icons from "@/data/icons.json";
 
 const paths: Record<string, string> = {
   ...icons,
+  StarFilled:
+    "m480-178-235 142 62-267-207-180 273-23 107-252 107 252 273 23-207 180 62 267-235-142Z",
   Sort: "M160-240v-80h240v80H160Zm0-200v-80h400v80H160Zm0-200v-80h640v80H160Z",
   Reset:
     "M440-80q-134 0-227-93t-93-227h80q0 100 70 170t170 70q100 0 170-70t70-170q0-100-70-170t-170-70h-6l62 62-56 58-160-160 160-160 56 58-62 62h6q134 0 227 93t93 227q0 134-93 227T440-80Z",
@@ -25,7 +27,7 @@ export function iconPath(name: string) {
   return paths[name] || paths.Local;
 }
 export function Icon({ name, size = 24 }: { name: string; size?: number }) {
-  if (["Search", "Explore", "Notes", "Delete"].includes(name))
+  if (["Search", "Explore", "Notes", "Delete", "Heart"].includes(name))
     return (
       <svg
         className="upd-icon"
@@ -49,6 +51,8 @@ export function Icon({ name, size = 24 }: { name: string; size?: number }) {
             <circle cx="12" cy="12" r="9" />
             <path d="m16 8-2 6-6 2 2-6 6-2Z" />
           </>
+        ) : name === "Heart" ? (
+          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />
         ) : name === "Delete" ? (
           <path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7" />
         ) : (

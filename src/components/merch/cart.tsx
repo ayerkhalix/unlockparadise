@@ -460,10 +460,7 @@ export function MerchCheckout() {
         Online orders and payments are not available yet. Your selection stays
         in this browser when storage is available.
       </p>
-      <p className="p2-muted">
-        Explorer+ membership is separate. Approved demo accounts can try its
-        Xendit test checkout.
-      </p>
+      <p className="p2-muted">Explorer+ membership is purchased separately.</p>
       <Link className="p2-back" href="/membership/">
         View membership plans ↗
       </Link>

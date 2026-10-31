@@ -1,5 +1,15 @@
 # Unlock Paradise UX contract
 
+## Client document refinements 1 November 2026
+
+Membership choices precede benefits and recent payment history on checkout; a verified payment return promotes its status above the choices. The signed-in account stays immediately above Continue to payment. Public copy is neutral; a compact Preview checkout disclosure remains while the provider is sandboxed. This does not authorize live payments or renewals.
+
+Saved-place tabs both use white text and only the active tab is underlined. Their empty cards use compact shared spacing. Planner destination results render only for a non-whitespace query; clearing hides them immediately. Notes use a labeled disclosure button opposite the time, opening a full-width textarea. Closing it preserves the draft, and the overall Save changes action remains the only commit for notes/times.
+
+The owner explicitly chose public profile pictures on 1 November 2026. Review cards show current approved avatars, rating, opted-in traveler identity and date, with the heart at the far right. The public avatar endpoint serves image bytes only after verifying a current profile association, ready media status and profile bucket; pending, removed and unrelated media remain unavailable. Storage paths and account information are not returned. The upload UI states the public-photo policy. Existing moderation and traveler-identity consent remain in effect.
+
+Known fixture titles/slug conventions are excluded from public browsing, maps, recommendations and planner discovery without deleting records. They remain manageable in Admin. The About Vision photograph shares the established top/bottom fade treatment.
+
 Place editor additions: an empty traveler audience means category-based matching; selected survey identities limit and prioritize eligibility in personalized suggestions, without changing ordinary browsing or membership access. Up to six nearby Maps recommendations save in the same versioned Place transaction. Missing Google configuration or photos retain useful names, notes and links. Lookup is staff-only, cancelable and rate-limited; pending lookup prevents Place save. Ambiguous matches require selection for a photo. Shared form validation, confirmations, dirty-state protection and theme tokens remain the owners. See [Place discovery editing](PLACE_DISCOVERY_EDITING.md).
 
 ## Product context

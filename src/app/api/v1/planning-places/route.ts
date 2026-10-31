@@ -2,6 +2,7 @@ import { z } from "zod";
 import { api, json, databaseError, ApiError } from "@/lib/http";
 import { requirePremium } from "@/lib/auth/session";
 import { mapMetadata } from "@/lib/repositories/maps";
+import { isFixtureContent } from "@/lib/release-content";
 import {
   planningPlace,
   planningPlaceSelect,
@@ -69,7 +70,10 @@ export async function GET(request: Request) {
     }
     return json({
       map,
-      data: rows.map(planningPlace).filter(Boolean),
+      data: rows
+        .filter((row) => !isFixtureContent(row))
+        .map(planningPlace)
+        .filter(Boolean),
     });
   });
 }

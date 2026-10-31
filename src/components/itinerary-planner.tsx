@@ -91,22 +91,40 @@ function StopNotes({
   onChange: (notes: string) => void;
 }) {
   const ready = useSyncExternalStore(subscribeReady, clientReady, serverReady);
+  const [open, setOpen] = useState(false);
   return (
-    <div className="p2-stop-notes p3-stop-note-editor">
-      <label htmlFor={`stop-notes-${item.id}`}>
-        <Icon name="Notes" size={14} /> Notes for this stop
-      </label>
-      <textarea
-        id={`stop-notes-${item.id}`}
-        className="resize-none"
+    <>
+      <button
+        type="button"
+        className="p3-stop-note-toggle"
+        aria-expanded={open}
+        aria-controls={`stop-note-editor-${item.id}`}
         disabled={!ready}
-        maxLength={2000}
-        rows={2}
-        placeholder="What would you like to remember?"
-        value={item.notes}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </div>
+        onClick={() => setOpen(!open)}
+      >
+        <Icon name="Notes" size={17} />
+        {item.notes ? "Notes" : "Add note"}
+      </button>
+      <div
+        id={`stop-note-editor-${item.id}`}
+        className="p2-stop-notes p3-stop-note-editor"
+        hidden={!open}
+      >
+        <label className="p2-sr-only" htmlFor={`stop-notes-${item.id}`}>
+          Notes for {item.place?.title || "this stop"}
+        </label>
+        <textarea
+          id={`stop-notes-${item.id}`}
+          className="resize-none"
+          disabled={!ready}
+          maxLength={2000}
+          rows={2}
+          placeholder="What would you like to remember?"
+          value={item.notes}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </div>
+    </>
   );
 }
 export function ItineraryPlanner({

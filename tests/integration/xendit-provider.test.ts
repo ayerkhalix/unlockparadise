@@ -38,7 +38,7 @@ test("Xendit transport is sandbox-only, bounded and restricted to approved resou
     };
     await assert.rejects(
       () => createXenditCheckout("unapproved-account", "monthly", "key"),
-      /approved test accounts/,
+      /not available for this account/,
     );
     await assert.rejects(
       () => xenditRequest("GET", "/sessions/../../balance"),

@@ -54,8 +54,10 @@ export async function Checkout({
   databaseError(plans.error);
   return (
     <main className="upd-main p3-checkout-page" id="upd-main">
-      <div className="upd-container p3-checkout-layout">
-        <section className="p3-checkout-intro" aria-labelledby="checkout-title">
+      <div
+        className={`upd-container p3-checkout-layout${paymentReturn ? " p3-checkout-layout--return" : ""}`}
+      >
+        <header className="p3-checkout-intro">
           <a className="p2-back" href="/membership/">
             Back to membership
           </a>
@@ -68,21 +70,34 @@ export async function Checkout({
               ? "Choose how long to extend your membership."
               : "Choose your membership."}
           </p>
+        </header>
+        <section className="p3-checkout-panel" aria-label="Membership payment">
+          <MembershipPlanPicker
+            plans={plans.data || []}
+            approved={approvedTestAccount}
+            returnTo={returnTarget}
+            ownerId={current.user.id}
+            accountEmail={current.user.email}
+          />
+          {xendit && (
+            <p className="p3-checkout-preview">
+              Preview checkout. No real payment is collected.
+              {!approvedTestAccount &&
+                " Checkout is not available for this account yet."}
+            </p>
+          )}
+          <p className="p3-checkout-support">
+            A question before you go? <a href="/contact/">Contact us</a>
+          </p>
+        </section>
+        <section
+          className="p3-checkout-benefits"
+          aria-label="Included with Explorer+"
+        >
           <p className="p2-muted">
             Get access to Explorer+ destinations, save places and plan your
             route across Palawan.
           </p>
-          {recent?.data && (
-            <PaymentStatus
-              key={`${recent.data.id}:${paymentReturn}`}
-              transactionId={recent.data.id}
-              initialStatus={recent.data.status}
-              canCheck={Boolean(recent.data.provider_session_id)}
-              autoCheck={paymentReturn}
-              returnTo={returnTarget}
-              ownerId={current.user.id}
-            />
-          )}
           <ul className="p3-checkout-inclusions">
             <li>
               <Icon name="Location" size={22} />
@@ -107,19 +122,17 @@ export async function Checkout({
             </li>
           </ul>
         </section>
-        <section className="p3-checkout-panel" aria-label="Membership payment">
-          {xendit && (
-            <div className="p3-sandbox-notice">
-              <Icon name="Lock" size={20} />
-              <p>
-                This is a Xendit test checkout. No real payment is collected.
-              </p>
-            </div>
-          )}
-          {xendit && !approvedTestAccount && (
-            <p className="p3-checkout-restriction">
-              Payment testing is available to approved test accounts only.
-            </p>
+        <aside className="p3-checkout-recent" aria-label="Recent payment">
+          {recent?.data && (
+            <PaymentStatus
+              key={`${recent.data.id}:${paymentReturn}`}
+              transactionId={recent.data.id}
+              initialStatus={recent.data.status}
+              canCheck={Boolean(recent.data.provider_session_id)}
+              autoCheck={paymentReturn}
+              returnTo={returnTarget}
+              ownerId={current.user.id}
+            />
           )}
           {paymentReturn && !recent?.data && (
             <p role="status">
@@ -127,17 +140,7 @@ export async function Checkout({
               from your membership page to check your latest payment.
             </p>
           )}
-          <MembershipPlanPicker
-            plans={plans.data || []}
-            approved={approvedTestAccount}
-            returnTo={returnTarget}
-            ownerId={current.user.id}
-            accountEmail={current.user.email}
-          />
-          <p className="p3-checkout-support">
-            A question before you go? <a href="/contact/">Contact us</a>
-          </p>
-        </section>
+        </aside>
       </div>
     </main>
   );

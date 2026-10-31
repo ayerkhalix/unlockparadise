@@ -3,9 +3,8 @@ import type { Destination, Tier } from "@/lib/destinations";
 import { Gallery } from "./gallery";
 import { DestinationLocation } from "./destination-location";
 import { Icon } from "./icon";
-import { PlaceActions, ReviewForm, ReviewControls } from "./place-actions";
+import { PlaceActions, ReviewForm } from "./place-actions";
 import { currentSession } from "@/lib/auth/session";
-import { safeHtml } from "@/lib/html";
 import { localAsset } from "@/lib/content";
 import mapData from "@/data/map.json";
 import { TravelJourney, EditorialGuide } from "./travel-guide";
@@ -20,7 +19,7 @@ import { backendConfigured } from "@/lib/supabase/config";
 import { serverSupabase } from "@/lib/supabase/server";
 import { databaseError } from "@/lib/http";
 import { InterestView } from "./analytics-preferences";
-import { TravelerBadges } from "./traveler-identity";
+import { ReviewCard } from "./review-card";
 
 function Fact({
   icon,
@@ -257,36 +256,12 @@ export async function DestinationDetail({
             {place.reviews.length ? (
               <div className="upd-reviews-list">
                 {place.reviews.map((review, i) => (
-                  <article key={review.id || i} className="upd-review">
-                    <strong>{review.author}</strong>
-                    {review.travelerIdentity && (
-                      <TravelerBadges identity={review.travelerIdentity} />
-                    )}
-                    {review.rating > 0 && (
-                      <span aria-label={`${review.rating} out of 5 stars`}>
-                        {"★".repeat(review.rating)}
-                      </span>
-                    )}
-                    {review.title && <h3>{review.title}</h3>}
-                    {review.approved === false && (
-                      <p className="upd-review-msg">
-                        Your review is awaiting approval.
-                      </p>
-                    )}
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: safeHtml(review.body),
-                      }}
-                    />
-                    {review.id && current && (
-                      <ReviewControls
-                        id={review.id}
-                        own={review.userId === current.user.id}
-                        initialLikes={review.likes}
-                        initialLiked={review.liked}
-                      />
-                    )}
-                  </article>
+                  <ReviewCard
+                    key={review.id || i}
+                    review={review}
+                    viewerId={current?.user.id}
+                    returnTo={`/place/${place.slug}/`}
+                  />
                 ))}
               </div>
             ) : (

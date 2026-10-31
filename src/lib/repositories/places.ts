@@ -3,6 +3,7 @@ import { serverSupabase, privilegedSupabase } from "@/lib/supabase/server";
 import { databaseError } from "@/lib/http";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { currentSession } from "@/lib/auth/session";
+import { isFixtureContent } from "@/lib/release-content";
 export interface PlaceSummary {
   id: string;
   legacy_id: number | null;
@@ -67,12 +68,15 @@ export async function findPlaces(
       });
   const result = await query;
   databaseError(result.error);
-  const rows = (result.data || []) as unknown as (PlaceSummary & {
-    reviews: { rating: number; status: string }[];
-  })[];
+  const rows = (
+    (result.data || []) as unknown as (PlaceSummary & {
+      reviews: { rating: number; status: string }[];
+    })[]
+  ).filter((place) => !isFixtureContent(place));
   // Only the explicit editorial Featured projection can publish a premium name.
   // No privileged guide, storage path, coordinates or other detail enters this projection.
   const hidden = rows.filter((p) => p.vip_content && p.slug === p.id);
+  const fixtureIds = new Set<string>();
   if (hidden.length) {
     const previews = await privilegedSupabase()
       .from("places")
@@ -87,6 +91,10 @@ export async function findPlaces(
     for (const place of hidden) {
       const preview = previews.data?.find((p) => p.id === place.id);
       if (!preview) continue;
+      if (isFixtureContent(preview)) {
+        fixtureIds.add(place.id);
+        continue;
+      }
       place.preview_id = place.id;
       place.preview_version = String(Date.parse(preview.updated_at));
       if (filters.featured && preview.featured) place.title = preview.title;
@@ -106,28 +114,30 @@ export async function findPlaces(
           )
       : null;
   databaseError(state?.error || null);
-  return rows.map((place) => {
-    const { reviews, ...summary } = place;
-    const approved = (reviews || []).filter(
-      (r: { status: string }) => r.status === "approved",
-    );
-    return {
-      ...summary,
-      saved: Boolean(
-        state?.data?.find((s) => s.place_id === place.id)?.saved_at,
-      ),
-      visited: Boolean(
-        state?.data?.find((s) => s.place_id === place.id)?.visited_at,
-      ),
-      rating_count: approved.length,
-      rating_average: approved.length
-        ? approved.reduce(
-            (sum: number, r: { rating: number }) => sum + r.rating,
-            0,
-          ) / approved.length
-        : 0,
-    };
-  }) as unknown as PlaceSummary[];
+  return rows
+    .filter((place) => !fixtureIds.has(place.id))
+    .map((place) => {
+      const { reviews, ...summary } = place;
+      const approved = (reviews || []).filter(
+        (r: { status: string }) => r.status === "approved",
+      );
+      return {
+        ...summary,
+        saved: Boolean(
+          state?.data?.find((s) => s.place_id === place.id)?.saved_at,
+        ),
+        visited: Boolean(
+          state?.data?.find((s) => s.place_id === place.id)?.visited_at,
+        ),
+        rating_count: approved.length,
+        rating_average: approved.length
+          ? approved.reduce(
+              (sum: number, r: { rating: number }) => sum + r.rating,
+              0,
+            ) / approved.length
+          : 0,
+      };
+    }) as unknown as PlaceSummary[];
 }
 export async function taxonomy(client?: SupabaseClient) {
   const db = client || (await serverSupabase());

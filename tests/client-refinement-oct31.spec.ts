@@ -134,6 +134,14 @@ test("one save persists all edited stops, preserves failed drafts, and saves bef
     await expect(
       page.getByRole("button", { name: "Save note", exact: true }),
     ).toHaveCount(0);
+    await stops
+      .nth(0)
+      .getByRole("button", { name: "Add note", exact: true })
+      .click();
+    await stops
+      .nth(1)
+      .getByRole("button", { name: "Add note", exact: true })
+      .click();
     await stops.nth(0).getByRole("textbox").fill("Bring water");
     await stops.nth(1).getByRole("textbox").fill("Pack a towel");
     await stops.nth(0).locator(".p3-stop-timing summary").click();
@@ -267,6 +275,10 @@ test("one save persists all edited stops, preserves failed drafts, and saves bef
     );
     await stops
       .nth(0)
+      .getByRole("button", { name: "Notes", exact: true })
+      .click();
+    await stops
+      .nth(0)
       .getByRole("textbox")
       .fill("Keep this note when restoring");
     await stops.nth(0).locator(".p2-stop-actions > summary").click();
@@ -282,8 +294,14 @@ test("one save persists all edited stops, preserves failed drafts, and saves bef
       .getByRole("button", { name: "Save", exact: true })
       .click();
     await expect(stops).toHaveCount(1);
-    await page.getByRole("button", { name: "Undo removal", exact: true }).click();
+    await page
+      .getByRole("button", { name: "Undo removal", exact: true })
+      .click();
     await expect(stops).toHaveCount(2);
+    await stops
+      .nth(0)
+      .getByRole("button", { name: "Notes", exact: true })
+      .click();
     await expect(stops.nth(0).getByRole("textbox")).toHaveValue(
       "Keep this note when restoring",
     );

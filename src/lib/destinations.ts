@@ -6,12 +6,13 @@ import { join } from "node:path";
 import { z } from "zod";
 import { cache } from "react";
 import { backendConfigured } from "@/lib/supabase/config";
-import { serverSupabase } from "@/lib/supabase/server";
+import { serverSupabase, privilegedSupabase } from "@/lib/supabase/server";
 import { currentSession } from "@/lib/auth/session";
 import { databaseError } from "@/lib/http";
 import { safeHtml } from "@/lib/html";
 import { publicTravelerBadges } from "@/lib/repositories/traveler";
 import type { PublicTravelerBadge } from "@/lib/traveler";
+import { isFixtureContent } from "@/lib/release-content";
 
 export type Tier = "public" | "explorer" | "explorer-plus";
 export interface Destination {
@@ -54,6 +55,7 @@ export interface Destination {
     id?: string;
     userId?: string | null;
     author: string;
+    avatar?: string;
     body: string;
     date: string;
     rating: number;
@@ -115,6 +117,21 @@ export const destinationRepository = {
         };
       }
       const p = result.data;
+      if (isFixtureContent(p)) return undefined;
+      const authorIds = [
+        ...new Set<string>(
+          (p.reviews || [])
+            .map((r: { user_id: string | null }) => r.user_id)
+            .filter(Boolean),
+        ),
+      ];
+      const photos = authorIds.length
+        ? await privilegedSupabase()
+            .from("profile_media")
+            .select("user_id,media!profile_media_media_id_fkey(id,status)")
+            .in("user_id", authorIds)
+        : null;
+      databaseError(photos?.error || null);
       const details = p.place_details;
       const likes = await db.rpc("review_like_counts", {
         review_ids: (p.reviews || []).map((r: { id: string }) => r.id),
@@ -222,6 +239,13 @@ export const destinationRepository = {
             id: r.id,
             userId: r.user_id,
             author: r.author_name,
+            avatar: (() => {
+              const photo = photos?.data?.find((p) => p.user_id === r.user_id)
+                ?.media as unknown as { id: string; status: string } | null;
+              return photo?.status === "ready"
+                ? `/api/avatars/${photo.id}/`
+                : undefined;
+            })(),
             body: safeHtml(r.body),
             date: r.created_at,
             rating: r.rating,

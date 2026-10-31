@@ -116,10 +116,10 @@ export function PaymentStatus({
   return (
     <section
       className="p2-payment-status"
-      aria-label="Latest test payment"
+      aria-label="Payment status"
       aria-busy={busy}
     >
-      <h2>Latest test payment</h2>
+      <h2>Payment status</h2>
       <p role="status" aria-live="polite">
         {message ||
           (status === "paid"

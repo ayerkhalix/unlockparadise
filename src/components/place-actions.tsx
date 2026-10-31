@@ -4,7 +4,7 @@ import { useDecision } from "./ui/decision";
 import { useState } from "react";
 import { Icon } from "./icon";
 import { useRouter } from "next/navigation";
-import { notify } from "@/lib/client-api";
+import { notify, requestJSON } from "@/lib/client-api";
 
 export function PlaceActions({
   premium,
@@ -212,7 +212,8 @@ export function ReviewControls({
   const { ask, dialog } = useDecision();
   const [liked, setLiked] = useState(initialLiked),
     [count, setCount] = useState(initialLikes),
-    [message, setMessage] = useState("");
+    [message, setMessage] = useState(""),
+    [busy, setBusy] = useState(false);
   const router = useRouter();
   return (
     <div className="upd-review-actions">
@@ -221,19 +222,29 @@ export function ReviewControls({
         className={`upd-like${liked ? " is-liked" : ""}`}
         type="button"
         aria-pressed={liked}
+        aria-label={liked ? "Unlike review" : "Like review"}
+        aria-busy={busy}
+        disabled={busy}
         onClick={async () => {
-          const r = await fetch("/api/v1/review-likes/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ review_id: id, liked: !liked }),
-          });
-          if (r.ok) {
+          if (busy) return;
+          setBusy(true);
+          setMessage("");
+          try {
+            await requestJSON("/api/v1/review-likes/", "POST", {
+              review_id: id,
+              liked: !liked,
+            });
             setLiked(!liked);
             setCount(count + (liked ? -1 : 1));
-          } else setMessage((await r.json()).error);
+          } catch (error) {
+            setMessage((error as Error).message);
+          } finally {
+            setBusy(false);
+          }
         }}
       >
-        Like{count ? ` (${count})` : ""}
+        <Icon name="Heart" size={24} />
+        {count ? <span>{count}</span> : null}
       </button>
       {own && (
         <button

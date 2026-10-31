@@ -48,7 +48,7 @@ export async function POST(request: Request) {
           ? "Payment confirmed. Your Explorer+ membership is active."
           : state.status === "expired"
             ? "This checkout has closed. No membership was activated."
-            : "Payment is still pending. Complete your Xendit test checkout, then check again.",
+            : "Payment is still pending. Complete your Xendit checkout, then check again.",
       redirect_to: state.status === "paid" ? "/account/" : undefined,
     });
   });
