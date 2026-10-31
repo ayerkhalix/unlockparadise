@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { ValidatedForm } from "./ui/validated-form";
+import { Icon } from "./icon";
 type Plan = {
   id: string;
   months: number;
@@ -19,11 +20,13 @@ export function MembershipPlanPicker({
   approved,
   returnTo,
   ownerId,
+  accountEmail,
 }: {
   plans: Plan[];
   approved: boolean;
   returnTo?: string;
   ownerId?: string;
+  accountEmail?: string;
 }) {
   const [selected, setSelected] = useState(plans[0]?.id || "");
   const plan = plans.find((p) => p.id === selected);
@@ -59,7 +62,7 @@ export function MembershipPlanPicker({
                     ? "One month"
                     : `${p.months} months`}
               </strong>
-              <small>Pay once · No automatic renewal</small>
+              <small>Pay once. Explore for your chosen term.</small>
             </span>
             <b>{money(p.amount_centavos, p.currency)}</b>
           </label>
@@ -80,6 +83,16 @@ export function MembershipPlanPicker({
         <p role="status">
           Membership plans are temporarily unavailable. Please try again later.
         </p>
+      )}
+      {accountEmail && (
+        <div className="p3-checkout-identity">
+          <Icon name="Person" size={22} />
+          <div>
+            <span>Signed in as</span>
+            <strong>{accountEmail}</strong>
+            <a href="/account/">View account</a>
+          </div>
+        </div>
       )}
       <button
         type="submit"

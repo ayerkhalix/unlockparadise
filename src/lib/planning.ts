@@ -75,6 +75,19 @@ export const planMutation = z
     z.object({ action: z.literal("update"), payload: tripInput }),
     z.object({ action: z.literal("add_day"), payload: z.object({}) }),
     z.object({
+      action: z.literal("save_changes"),
+      payload: z.object({
+        items: z
+          .array(
+            z
+              .object({ item_id: id, notes: z.string().max(2000) })
+              .and(stopTimeInput),
+          )
+          .min(1)
+          .max(50),
+      }),
+    }),
+    z.object({
       action: z.literal("delete_day"),
       payload: z.object({ day_id: id }),
     }),
@@ -130,6 +143,7 @@ export type TravelPlace = {
   area: string;
   category: string;
   image: string | null;
+  images?: string[];
   coordinates: [number, number] | null;
   accessPoints?: AccessPoint[];
 };

@@ -6,6 +6,10 @@ import { useSavedPlaces } from "./bucketlist";
 import { BucketlistButton } from "./bucketlist-button";
 import { ContentImage } from "./ui/content-image";
 import { Icon } from "./icon";
+import {
+  DestinationCardPhotos,
+  scrollDestinationPhoto,
+} from "./destination-card-photos";
 import { Modal } from "./ui/modal";
 import { ValidatedForm } from "./ui/validated-form";
 import { StopTimeFields } from "./stop-time-fields";
@@ -39,13 +43,7 @@ export function PlannerBrowser({
   const libraryReturn = safeLibraryReturn(params.get("return_to"));
   const area = trip.areas?.name || "";
   const access = (params.get("access") || "").split("|").filter(Boolean);
-  const vip = params.get("vip") === "1";
-  const sort = ["date", "rating"].includes(params.get("sort") || "")
-    ? params.get("sort")!
-    : "name";
-  const descending =
-    params.get("dir") === "desc" ||
-    (params.get("dir") !== "asc" && sort !== "name");
+  const assets = (params.get("assets") || "").split("|").filter(Boolean);
   const [adding, setAdding] = useState<TravelPlace | null>(null),
     [time, setTime] = useState<StopTime>({ start_time: null, end_time: null });
   const [busy, setBusy] = useState(false),
@@ -94,7 +92,9 @@ export function PlannerBrowser({
       "search",
       "duration",
       "mode",
-      "assets",
+      "vip",
+      "sort",
+      "dir",
       "shown",
     ])
       query.delete(obsolete);
@@ -117,8 +117,8 @@ export function PlannerBrowser({
   const category = categories.includes(requestedCategory)
     ? requestedCategory
     : categories[0] || "";
-  const toggleFacet = (key: "access", value: string) => {
-    const current = access;
+  const toggleFacet = (key: "access" | "assets", value: string) => {
+    const current = key === "access" ? access : assets;
     update({
       [key]: (current.includes(value)
         ? current.filter((item) => item !== value)
@@ -132,21 +132,13 @@ export function PlannerBrowser({
         place.category.split(" · ").includes(category) &&
         (!access.length ||
           access.some((mode) => place.accessibility?.includes(mode))) &&
-        (!vip || place.vip),
+        (!assets.length ||
+          assets.some((asset) => place.assets?.includes(asset))),
     )
-    .sort((first, second) => {
-      const [a, b] = descending ? [second, first] : [first, second];
-      if (sort === "rating")
-        return (
-          (a.rating ?? -1) - (b.rating ?? -1) || a.title.localeCompare(b.title)
-        );
-      if (sort === "date")
-        return (
-          (a.publishedAt || "").localeCompare(b.publishedAt || "") ||
-          a.title.localeCompare(b.title)
-        );
-      return a.title.localeCompare(b.title);
-    });
+    .sort((a, b) => a.title.localeCompare(b.title));
+  const availableAssets = [
+    ...new Set(catalog.places.flatMap((place) => place.assets || [])),
+  ].sort();
   const cover = filtered.find((place) => place.image)?.image;
   const reloadTrip = async () => {
     if (pending.current) return;
@@ -247,46 +239,42 @@ export function PlannerBrowser({
             ))}
           </div>
         </fieldset>
-        <label className="planner-reference-sort">
-          Sort by
-          <select
-            value={sort}
-            onChange={(event) => update({ sort: event.target.value, dir: "" })}
-          >
-            <option value="name">Name</option>
-            <option value="date">Date added</option>
-            <option value="rating">Top rated</option>
-          </select>
-        </label>
+        {availableAssets.length > 0 && (
+          <fieldset className="planner-assets">
+            <legend>Assets</legend>
+            <div className="planner-transport-options">
+              {availableAssets.map((name) => (
+                <button
+                  type="button"
+                  key={name}
+                  aria-pressed={assets.includes(name)}
+                  onClick={() => toggleFacet("assets", name)}
+                >
+                  <Icon name={name} size={18} />
+                  {name === "Accommodation available"
+                    ? "Accommodation"
+                    : name === "Sunrise view"
+                      ? "Sunrise"
+                      : name === "Sunset view"
+                        ? "Sunset"
+                        : name === "Surfing spot"
+                          ? "Surfing"
+                          : name}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <button
-          className="planner-sort-direction"
+          className="planner-reset"
           type="button"
-          aria-label={descending ? "Sort ascending" : "Sort descending"}
-          aria-pressed={descending}
-          onClick={() => update({ dir: descending ? "asc" : "desc" })}
+          aria-label="Reset destination filters"
+          data-tooltip="Reset filters"
+          disabled={!access.length && !assets.length}
+          onClick={() => update({ access: "", assets: "" })}
         >
-          <Icon name="Sort" size={22} />
+          <Icon name="Reset" size={20} />
         </button>
-        <div className="planner-reference-secondary">
-          <button
-            className="planner-premium-chip"
-            type="button"
-            aria-pressed={vip}
-            onClick={() => update({ vip: vip ? "" : "1" })}
-          >
-            <Icon name="Lock" size={15} /> Explorer+
-          </button>
-          <button
-            className="planner-reset"
-            type="button"
-            aria-label="Reset destination filters"
-            data-tooltip="Reset filters"
-            disabled={!access.length && !vip && sort === "name" && !descending}
-            onClick={() => update({ access: "", vip: "", sort: "", dir: "" })}
-          >
-            <Icon name="Reset" size={20} />
-          </button>
-        </div>
       </div>
       {bucketlist.error && (
         <p className="p2-error" role="status">
@@ -323,14 +311,27 @@ export function PlannerBrowser({
                     <a
                       className="upd-card__link"
                       href={`/place/${place.slug}/?trip=${trip.id}&day=${day.id}`}
+                      onKeyDown={(event) => {
+                        if (
+                          event.key === "ArrowRight" ||
+                          event.key === "ArrowLeft"
+                        )
+                          scrollDestinationPhoto(
+                            event,
+                            event.key === "ArrowRight" ? 1 : -1,
+                          );
+                      }}
                     >
                       <div className="upd-card__photo">
                         {place.image ? (
-                          <ContentImage
-                            src={place.image || ""}
-                            alt={place.title}
-                            loading={index < 3 ? "eager" : "lazy"}
-                            sizes="(max-width: 600px) 92vw, (max-width: 900px) 46vw, 400px"
+                          <DestinationCardPhotos
+                            images={
+                              place.images?.length
+                                ? place.images
+                                : [place.image]
+                            }
+                            title={place.title}
+                            eager={index < 3}
                           />
                         ) : (
                           <span className="upd-card__coming-soon">
@@ -370,6 +371,44 @@ export function PlannerBrowser({
                         </dl>
                       </div>
                     </a>
+                    {(place.images?.length || 0) > 1 && (
+                      <div className="planner-photo-controls">
+                        <button
+                          type="button"
+                          aria-label={`Previous photo of ${place.title}`}
+                          onClick={(e) => scrollDestinationPhoto(e, -1)}
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.7"
+                            aria-hidden="true"
+                          >
+                            <path d="m15 5-7 7 7 7" />
+                          </svg>
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Next photo of ${place.title}`}
+                          onClick={(e) => scrollDestinationPhoto(e, 1)}
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.7"
+                            aria-hidden="true"
+                          >
+                            <path d="m9 5 7 7-7 7" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
                     <div className="upd-card__save">
                       <BucketlistButton
                         placeId={place.id}

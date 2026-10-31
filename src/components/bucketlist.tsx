@@ -150,7 +150,7 @@ export function SavedPlacesPage({
     <>
       <div className="p2-section-head p2-saved-heading">
         <div>
-          <span className="p2-eyebrow">Discover · save · plan</span>
+          <span className="p2-eyebrow">Discover · unlock · claim</span>
           <h1>{portfolio ? "My Portfolio" : "My Bucketlist"}</h1>
           <p className="p2-muted">
             {portfolio
@@ -158,9 +158,11 @@ export function SavedPlacesPage({
               : "A little inspiration for your next escape. Turn saved Places into a trip."}
           </p>
         </div>
-        <a href="/itineraries/" className="p2-button">
-          Itinerary Planner ↗
-        </a>
+        {!portfolio && (
+          <a href="/itineraries/" className="p2-button">
+            Itinerary Planner ↗
+          </a>
+        )}
       </div>
       <nav className="p2-tabs" aria-label="Your places">
         <a href="/bucketlist/" aria-current={!portfolio ? "page" : undefined}>
@@ -230,16 +232,18 @@ export function SavedPlacesPage({
             {rows.length
               ? "No matching Places"
               : portfolio
-                ? "Your portfolio is empty"
+                ? "Build up your portfolio"
                 : "Your next adventure starts here"}
           </h2>
-          <p>
-            {rows.length
-              ? "Try a different name, area or category."
-              : portfolio
-                ? "Use Add to Portfolio on a destination you’ve visited to keep it here."
-                : "Save a destination while exploring Palawan, then add it to an itinerary."}
-          </p>
+          {(rows.length > 0 || !portfolio) && (
+            <p>
+              {rows.length
+                ? "Try a different name, area or category."
+                : portfolio
+                  ? "Use Add to Portfolio on a destination you’ve visited to keep it here."
+                  : "Save a destination while exploring Palawan, then add it to an itinerary."}
+            </p>
+          )}
           {rows.length ? (
             <button
               className="p2-button"
@@ -252,8 +256,8 @@ export function SavedPlacesPage({
               Clear filters
             </button>
           ) : (
-            <a href="/" className="p2-button">
-              Discover Palawan
+            <a href="/#palawan-map" className="p2-button">
+              {portfolio ? "Find destinations to add" : "Start unlocking"}
             </a>
           )}
         </div>

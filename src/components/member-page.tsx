@@ -246,7 +246,7 @@ export async function MemberPage({ kind }: { kind: string }) {
                           <p>
                             {current.premium
                               ? section.title === "My Portfolio"
-                                ? "Your portfolio is empty. Your visited destinations will appear here."
+                                ? "Build up your portfolio"
                                 : "Your bucketlist is empty — start exploring Palawan."
                               : section.title === "My Portfolio"
                                 ? "Keep the destinations you’ve visited in your travel portfolio."
@@ -257,7 +257,9 @@ export async function MemberPage({ kind }: { kind: string }) {
                             href={current.premium ? "/" : section.href}
                           >
                             {current.premium
-                              ? "Explore places"
+                              ? section.title === "My Portfolio"
+                                ? "Find destinations to add"
+                                : "Start unlocking"
                               : section.title === "My Portfolio"
                                 ? "View portfolio"
                                 : "View bucketlist"}

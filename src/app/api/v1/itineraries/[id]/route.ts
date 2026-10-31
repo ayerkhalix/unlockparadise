@@ -17,13 +17,20 @@ export async function PATCH(request: Request, { params }: Context) {
     verifyOrigin(request);
     const { db, user } = await requirePremium(request);
     const id = z.uuid().parse((await params).id);
-    const body = await input(request, planMutation);
-    const result = await db.rpc("plan_itinerary", {
-      trip_id: id,
-      expected_version: body.version,
-      action: body.action,
-      payload: body.payload,
-    });
+    const body = await input(request, planMutation, 512 * 1024);
+    const result =
+      body.action === "save_changes"
+        ? await db.rpc("save_itinerary_changes", {
+            trip_id: id,
+            expected_version: body.version,
+            changes: body.payload.items,
+          })
+        : await db.rpc("plan_itinerary", {
+            trip_id: id,
+            expected_version: body.version,
+            action: body.action,
+            payload: body.payload,
+          });
     planningError(result.error);
     return json({ data: await getTrip(db, user.id, id) });
   });

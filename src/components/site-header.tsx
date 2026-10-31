@@ -26,8 +26,8 @@ type Props = { tier: string; name?: string; photo?: string };
 const primaryLinks = [
   ["About", "/about/"],
   ["Membership", "/membership/"],
-  ["Merch", "/merch/"],
   ["Contact Us", "/contact/"],
+  ["Merch", "/merch/"],
   ["Itinerary Planner", "/itineraries/"],
 ];
 function currentPage(pathname: string, href: string) {

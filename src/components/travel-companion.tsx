@@ -122,7 +122,7 @@ export function TravelCompanion({ tier }: { tier: string }) {
               <h3>Your next adventure starts here.</h3>
               <p>Tap “Add to Bucketlist” on a destination to keep it close.</p>
               <a href="/" className="p2-button">
-                Discover Palawan
+                Start unlocking
               </a>
             </div>
           )}

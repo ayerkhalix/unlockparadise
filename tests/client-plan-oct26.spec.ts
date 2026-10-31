@@ -185,10 +185,10 @@ test("whole-trip schedule, persistent search, Safari time editing and confirmed 
   await expect(page.locator(".p3-day-selected")).toContainText("Day 3");
   const stop = page.locator(".p2-stop");
   await stop.locator(".p3-stop-timing summary").click();
-  const form = stop.locator(".p3-stop-timing form");
+  const form = stop.locator(".p3-stop-timing .p2-form");
   await setVisitTime(form, "Start", "13:05");
   await setVisitTime(form, "End", "14:50");
-  await form.getByRole("button", { name: "Save time", exact: true }).click();
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
   await expect(page.locator(".p2-save-feedback")).toHaveText("Saved");
   const deleteDay = page.getByRole("button", {
     name: `Delete ${dayLabel(originalDays[1], f.trip.start_date)}`,

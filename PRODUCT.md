@@ -1,5 +1,11 @@
 # Unlock Paradise
 
+## Client refinements — 31 October 2026
+
+The client approved Discover · unlock · claim / Start unlocking copy, a quieter Portfolio empty state and saved-place tabs, Contact Us before Merch, and signed-in account identity immediately before the checkout payment action. Membership purchases remain one-time payments for the selected term; this request does not enable recurring billing.
+
+Itinerary note/time edits share one Save changes action. Save succeeds atomically before clearing drafts; failure retains edits. Explore options and day/reorder/move transitions offer to save first rather than silently discarding edits. Structural additions/removals keep their existing confirmed persistence and Undo. Explore options retains category/transport filters, adds Assets, removes sort/Explorer+ controls, and supports native photo swiping plus keyboard/previous/next alternatives. Gallery API links explicitly declare image content so the lightbox fits the photograph rather than embedding an image response as a page.
+
 Unlock Paradise helps travelers discover Places in Palawan, save a Bucketlist, record visits and arrange day-by-day itineraries. Existing maps, destination photography and the original brand are the visual foundation.
 
 The product serves English-speaking travelers in the Philippine market. Currency is PHP; date display uses English Philippine conventions and Asia/Manila when time zones matter. Explorer and Explorer+ access, staff roles and MFA are enforced by the existing Next.js/Supabase server and database policies.

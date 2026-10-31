@@ -83,10 +83,9 @@ test("Explore options returns to a middle beach card after browser Back and Retu
       `/itineraries/explore/?trip=${trip.id}&day=${trip.itinerary_days[1].id}`,
     );
     await page.getByRole("button", { name: "Beaches", exact: true }).click();
-    await page
-      .getByRole("combobox", { name: "Sort by", exact: true })
-      .selectOption("date");
-    await expect(page).toHaveURL(/sort=date/);
+    await expect(
+      page.getByLabel("Destination filters").getByRole("combobox"),
+    ).toHaveCount(0);
     await expect(
       page.locator(".planner-destination-card").first(),
     ).toBeVisible();
@@ -175,8 +174,13 @@ test("Explore options returns to a middle beach card after browser Back and Retu
         page.getByRole("combobox", { name: "Itinerary day", exact: true }),
       ).toHaveValue(trip.itinerary_days[1].id);
       await expect(
-        page.getByRole("combobox", { name: "Sort by", exact: true }),
-      ).toHaveValue("date");
+        page.getByLabel("Destination filters").getByRole("combobox"),
+      ).toHaveCount(0);
+      await expect(
+        page
+          .getByLabel("Destination filters")
+          .locator(".planner-assets legend"),
+      ).toHaveText("Assets");
       await expect
         .poll(async () => {
           const rect = await page

@@ -563,3 +563,11 @@ Current-page feedback uses the existing teal and restrained underlining in mobil
 ### Public preview sharpness — 30 October 2026
 
 Published cover previews use the shared 256/384/640/1080/1920px candidates and the smallest adequate ready display file within the parent's storage bucket. The versioned stored derivative preserves proportional composition and explicit focal metadata, includes its requested width in the cache identity, and never enlarges a small source. The endpoint rechecks publication and the current cover before cached or conditional responses. It does not disclose an archive, private object path, original redirect or protected title. No Supabase runtime transformation is introduced. A low-resolution original requires a replacement photograph; larger CSS boxes or artificial enlargement cannot restore missing detail.
+
+### Client refinements — 31 October 2026
+
+Preserve the existing card/white-body, navy/teal/gold and compact mobile language. Saved-place tabs use an underline without a filled active surface. Portfolio omits its header Planner shortcut; its loaded-empty panel says Build up your portfolio, has no explanatory paragraph, and offers Find destinations to add. Bucketlist acquisition says Start unlocking. Primary navigation orders Contact Us before Merch.
+
+Planner note/time inputs remain visible/disclosed in their existing stop cards, with one Save changes action in the trip toolbar and no individual Save note/time buttons. Unsaved edits receive a concise reminder before the Add destination card. The same gap separates each planner view and Add destination. Explore options has Accessible by, Assets and reset; sort/direction/Explorer+ controls are retired here. Swipeable photos retain 4:3 framing, focal crops, one destination link per card and explicit sibling previous/next actions. A counter identifies the current photo. Only current/adjacent photos mount image requests, with native scroll snap and reduced-motion navigation.
+
+Gallery API links declare image type; the existing lightbox opens an image fitted to the viewport. The checkout Signed in as block moves directly above Continue to payment. Term descriptions say Pay once. Explore for your chosen term. This copy reflects the existing one-time integration and introduces no automatic renewal.

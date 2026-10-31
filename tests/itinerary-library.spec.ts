@@ -177,7 +177,7 @@ test("library covers, creation, guarded editor return and exploration preserve c
   const note = page.getByRole("textbox", { name: /Notes for this stop/ });
   await note.fill("An unsaved library-return note");
   await expect(
-    page.getByRole("button", { name: "Save note", exact: true }),
+    page.getByRole("button", { name: "Save changes", exact: true }),
   ).toBeEnabled();
   await expect(page.locator(".p2-workspace-status")).toContainText("unsaved");
   await page.getByRole("link", { name: "My itineraries", exact: true }).click();

@@ -6,7 +6,7 @@ import type { TravelPlace, Trip } from "@/lib/planning";
 import { withFocalPoint, associationFocalPoint } from "@/lib/focal-point";
 
 export const planningPlaceSelect =
-  "id,slug,title,vip_content,status,accessibility,assets,published_at,reviews(rating,status),travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,focal_x,focal_y,media(id,status)),place_details(latitude,longitude,access_points)";
+  "id,slug,title,vip_content,status,accessibility,assets,published_at,reviews(rating,status),travel_minutes,place_areas(areas(id,name,slug)),place_categories(categories(name,slug)),place_media(kind,position,focal_x,focal_y,media(id,status)),place_details(latitude,longitude,access_points)";
 type PlaceRow = {
   id: string;
   slug: string;
@@ -22,6 +22,7 @@ type PlaceRow = {
   place_categories: { categories: { name: string; slug: string } }[];
   place_media: {
     kind: string;
+    position?: number;
     focal_x?: number;
     focal_y?: number;
     media: { id: string; status: string } | null;
@@ -62,6 +63,27 @@ export function planningPlace(row: unknown): TravelPlace | null {
           associationFocalPoint(photo),
         )
       : null,
+    images: [
+      ...new Map(
+        p.place_media
+          .filter(
+            (m) =>
+              ["cover", "gallery"].includes(m.kind) && mediaAvailable(m.media),
+          )
+          .sort(
+            (a, b) =>
+              Number(b.kind === "cover") - Number(a.kind === "cover") ||
+              (a.position || 0) - (b.position || 0),
+          )
+          .map((m) => [
+            m.media!.id,
+            withFocalPoint(
+              `/api/media/${m.media!.id}/?variant=medium_large`,
+              associationFocalPoint(m),
+            ),
+          ]),
+      ).values(),
+    ],
     accessPoints: p.place_details.access_points || [],
     coordinates:
       p.place_details.longitude != null && p.place_details.latitude != null

@@ -14,6 +14,7 @@ import {
   dayLabel,
   tripDateLabel,
   stopTimeLabel,
+  stopTimeInput,
   type StopTime,
   type Trip,
   type TripItem,
@@ -41,57 +42,32 @@ import { PlannerStopActions } from "./planner-stop-actions";
 import { Icon } from "./icon";
 import { ContentImage } from "./ui/content-image";
 import { overlappingStops } from "@/lib/itinerary-schedule";
+type StopDraft = StopTime & { notes: string };
 function StopTiming({
   item,
-  onSave,
-  onDirtyChange,
+  onChange,
   conflicts = [],
 }: {
   item: TripItem;
-  onSave: (time: StopTime) => Promise<boolean>;
-  onDirtyChange: (dirty: boolean) => void;
+  onChange: (time: StopTime) => void;
   conflicts?: TripItem[];
 }) {
-  const initial = {
+  const time = {
     start_time: item.start_time?.slice(0, 5) || null,
     end_time: item.end_time?.slice(0, 5) || null,
   };
-  const [time, setTime] = useState<StopTime>(initial);
-  const dirty =
-    time.start_time !== initial.start_time ||
-    time.end_time !== initial.end_time;
-  useEffect(() => {
-    onDirtyChange(dirty);
-  }, [dirty, onDirtyChange]);
-  const [range, duration] = item.start_time
-    ? stopTimeLabel(item.start_time, item.end_time).split(" · ")
-    : ["Set visit time"];
+  const [range, duration] =
+    item.start_time && item.end_time
+      ? stopTimeLabel(item.start_time, item.end_time).split(" · ")
+      : ["Set visit time"];
   return (
     <details className="p2-stop-notes p3-stop-timing">
       <summary>
         <span>{range}</span>
         {duration && <small> · {duration}</small>}
       </summary>
-      <ValidatedForm
-        className="p2-form"
-        data-backend="true"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (await onSave(time)) {
-            onDirtyChange(false);
-          }
-        }}
-      >
-        <StopTimeFields
-          value={time}
-          onChange={(value) => {
-            setTime(value);
-            onDirtyChange(
-              value.start_time !== initial.start_time ||
-                value.end_time !== initial.end_time,
-            );
-          }}
-        />
+      <div className="p2-form">
+        <StopTimeFields value={time} onChange={onChange} />
         {overlappingStops([{ ...item, ...time }, ...conflicts]).has(
           item.id,
         ) && (
@@ -100,10 +76,7 @@ function StopTiming({
             or choose another time.
           </p>
         )}
-        <button className="p2-button p2-button--quiet" disabled={!dirty}>
-          Save time
-        </button>
-      </ValidatedForm>
+      </div>
     </details>
   );
 }
@@ -112,54 +85,27 @@ const clientReady = () => true;
 const serverReady = () => false;
 function StopNotes({
   item,
-  onSave,
-  onDirtyChange,
+  onChange,
 }: {
   item: TripItem;
-  onSave: (notes: string) => Promise<boolean>;
-  onDirtyChange: (dirty: boolean) => void;
+  onChange: (notes: string) => void;
 }) {
-  const [notes, setNotes] = useState(item.notes);
   const ready = useSyncExternalStore(subscribeReady, clientReady, serverReady);
-  const saved = item.notes;
-  const dirty = notes !== saved;
-  useEffect(() => {
-    onDirtyChange(dirty);
-  }, [dirty, onDirtyChange]);
   return (
     <div className="p2-stop-notes p3-stop-note-editor">
-      <ValidatedForm
-        data-backend="true"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          if (await onSave(notes)) {
-            onDirtyChange(false);
-          }
-        }}
-      >
-        <label htmlFor={`stop-notes-${item.id}`}>
-          <Icon name="Notes" size={14} /> Notes for this stop
-        </label>
-        <textarea
-          id={`stop-notes-${item.id}`}
-          className="resize-none"
-          disabled={!ready}
-          maxLength={2000}
-          rows={2}
-          placeholder="What would you like to remember?"
-          value={notes}
-          onChange={(e) => {
-            setNotes(e.target.value);
-            onDirtyChange(e.target.value !== saved);
-          }}
-        />
-        <button
-          className="p2-button p2-button--quiet"
-          disabled={notes === saved}
-        >
-          Save note
-        </button>
-      </ValidatedForm>
+      <label htmlFor={`stop-notes-${item.id}`}>
+        <Icon name="Notes" size={14} /> Notes for this stop
+      </label>
+      <textarea
+        id={`stop-notes-${item.id}`}
+        className="resize-none"
+        disabled={!ready}
+        maxLength={2000}
+        rows={2}
+        placeholder="What would you like to remember?"
+        value={item.notes}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }
@@ -177,6 +123,8 @@ export function ItineraryPlanner({
   onBusyChange: (busy: boolean) => void;
 }) {
   const dirtyNotes = useRef(new Set<string>());
+  const draftValues = useRef<Record<string, StopDraft>>({});
+  const [drafts, setDrafts] = useState<Record<string, StopDraft>>({});
   const [hasDrafts, setHasDrafts] = useState(false);
   const reportDirty = (dirty: boolean) => {
     setHasDrafts(dirty);
@@ -232,7 +180,6 @@ export function ItineraryPlanner({
         : "plan",
     ),
     [drag, setDrag] = useState<{ id: string; over: string } | null>(null);
-  const [draftRevision, setDraftRevision] = useState(0);
   const setView = (next: string) => {
     updateView(next);
     const url = new URL(location.href);
@@ -270,13 +217,7 @@ export function ItineraryPlanner({
   }, [initial.id, onUpdated]);
   const changeDay = async (id: string) => {
     if (id === day.id) return true;
-    if (
-      dirtyNotes.current.size &&
-      !(await ask("Discard unsaved stop notes or times before switching days?"))
-    )
-      return false;
-    dirtyNotes.current.clear();
-    reportDirty(false);
+    if (!(await ensureSaved("switching days"))) return false;
     const url = new URL(location.href);
     url.searchParams.set("trip", trip.id);
     url.searchParams.set("day", id);
@@ -348,6 +289,70 @@ export function ItineraryPlanner({
       setBusy(false);
     }
   }
+  const editDraft = (item: TripItem, change: Partial<StopDraft>) => {
+    const saved = {
+      notes: item.notes,
+      start_time: item.start_time?.slice(0, 5) || null,
+      end_time: item.end_time?.slice(0, 5) || null,
+    };
+    const value = { ...saved, ...draftValues.current[item.id], ...change };
+    const next = { ...draftValues.current };
+    if (
+      value.notes === saved.notes &&
+      value.start_time === saved.start_time &&
+      value.end_time === saved.end_time
+    )
+      delete next[item.id];
+    else next[item.id] = value;
+    draftValues.current = next;
+    dirtyNotes.current = new Set(Object.keys(next));
+    setDrafts(next);
+    reportDirty(dirtyNotes.current.size > 0);
+  };
+  async function saveDrafts() {
+    const entries = Object.entries(draftValues.current);
+    if (!entries.length) return true;
+    for (const [id, value] of entries) {
+      const validation = stopTimeInput.safeParse(value);
+      if (!validation.success) {
+        const message =
+          "Choose both visit times, with the end after the start, before saving changes.";
+        setError(message);
+        notify(message, true);
+        setView("plan");
+        requestAnimationFrame(() => {
+          const stop = document.getElementById(`stop-${id}`);
+          const timing = stop?.querySelector<HTMLDetailsElement>("details");
+          if (timing) timing.open = true;
+          timing
+            ?.querySelector<HTMLSelectElement>('select[aria-label="End hour"]')
+            ?.focus();
+        });
+        return false;
+      }
+    }
+    if (
+      !(await mutate("save_changes", {
+        items: entries.map(([item_id, value]) => ({ item_id, ...value })),
+      }))
+    )
+      return false;
+    draftValues.current = {};
+    dirtyNotes.current.clear();
+    setDrafts({});
+    reportDirty(false);
+    return true;
+  }
+  async function ensureSaved(destination: string) {
+    if (!dirtyNotes.current.size) return true;
+    if (
+      !(await ask(
+        `Save changes before ${destination}? Your notes and visit times will be saved together.`,
+      ))
+    )
+      return false;
+    return saveDrafts();
+  }
   const exploreMap = async () => {
     if (busy) return;
     if (!trip.area_id) {
@@ -355,15 +360,7 @@ export function ItineraryPlanner({
       notify("Choose an area for this trip first.");
       return;
     }
-    if (
-      dirtyNotes.current.size &&
-      !(await ask(
-        "Discard unsaved stop notes or times before browsing destinations?",
-      ))
-    )
-      return;
-    dirtyNotes.current.clear();
-    reportDirty(false);
+    if (!(await ensureSaved("exploring destinations"))) return;
     const query = new URLSearchParams({ trip: trip.id, day: day.id });
     const library = safeLibraryReturn(searchParams.get("return_to"));
     if (library) query.set("return_to", library);
@@ -371,17 +368,7 @@ export function ItineraryPlanner({
   };
   const reorder = async (from: number, to: number) => {
     if (from < 0 || to < 0 || to >= stops.length || from === to) return false;
-    if (dirtyNotes.current.size) {
-      if (
-        !(await ask(
-          "Discard unsaved notes or times before rearranging? Destinations will use their new position’s time slot.",
-        ))
-      )
-        return false;
-      dirtyNotes.current.clear();
-      reportDirty(false);
-      setDraftRevision((n) => n + 1);
-    }
+    if (!(await ensureSaved("rearranging destinations"))) return false;
     const order = stops.map((s) => s.id);
     order.splice(to, 0, order.splice(from, 1)[0]);
     return mutate("reorder", { day_id: day.id, item_ids: order });
@@ -391,12 +378,12 @@ export function ItineraryPlanner({
     action: "move" | "remove",
     dayId?: string,
   ) => {
-    const dirty =
-      dirtyNotes.current.has(item.id) ||
-      dirtyNotes.current.has(item.id + ":time");
     if (
-      dirty &&
-      !(await ask("Discard unsaved notes or times for this destination?"))
+      !(await ensureSaved(
+        action === "remove"
+          ? "removing this destination"
+          : "moving this destination",
+      ))
     )
       return false;
     const saved = await mutate(action, {
@@ -519,6 +506,13 @@ export function ItineraryPlanner({
         </div>
         <div className="p2-actions">
           <button
+            className="p2-button planner-save-changes"
+            disabled={busy || !hasDrafts || requiresReload}
+            onClick={() => void saveDrafts()}
+          >
+            {busy && saveState === "saving" ? "Saving…" : "Save changes"}
+          </button>
+          <button
             className="p2-button p2-button--quiet"
             disabled={busy || !exportMounted}
             aria-busy={!exportMounted}
@@ -540,7 +534,9 @@ export function ItineraryPlanner({
           </button>
           <button
             className="p2-button p2-button--quiet"
-            onClick={() => setEdit(true)}
+            onClick={async () => {
+              if (await ensureSaved("editing trip details")) setEdit(true);
+            }}
             disabled={busy}
           >
             Edit trip
@@ -556,7 +552,8 @@ export function ItineraryPlanner({
               disabled={busy}
               onClick={() => {
                 const failed = failedMutation.current;
-                if (failed) void mutate(failed.action, failed.payload);
+                if (failed?.action === "save_changes") void saveDrafts();
+                else if (failed) void mutate(failed.action, failed.payload);
               }}
             >
               Retry save
@@ -767,30 +764,15 @@ export function ItineraryPlanner({
                       </div>
                     </div>
                     <StopTiming
-                      key={`${item.id}:${item.start_time}:${item.end_time}:${draftRevision}`}
-                      item={item}
-                      conflicts={stops.filter((s) => s.id !== item.id)}
-                      onSave={(time) =>
-                        mutate("schedule", { item_id: item.id, ...time })
-                      }
-                      onDirtyChange={(dirty) => {
-                        const key = item.id + ":time";
-                        if (dirty) dirtyNotes.current.add(key);
-                        else dirtyNotes.current.delete(key);
-                        reportDirty(dirtyNotes.current.size > 0);
-                      }}
+                      item={{ ...item, ...drafts[item.id] }}
+                      conflicts={stops
+                        .filter((s) => s.id !== item.id)
+                        .map((s) => ({ ...s, ...drafts[s.id] }))}
+                      onChange={(time) => editDraft(item, time)}
                     />
                     <StopNotes
-                      key={`${item.id}:${draftRevision}`}
-                      item={item}
-                      onDirtyChange={(dirty) => {
-                        if (dirty) dirtyNotes.current.add(item.id);
-                        else dirtyNotes.current.delete(item.id);
-                        reportDirty(dirtyNotes.current.size > 0);
-                      }}
-                      onSave={(notes) =>
-                        mutate("notes", { item_id: item.id, notes })
-                      }
+                      item={{ ...item, ...drafts[item.id] }}
+                      onChange={(notes) => editDraft(item, { notes })}
                     />
                   </div>
                 </li>
@@ -809,7 +791,13 @@ export function ItineraryPlanner({
           className="planner-schedule-panel"
         >
           <TripSchedule
-            trip={trip}
+            trip={{
+              ...trip,
+              items: trip.items.map((item) => ({
+                ...item,
+                ...drafts[item.id],
+              })),
+            }}
             onStop={async (targetDay, id) => {
               if (!(await changeDay(targetDay.id))) return;
               setView("plan");
@@ -848,6 +836,11 @@ export function ItineraryPlanner({
           />
         </aside>
       </div>
+      {hasDrafts && (
+        <p className="planner-draft-reminder" role="status">
+          Save changes before exploring destinations.
+        </p>
+      )}
       {!trip.area_id ? (
         <div className="p2-empty">
           <h3>Choose your trip area</h3>

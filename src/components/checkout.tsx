@@ -102,18 +102,10 @@ export async function Checkout({
               <Icon name="Clock" size={22} />
               <span>
                 Pay once. Explore at your pace.
-                <strong>No automatic charges.</strong>
+                <strong>Access for your chosen membership term.</strong>
               </span>
             </li>
           </ul>
-          <div className="p3-checkout-identity">
-            <Icon name="Person" size={22} />
-            <div>
-              <span>Signed in as</span>
-              <strong>{current.user.email}</strong>
-              <a href="/account/">View account</a>
-            </div>
-          </div>
         </section>
         <section className="p3-checkout-panel" aria-label="Membership payment">
           {xendit && (
@@ -140,6 +132,7 @@ export async function Checkout({
             approved={approvedTestAccount}
             returnTo={returnTarget}
             ownerId={current.user.id}
+            accountEmail={current.user.email}
           />
           <p className="p3-checkout-support">
             A question before you go? <a href="/contact/">Contact us</a>

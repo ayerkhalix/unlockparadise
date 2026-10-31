@@ -2,6 +2,8 @@
 
 This expands the [29–30 October audit](UI_UX_AUDIT_2026_10_29.md). Checked items are implemented; verification details are recorded below. Open items distinguish confirmed limitations from further checks, rather than presenting every suggestion as a defect.
 
+The subsequent [31 October client refinements](CLIENT_REFINEMENTS_2026_10_31.md) cover the Portfolio/copy/navigation changes, one shared note/time save, Assets/photo swiping in Explore options, gallery fitting and checkout identity placement.
+
 ## Mobile density and images — current pass
 
 - [x] Bring login and registration content higher: remove the inherited 110px top padding, use the 64px phone header and 20px content inset.
