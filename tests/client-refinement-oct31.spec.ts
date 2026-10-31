@@ -265,6 +265,33 @@ test("one save persists all edited stops, preserves failed drafts, and saves bef
     await expect(page.locator(".p2-stops textarea").nth(1)).toHaveValue(
       "Pack a towel and sunblock",
     );
+    await stops
+      .nth(0)
+      .getByRole("textbox")
+      .fill("Keep this note when restoring");
+    await stops.nth(0).locator(".p2-stop-actions > summary").click();
+    await stops
+      .nth(0)
+      .getByRole("button", { name: "Remove destination", exact: true })
+      .click();
+    await expect(page.getByRole("dialog")).toContainText(
+      "Save changes before removing this destination?",
+    );
+    await page
+      .getByRole("dialog")
+      .getByRole("button", { name: "Save", exact: true })
+      .click();
+    await expect(stops).toHaveCount(1);
+    await page.getByRole("button", { name: "Undo removal", exact: true }).click();
+    await expect(stops).toHaveCount(2);
+    await expect(stops.nth(0).getByRole("textbox")).toHaveValue(
+      "Keep this note when restoring",
+    );
+    const restored: Trip = (await (await context.request.get(endpoint)).json())
+      .data;
+    expect(
+      restored.items.find((i) => i.place_id === first.id)?.start_time,
+    ).toMatch(/^08:00/);
     for (const view of ["Itinerary", "Schedule", "My route"]) {
       await page.getByRole("button", { name: view, exact: true }).click();
       const gap = await page.locator(".p2-planner--focused").evaluate((e) => {

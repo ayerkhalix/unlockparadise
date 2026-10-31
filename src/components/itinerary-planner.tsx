@@ -386,6 +386,8 @@ export function ItineraryPlanner({
       ))
     )
       return false;
+    const savedItem =
+      tripRef.current.items.find((stop) => stop.id === item.id) || item;
     const saved = await mutate(action, {
       item_id: item.id,
       ...(dayId ? { day_id: dayId } : {}),
@@ -401,12 +403,12 @@ export function ItineraryPlanner({
             const restored = await mutate(
               "restore",
               {
-                day_id: item.day_id,
-                place_id: item.place_id,
-                position: item.position,
-                notes: item.notes,
-                start_time: item.start_time?.slice(0, 5) || null,
-                end_time: item.end_time?.slice(0, 5) || null,
+                day_id: savedItem.day_id,
+                place_id: savedItem.place_id,
+                position: savedItem.position,
+                notes: savedItem.notes,
+                start_time: savedItem.start_time?.slice(0, 5) || null,
+                end_time: savedItem.end_time?.slice(0, 5) || null,
               },
               true,
             );

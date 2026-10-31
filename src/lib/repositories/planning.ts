@@ -39,6 +39,24 @@ export function planningPlace(row: unknown): TravelPlace | null {
   const photo = p.place_media.find(
     (m) => m.kind === "cover" && mediaAvailable(m.media),
   );
+  const photos = new Map<string, string>();
+  for (const association of p.place_media
+    .filter((m) => ["cover", "gallery"].includes(m.kind))
+    .sort(
+      (a, b) =>
+        Number(b.kind === "cover") - Number(a.kind === "cover") ||
+        (a.position || 0) - (b.position || 0),
+    )) {
+    const media = association.media;
+    if (!media || !mediaAvailable(media) || photos.has(media.id)) continue;
+    photos.set(
+      media.id,
+      withFocalPoint(
+        `/api/media/${media.id}/?variant=medium_large`,
+        associationFocalPoint(association),
+      ),
+    );
+  }
   return {
     id: p.id,
     areaIds: p.place_areas.map((a) => a.areas.id),
@@ -63,27 +81,7 @@ export function planningPlace(row: unknown): TravelPlace | null {
           associationFocalPoint(photo),
         )
       : null,
-    images: [
-      ...new Map(
-        p.place_media
-          .filter(
-            (m) =>
-              ["cover", "gallery"].includes(m.kind) && mediaAvailable(m.media),
-          )
-          .sort(
-            (a, b) =>
-              Number(b.kind === "cover") - Number(a.kind === "cover") ||
-              (a.position || 0) - (b.position || 0),
-          )
-          .map((m) => [
-            m.media!.id,
-            withFocalPoint(
-              `/api/media/${m.media!.id}/?variant=medium_large`,
-              associationFocalPoint(m),
-            ),
-          ]),
-      ).values(),
-    ],
+    images: [...photos.values()],
     accessPoints: p.place_details.access_points || [],
     coordinates:
       p.place_details.longitude != null && p.place_details.latitude != null
