@@ -140,7 +140,9 @@ test("notes expand opposite the time, keep drafts and save together; destination
     );
     await note.click();
     await stop.getByRole("textbox").fill("Bring water and a camera.");
-    await stop.getByRole("button", { name: "Notes", exact: true }).click();
+    await stop
+      .getByRole("button", { name: "Close editor", exact: true })
+      .click();
     await expect(stop.locator("textarea")).toBeHidden();
     await expect(page.locator(".p2-search-results")).toHaveCount(0);
     const search = page.getByRole("searchbox", {
@@ -163,7 +165,7 @@ test("notes expand opposite the time, keep drafts and save together; destination
       .getByRole("dialog")
       .getByRole("button", { name: "Cancel", exact: true })
       .click();
-    await stop.getByRole("button", { name: "Notes", exact: true }).click();
+    await stop.getByRole("button", { name: "Edit note", exact: true }).click();
     await expect(stop.getByRole("textbox")).toHaveValue(
       "Bring water and a camera.",
     );

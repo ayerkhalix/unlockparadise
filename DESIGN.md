@@ -575,3 +575,7 @@ Gallery API links declare image type; the existing lightbox opens an image fitte
 ## Client document refinement 1 November 2026
 
 The existing navy, teal and gold palette remains authoritative. Checkout puts the term choices before supporting information on mobile. Saved-place tabs retain white text with a single active underline; empty cards tighten their internal spacing. Stop cards pair a compact Notes disclosure on the left with visit time on the right, expanding notes across the available width. Review cards group a circular public avatar, name, gold stars, consented traveler identity and date; the heart sits at the far right. The Vision photograph reuses the About image fade. Runtime owners are client-todo.css and the existing shared components; mobile rules retain 44px targets and 16px text inputs.
+
+## Review and note reference follow-up
+
+Review badges show only the primary identity. Owner Edit/Delete actions move to a native three-dot disclosure in the upper-right corner; the heart keeps its existing right alignment. Stop notes become plain text beneath the category, with an unboxed pencil and Edit note affordance. The editor is inline and the global Save changes action remains canonical. Times stay on the right on desktop and align right below the content on narrow screens. Runtime styling stays in client-todo.css and the existing mobile cascade.

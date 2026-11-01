@@ -14,6 +14,7 @@ export default defineConfig({
     "**/mobile-density-quality.spec.ts",
     "**/client-refinement-oct31.spec.ts",
     "**/client-document-nov1.spec.ts",
+    "**/review-options.spec.ts",
     "**/home-loading.spec.ts",
     "**/explore-scroll-return.spec.ts",
   ],

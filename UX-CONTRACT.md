@@ -1,5 +1,11 @@
 # Unlock Paradise UX contract
 
+## Review menu and note reference follow-up
+
+Reviews show only the primary traveler identity badge. Interests remain available on their other established surfaces. Owners manage their review through a top-right three-dot native disclosure with Edit and Delete; the public heart remains at the far right below the content. The editor reuses ReviewForm in the shared Modal, protects unsaved edits, preserves failure drafts and submits an updated_at precondition. Owner updates are limited to text/rating by the database guard and strict API input; edits follow the existing moderation and review-writing gates. Authorship, approval and creation time remain server-owned. Delete retains the shared confirmation. Foreign and anonymous users cannot manage a review.
+
+Stop notes follow the supplied reference: plain text beneath the destination category, followed by a small pencil and Edit note control. Add note covers the empty state. Editing replaces the displayed text with a textarea; closing preserves the draft. Desktop visit times align on the right of the same stop, with a stacked right-aligned time on phone layouts. The global Save changes action remains the sole persistence action for note/time drafts.
+
 ## Client document refinements 1 November 2026
 
 Membership choices precede benefits and recent payment history on checkout; a verified payment return promotes its status above the choices. The signed-in account stays immediately above Continue to payment. Public copy is neutral; a compact Preview checkout disclosure remains while the provider is sandboxed. This does not authorize live payments or renewals.

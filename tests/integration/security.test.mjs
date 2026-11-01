@@ -203,7 +203,7 @@ test("PostgreSQL RLS and RPC enforce the complete access matrix", async (t) => {
     },
   );
   await t.test(
-    "reviews enforce ownership, one-per-place, moderation and no editing",
+    "reviews enforce ownership, one-per-place, moderation and owner-only editing",
     async () => {
       await asUser(
         db,
@@ -229,7 +229,7 @@ test("PostgreSQL RLS and RPC enforce the complete access matrix", async (t) => {
             `update public.reviews set rating=1 returning id`,
           )
         ).rows.length,
-        0,
+        1,
       );
       assert.equal(
         (await asUser(db, ids.other, "delete from public.reviews returning id"))

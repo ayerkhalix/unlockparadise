@@ -8,8 +8,10 @@ import { Icon } from "./icon";
 import { TravelerTitle } from "./traveler-title";
 export function TravelerBadges({
   identity,
+  showInterests = true,
 }: {
   identity: Pick<PublicTravelerBadge, "archetype" | "interests">;
+  showInterests?: boolean;
 }) {
   const archetype = archetypes[identity.archetype];
   if (!archetype) return null;
@@ -19,14 +21,15 @@ export function TravelerBadges({
         <Icon name={archetype.icon} size={14} />
         {archetype.label}
       </span>
-      {identity.interests.slice(0, 2).map((key) => {
-        const interest = interests.find((i) => i.key === key);
-        return interest ? (
-          <span key={key} className="td-badge">
-            {interest.label}
-          </span>
-        ) : null;
-      })}
+      {showInterests &&
+        identity.interests.slice(0, 2).map((key) => {
+          const interest = interests.find((i) => i.key === key);
+          return interest ? (
+            <span key={key} className="td-badge">
+              {interest.label}
+            </span>
+          ) : null;
+        })}
     </div>
   );
 }

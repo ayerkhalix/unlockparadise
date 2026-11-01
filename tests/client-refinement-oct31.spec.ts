@@ -275,7 +275,7 @@ test("one save persists all edited stops, preserves failed drafts, and saves bef
     );
     await stops
       .nth(0)
-      .getByRole("button", { name: "Notes", exact: true })
+      .getByRole("button", { name: "Edit note", exact: true })
       .click();
     await stops
       .nth(0)
@@ -300,7 +300,7 @@ test("one save persists all edited stops, preserves failed drafts, and saves bef
     await expect(stops).toHaveCount(2);
     await stops
       .nth(0)
-      .getByRole("button", { name: "Notes", exact: true })
+      .getByRole("button", { name: "Edit note", exact: true })
       .click();
     await expect(stops.nth(0).getByRole("textbox")).toHaveValue(
       "Keep this note when restoring",

@@ -27,7 +27,17 @@ export function iconPath(name: string) {
   return paths[name] || paths.Local;
 }
 export function Icon({ name, size = 24 }: { name: string; size?: number }) {
-  if (["Search", "Explore", "Notes", "Delete", "Heart"].includes(name))
+  if (
+    [
+      "Search",
+      "Explore",
+      "Notes",
+      "Delete",
+      "Heart",
+      "More",
+      "Pencil",
+    ].includes(name)
+  )
     return (
       <svg
         className="upd-icon"
@@ -50,6 +60,17 @@ export function Icon({ name, size = 24 }: { name: string; size?: number }) {
           <>
             <circle cx="12" cy="12" r="9" />
             <path d="m16 8-2 6-6 2 2-6 6-2Z" />
+          </>
+        ) : name === "Pencil" ? (
+          <>
+            <path d="m16 3 5 5M4 15l12-12a2.2 2.2 0 0 1 3 0l2 2a2.2 2.2 0 0 1 0 3L9 20l-6 1 1-6Z" />
+            <path d="m4 15 5 5" />
+          </>
+        ) : name === "More" ? (
+          <>
+            <circle cx="12" cy="5" r="1.2" fill="currentColor" />
+            <circle cx="12" cy="12" r="1.2" fill="currentColor" />
+            <circle cx="12" cy="19" r="1.2" fill="currentColor" />
           </>
         ) : name === "Heart" ? (
           <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z" />

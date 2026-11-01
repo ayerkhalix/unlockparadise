@@ -92,19 +92,28 @@ function StopNotes({
 }) {
   const ready = useSyncExternalStore(subscribeReady, clientReady, serverReady);
   const [open, setOpen] = useState(false);
+  const field = useRef<HTMLTextAreaElement>(null);
   return (
-    <>
-      <button
-        type="button"
-        className="p3-stop-note-toggle"
-        aria-expanded={open}
-        aria-controls={`stop-note-editor-${item.id}`}
-        disabled={!ready}
-        onClick={() => setOpen(!open)}
-      >
-        <Icon name="Notes" size={17} />
-        {item.notes ? "Notes" : "Add note"}
-      </button>
+    <div className="p3-stop-note">
+      <div className="p3-stop-note-line">
+        {!open && item.notes.trim() && (
+          <span className="p3-stop-note-value">{item.notes}</span>
+        )}
+        <button
+          type="button"
+          className="p3-stop-note-toggle"
+          aria-expanded={open}
+          aria-controls={`stop-note-editor-${item.id}`}
+          disabled={!ready}
+          onClick={() => {
+            setOpen(!open);
+            if (!open) requestAnimationFrame(() => field.current?.focus());
+          }}
+        >
+          <Icon name="Pencil" size={16} />
+          {open ? "Close editor" : item.notes.trim() ? "Edit note" : "Add note"}
+        </button>
+      </div>
       <div
         id={`stop-note-editor-${item.id}`}
         className="p2-stop-notes p3-stop-note-editor"
@@ -114,6 +123,7 @@ function StopNotes({
           Notes for {item.place?.title || "this stop"}
         </label>
         <textarea
+          ref={field}
           id={`stop-notes-${item.id}`}
           className="resize-none"
           disabled={!ready}
@@ -124,7 +134,7 @@ function StopNotes({
           onChange={(e) => onChange(e.target.value)}
         />
       </div>
-    </>
+    </div>
   );
 }
 export function ItineraryPlanner({
@@ -781,6 +791,10 @@ export function ItineraryPlanner({
                           {item.place?.category ||
                             "Your notes remain saved. This Place may be unpublished or restricted."}
                         </p>
+                        <StopNotes
+                          item={{ ...item, ...drafts[item.id] }}
+                          onChange={(notes) => editDraft(item, { notes })}
+                        />
                       </div>
                     </div>
                     <StopTiming
@@ -789,10 +803,6 @@ export function ItineraryPlanner({
                         .filter((s) => s.id !== item.id)
                         .map((s) => ({ ...s, ...drafts[s.id] }))}
                       onChange={(time) => editDraft(item, time)}
-                    />
-                    <StopNotes
-                      item={{ ...item, ...drafts[item.id] }}
-                      onChange={(notes) => editDraft(item, { notes })}
                     />
                   </div>
                 </li>

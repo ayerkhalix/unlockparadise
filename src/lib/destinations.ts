@@ -58,6 +58,7 @@ export interface Destination {
     avatar?: string;
     body: string;
     date: string;
+    updatedAt?: string;
     rating: number;
     title?: string;
     likes?: number;
@@ -84,7 +85,7 @@ export const destinationRepository = {
       const result = await db
         .from("places")
         .select(
-          "*,place_details(*),place_areas(areas(slug,name)),place_categories(categories(slug,name)),place_media(kind,position,focal_x,focal_y,media(id,bucket,object_path,status)),reviews(id,user_id,author_name,rating,title,body,created_at,status)",
+          "*,place_details(*),place_areas(areas(slug,name)),place_categories(categories(slug,name)),place_media(kind,position,focal_x,focal_y,media(id,bucket,object_path,status)),reviews(id,user_id,author_name,rating,title,body,created_at,updated_at,status)",
         )
         .eq(z.uuid().safeParse(slug).success ? "id" : "slug", slug)
         .maybeSingle();
@@ -232,6 +233,7 @@ export const destinationRepository = {
             author_name: string;
             body: string;
             created_at: string;
+            updated_at: string;
             rating: number;
             title: string;
             status: string;
@@ -248,6 +250,7 @@ export const destinationRepository = {
             })(),
             body: safeHtml(r.body),
             date: r.created_at,
+            updatedAt: r.updated_at,
             rating: r.rating,
             title: r.title,
             approved: r.status === "approved",

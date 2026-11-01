@@ -4,6 +4,7 @@ import { Icon } from "./icon";
 import { ReviewControls } from "./place-actions";
 import { TravelerBadges } from "./traveler-identity";
 import { ContentImage } from "./ui/content-image";
+import { ReviewOptions } from "./review-options";
 
 export function ReviewCard({
   review,
@@ -25,6 +26,20 @@ export function ReviewCard({
       .toUpperCase() || "?";
   return (
     <article className="upd-review">
+      {review.id &&
+        review.userId === viewerId &&
+        viewerId &&
+        review.updatedAt && (
+          <ReviewOptions
+            review={{
+              id: review.id,
+              rating: review.rating,
+              title: review.title || "",
+              body: review.body,
+              updatedAt: review.updatedAt,
+            }}
+          />
+        )}
       <header className="upd-review__header">
         <span className="upd-review__avatar" aria-hidden="true">
           {review.avatar ? (
@@ -56,7 +71,10 @@ export function ReviewCard({
             </span>
           )}
           {review.travelerIdentity && (
-            <TravelerBadges identity={review.travelerIdentity} />
+            <TravelerBadges
+              identity={review.travelerIdentity}
+              showInterests={false}
+            />
           )}
           {!Number.isNaN(date.getTime()) && (
             <time dateTime={date.toISOString()}>
@@ -80,7 +98,6 @@ export function ReviewCard({
         (viewerId ? (
           <ReviewControls
             id={review.id}
-            own={review.userId === viewerId}
             initialLikes={review.likes}
             initialLiked={review.liked}
           />

@@ -111,6 +111,12 @@ export const reviewInput = z
     body: z.string().trim().max(10000).default(""),
   })
   .strict();
+export const reviewEditInput = reviewInput
+  .omit({ place_id: true })
+  .extend({
+    updated_at: z.iso.datetime({ offset: true }),
+  })
+  .strict();
 export const profileInput = z
   .object({
     display_name: z.string().trim().min(2).max(40).optional(),

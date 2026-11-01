@@ -1,6 +1,5 @@
 "use client";
 import { ValidatedForm } from "./ui/validated-form";
-import { useDecision } from "./ui/decision";
 import { useState } from "react";
 import { Icon } from "./icon";
 import { useRouter } from "next/navigation";
@@ -98,8 +97,29 @@ export function PlaceActions({
   );
 }
 
-export function ReviewForm({ placeId }: { placeId?: string }) {
-  const [rating, setRating] = useState(0);
+export type ReviewEdit = {
+  id: string;
+  rating: number;
+  title: string;
+  body: string;
+  updatedAt: string;
+};
+export function ReviewForm({
+  placeId,
+  review,
+  onSaved,
+  onDirtyChange,
+  onBusyChange,
+  onCancel,
+}: {
+  placeId?: string;
+  review?: ReviewEdit;
+  onSaved?: (message: string) => void;
+  onDirtyChange?: () => void;
+  onBusyChange?: (busy: boolean) => void;
+  onCancel?: () => void;
+}) {
+  const [rating, setRating] = useState(review?.rating || 0);
   const [hover, setHover] = useState(0);
   const [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
@@ -107,30 +127,40 @@ export function ReviewForm({ placeId }: { placeId?: string }) {
   return (
     <ValidatedForm
       className="upd-review-form"
+      onChange={onDirtyChange}
       data-backend="true"
       onSubmit={async (event) => {
         event.preventDefault();
-        if (!placeId) return;
+        if ((!placeId && !review) || busy || !rating) return;
         setBusy(true);
+        onBusyChange?.(true);
         const values = new FormData(event.currentTarget);
         try {
-          const response = await fetch("/api/v1/reviews/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              place_id: placeId,
-              rating,
-              title: values.get("title"),
-              body: values.get("body"),
-            }),
-          });
+          const response = await fetch(
+            review ? `/api/v1/reviews/${review.id}/` : "/api/v1/reviews/",
+            {
+              method: review ? "PATCH" : "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...(review
+                  ? { updated_at: review.updatedAt }
+                  : { place_id: placeId }),
+                rating,
+                title: values.get("title"),
+                body: values.get("body"),
+              }),
+            },
+          );
           const result = await response.json();
           if (!response.ok) throw new Error(result.error);
-          setMessage(
+          const savedMessage =
             result.data.status === "pending"
               ? "Your review is awaiting approval."
-              : "Review posted.",
-          );
+              : review
+                ? "Review updated."
+                : "Review posted.";
+          setMessage(savedMessage);
+          onSaved?.(savedMessage);
           router.refresh();
         } catch (error) {
           setMessage(
@@ -138,6 +168,7 @@ export function ReviewForm({ placeId }: { placeId?: string }) {
           );
         } finally {
           setBusy(false);
+          onBusyChange?.(false);
         }
       }}
     >
@@ -153,7 +184,11 @@ export function ReviewForm({ placeId }: { placeId?: string }) {
             key={n}
             aria-label={`${n} star${n > 1 ? "s" : ""}`}
             aria-pressed={rating === n}
-            onClick={() => setRating(n)}
+            disabled={busy}
+            onClick={() => {
+              setRating(n);
+              onDirtyChange?.();
+            }}
             onMouseEnter={() => setHover(n)}
             onMouseLeave={() => setHover(0)}
           >
@@ -168,6 +203,8 @@ export function ReviewForm({ placeId }: { placeId?: string }) {
         maxLength={80}
         placeholder="Title (optional)"
         aria-label="Review title"
+        defaultValue={review?.title}
+        disabled={busy}
       />
       <textarea
         className="upd-review-body resize-none"
@@ -176,22 +213,34 @@ export function ReviewForm({ placeId }: { placeId?: string }) {
         rows={4}
         placeholder="Share your experience..."
         aria-label="Your review"
+        defaultValue={review?.body}
+        disabled={busy}
       />
       <div className="upd-review-actions">
         <button
           type="submit"
           className="upd-btn upd-btn--primary"
-          disabled={!placeId || busy || !rating}
+          disabled={(!placeId && !review) || busy || !rating}
         >
-          Post review
+          {busy ? "Saving…" : review ? "Save changes" : "Post review"}
         </button>
+        {onCancel && (
+          <button
+            type="button"
+            className="p2-button p2-button--quiet"
+            disabled={busy}
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+        )}
       </div>
       <p
-        className={placeId ? "upd-review-msg" : "phase1-pending"}
+        className={placeId || review ? "upd-review-msg" : "phase1-pending"}
         role="status"
       >
         {message ||
-          (!placeId
+          (!placeId && !review
             ? "Review posting is pending account and database integration."
             : "")}
       </p>
@@ -200,24 +249,19 @@ export function ReviewForm({ placeId }: { placeId?: string }) {
 }
 export function ReviewControls({
   id,
-  own,
   initialLikes = 0,
   initialLiked = false,
 }: {
   id: string;
-  own: boolean;
   initialLikes?: number;
   initialLiked?: boolean;
 }) {
-  const { ask, dialog } = useDecision();
   const [liked, setLiked] = useState(initialLiked),
     [count, setCount] = useState(initialLikes),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
-  const router = useRouter();
   return (
     <div className="upd-review-actions">
-      {dialog}
       <button
         className={`upd-like${liked ? " is-liked" : ""}`}
         type="button"
@@ -246,27 +290,6 @@ export function ReviewControls({
         <Icon name="Heart" size={24} />
         {count ? <span>{count}</span> : null}
       </button>
-      {own && (
-        <button
-          type="button"
-          className="upd-btn upd-btn--ghost"
-          onClick={async () => {
-            if (
-              !(await ask(
-                "Delete your review? You can write a new one afterwards.",
-              ))
-            )
-              return;
-            const r = await fetch(`/api/v1/reviews/${id}/`, {
-              method: "DELETE",
-            });
-            if (r.ok) router.refresh();
-            else setMessage((await r.json()).error);
-          }}
-        >
-          Delete review
-        </button>
-      )}
       <span role="status">{message}</span>
     </div>
   );

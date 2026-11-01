@@ -11,7 +11,12 @@ import { requireSession } from "@/lib/auth/session";
 import { serverSupabase, privilegedSupabase } from "@/lib/supabase/server";
 import { findPlaces, taxonomy } from "@/lib/repositories/places";
 import { mapConfiguration } from "@/lib/repositories/maps";
-import { profileInput, reviewInput, uuid } from "@/lib/validation";
+import {
+  profileInput,
+  reviewInput,
+  reviewEditInput,
+  uuid,
+} from "@/lib/validation";
 import { safeHtml } from "@/lib/html";
 import { rateLimit } from "@/lib/rate-limit";
 import { publicTravelerBadges } from "@/lib/repositories/traveler";
@@ -87,7 +92,7 @@ export async function GET(request: Request, { params }: Context) {
       const pid = uuid.parse(url.searchParams.get("place_id"));
       const result = await db
         .from("reviews")
-        .select("id,user_id,author_name,rating,title,body,status,created_at")
+        .select("id,user_id,author_name,rating,title,body,status,created_at,updated_at")
         .eq("place_id", pid)
         .order("created_at", { ascending: false })
         .limit(100);
@@ -241,9 +246,46 @@ export async function PATCH(request: Request, { params }: Context) {
   return api(async () => {
     verifyOrigin(request);
     const { resource } = await params;
-    if (resource.join("/") !== "me")
+    if (
+      resource.join("/") !== "me" &&
+      !(resource.length === 2 && resource[0] === "reviews")
+    )
       throw new ApiError(404, "Resource not found.");
     const current = await requireSession(request);
+    if (resource.length === 2 && resource[0] === "reviews") {
+      const id = uuid.parse(resource[1]);
+      const body = await input(request, reviewEditInput);
+      await rateLimit("review", current.user.id, 10, 600);
+      const own = await current.db
+        .from("reviews")
+        .select("id")
+        .eq("id", id)
+        .eq("user_id", current.user.id)
+        .maybeSingle();
+      databaseError(own.error);
+      if (!own.data) throw new ApiError(404, "Review not found.");
+      const result = await current.db
+        .from("reviews")
+        .update({
+          rating: body.rating,
+          title: body.title,
+          body: safeHtml(body.body),
+        })
+        .eq("id", id)
+        .eq("user_id", current.user.id)
+        .eq("updated_at", body.updated_at)
+        .select("id,status,updated_at")
+        .maybeSingle();
+      databaseError(result.error);
+      if (!result.data)
+        throw new ApiError(
+          409,
+          "This review changed. Close the editor and reload the page before saving again.",
+        );
+      return json({ data: result.data });
+    }
+    if (resource.join("/") !== "me")
+      throw new ApiError(404, "Resource not found.");
     const body = await input(request, profileInput);
     const result = await current.db
       .from("profiles")
