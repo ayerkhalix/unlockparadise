@@ -146,6 +146,21 @@ export function SiteHeader(props: Props) {
           {label}
         </a>
       ))}
+      <a
+        href="/#android-app"
+        onClick={() => {
+          if (!open) return;
+          setOpen(false);
+          if (pathname === "/")
+            requestAnimationFrame(() => {
+              const section = document.getElementById("android-app");
+              section?.focus({ preventScroll: true });
+              section?.scrollIntoView();
+            });
+        }}
+      >
+        Get the app
+      </a>
     </>
   );
   return (

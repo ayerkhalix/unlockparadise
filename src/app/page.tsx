@@ -12,6 +12,7 @@ import { travelPreferences } from "@/lib/repositories/traveler";
 import { interests } from "@/lib/traveler";
 import { TravelerInvitation } from "@/components/traveler-invitation";
 import { HomeMerch } from "@/components/merch/home-merch";
+import { AndroidDownload } from "@/components/android-download";
 import { catalog } from "@/lib/repositories/commerce";
 import { products as originalProducts } from "@/lib/merch-products";
 import originalMap from "@/data/map.json";
@@ -133,6 +134,7 @@ export default function HomePage() {
           >
             <HomeMerchPreview />
           </Suspense>
+          <AndroidDownload />
           <Suspense fallback={null}>
             <HomeInvitation />
           </Suspense>

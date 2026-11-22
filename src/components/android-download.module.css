@@ -1,0 +1,109 @@
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 570px) minmax(210px, 320px);
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1.5rem, 6vw, 5rem);
+  margin-block: clamp(2rem, 6vw, 4.5rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  border: 1px solid var(--p2-line);
+  border-radius: 20px;
+  background: var(--p2-panel);
+  color: var(--p2-text);
+  scroll-margin-top: 7rem;
+}
+
+.section:focus-visible {
+  outline: 2px solid var(--p2-teal);
+  outline-offset: 3px;
+}
+
+.content h2 {
+  max-width: 16ch;
+  margin: 0 0 0.75rem;
+  font-family: var(--p2-heading-font);
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.content > p {
+  max-width: 45ch;
+  margin: 0;
+  color: var(--p2-muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 1.5rem;
+}
+
+.releaseLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--p2-teal);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.content .version {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.install {
+  max-width: 44ch;
+  margin-top: 0.9rem;
+}
+
+.install summary {
+  width: fit-content;
+  min-height: 44px;
+  padding-block: 0.6rem;
+  box-sizing: border-box;
+  cursor: pointer;
+  color: var(--p2-teal);
+}
+
+.install p {
+  margin-block: 0 0.25rem;
+  color: var(--p2-muted);
+  font-size: 0.875rem;
+}
+
+.preview {
+  display: flex;
+  justify-content: center;
+  padding-block: clamp(0.5rem, 2vw, 1rem);
+  border-radius: 16px;
+  background: radial-gradient(
+    ellipse at center,
+    var(--p2-raised),
+    transparent 72%
+  );
+}
+
+.preview img {
+  display: block;
+  width: min(100%, 200px);
+  height: auto;
+  border: 4px solid var(--p2-navy);
+  border-radius: 20px;
+}
+
+@media (max-width: 760px) {
+  .section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    scroll-margin-top: 5rem;
+  }
+
+  .preview img {
+    width: min(100%, 180px);
+  }
+}
