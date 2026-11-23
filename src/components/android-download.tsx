@@ -3,9 +3,9 @@ import styles from "./android-download.module.css";
 
 const releases = "https://github.com/ayerkhalix/unlockparadise/releases";
 const androidRelease = {
-  tag: "android-v0.1.0-beta.1",
-  version: "0.1.0",
-  asset: "Unlock-Paradise-0.1.0-vertical-discovery.apk",
+  tag: "android-v0.1.0-beta.2",
+  version: "0.1.0-beta.2",
+  asset: "Unlock-Paradise-0.1.0-explorer-polish.apk",
   size: "138 MB",
 };
 const releaseUrl = `${releases}/tag/${androidRelease.tag}`;
@@ -34,7 +34,7 @@ export function AndroidDownload() {
           </a>
         </div>
         <p className={styles.version}>
-          Android beta · v{androidRelease.version} · {androidRelease.size}
+          Android · v{androidRelease.version} · {androidRelease.size}
         </p>
         <details className={styles.install}>
           <summary>How to install</summary>
