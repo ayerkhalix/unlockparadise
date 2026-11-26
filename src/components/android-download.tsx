@@ -3,9 +3,9 @@ import styles from "./android-download.module.css";
 
 const releases = "https://github.com/ayerkhalix/unlockparadise/releases";
 const androidRelease = {
-  tag: "android-v0.1.0-beta.4",
-  version: "0.1.0-beta.4",
-  asset: "Unlock-Paradise-0.1.0-beta.4.apk",
+  tag: "android-v0.1.0-beta.5",
+  version: "0.1.0-beta.5",
+  asset: "Unlock-Paradise-0.1.0-beta.5.apk",
   size: "125 MB",
 };
 const releaseUrl = `${releases}/tag/${androidRelease.tag}`;
